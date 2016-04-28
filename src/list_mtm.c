@@ -181,7 +181,7 @@ List listCopy(List list) {
 				}
 				item_to_copy = item_to_copy->Next;
 			} else {
-				destroyList(copy);
+				listDestroy(copy);
 				copy = NULL;
 			}
 		}
