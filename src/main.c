@@ -12,7 +12,7 @@
 #include "aux_macros.h"
 #include "list_mtm.h"
 
-typedef void* Element;
+/*typedef void* Element;
 
 typedef struct {
 
@@ -30,19 +30,18 @@ int compareElementId(void *a, void *b) {
 	if( a_ == b_ ) return 0;
 
 	else return -1;
-}
+}*/
 
-void freeElement( Element element ){
+void freeElement( void* element ){
 
-	 free( element );
+	 //free( element );
 	 element = NULL;
 }
 
-Element copyElement( Element element ){
+void* copyElement( void* element ){
 
-	void *temp = malloc( sizeof( *element ) );
-	memcpy( temp, element, sizeof( *element ) );
-
+	void *temp = malloc( sizeof( element ) );
+	memcpy( temp, element, sizeof( element ) );
 	return temp;
 }
 
@@ -50,43 +49,45 @@ bool list_mtm_TEST() {
 
 	bool final = true;
 
-	Element el1 = malloc( sizeof( element ));
-	Element el2 = malloc( sizeof( element ));
-	Element el3 = malloc( sizeof( element ));
+	int el1 = 1;
+	int el2 = 2;
+	int el3 = 3;
 
-	if( el1 && el2 && el3  ) {
+	List list = NULL;
 
-		( (element*) el1 )->id = 1;
-		( (element*) el2 )->id = 2;
-		( (element*) el3 )->id = 3;
+	// List is null everything is null
+	TEST_EQUALS(final, -1, listGetSize( list ));
+	TEST_EQUALS(final, NULL, listGetCurrent( list ));
+	TEST_EQUALS(final, NULL, listGetFirst( list ));
+	TEST_EQUALS(final, NULL, listGetNext( list ));
 
-		List list = NULL;
+	// list created, size zero everything else null
+	list = listCreate( copyElement, freeElement );
+	TEST_EQUALS(final, 0, listGetSize( list ));
+	TEST_EQUALS(final, NULL, listGetCurrent( list ));
+	TEST_EQUALS(final, NULL, listGetFirst( list ));
+	TEST_EQUALS(final, NULL, listGetNext( list ));
 
-		TEST_EQUALS(final, -1, listGetSize( list ));
 
-		list = listCreate( copyElement, freeElement );
+	//inserting first element el1
+	TEST_EQUALS(final, LIST_SUCCESS, listInsertFirst( list, &el1 ) );
+	TEST_EQUALS(final, 1 , *((int*)listGetFirst( list )) );
+	TEST_EQUALS(final, 1, listGetSize( list ));
+	TEST_EQUALS(final, 1, *((int*)listGetCurrent( list )) );
+	TEST_EQUALS(final, NULL, listGetNext( list ));
 
-		TEST_EQUALS(final, 0, listGetSize( list ));
-		TEST_EQUALS(final, NULL, listGetCurrent( list ));
-		TEST_EQUALS(final, NULL, listGetFirst( list ));
-		TEST_EQUALS(final, NULL, listGetNext( list ));
-
-		ListResult r = listInsertFirst( list, el1 );
-
-		TEST_EQUALS(final, LIST_SUCCESS, r );
-
-		TEST_EQUALS(final, 0 ,compareElementId( listGetFirst( list ), el1 ) );
-	}
-
-	freeElement( el1 );
-	freeElement( el2 );
-	freeElement( el3 );
+	// inserting next element
+	TEST_EQUALS(final, LIST_INVALID_CURRENT, listInsertAfterCurrent( list, &el2 ) );
+	//TEST_EQUALS(final, 1 ,  *((int*)listGetFirst( list )) );
+	//TEST_EQUALS(final, 2, listGetSize( list ));
 
 	return final;
 }
 
 int main(){
 
+
+	RUN_TEST( list_mtm_TEST );
 	return 0;
 }
 

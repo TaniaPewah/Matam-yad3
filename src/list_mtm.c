@@ -49,6 +49,7 @@ ListElement listGetFirst(List list) {
 	ListElement first = NULL;
 	if ((list != NULL) && (list->First != NULL)) {
 		first = list->First->Element;
+		list->Current = list->First;
 	}
 	return first;
 }
