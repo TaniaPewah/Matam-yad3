@@ -499,9 +499,9 @@ static void DestroyListItem(FreeListElement freeElement, ListItem item) {
 * @param list Target list to be deallocated. If list is NULL nothing will be
 * done
 */
-void listDestroy(List list) {
-	if (listClear(list) == LIST_SUCCESS) {
-		free(list);
+void listDestroy( List list ) {
+	if ( listClear(list) == LIST_SUCCESS) {
+		free( list );
 		list = NULL;
 	}
 }

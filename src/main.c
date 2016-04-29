@@ -45,6 +45,11 @@ void* copyElement( void* element ){
 	return temp;
 }
 
+bool isShorterThan(ListElement num, ListFilterKey length) {
+
+	return *(int*)num < *(int*) length;
+}
+
 bool list_mtm_TEST() {
 
 	bool final = true;
@@ -87,10 +92,29 @@ bool list_mtm_TEST() {
 	TEST_EQUALS(final, 2, listGetSize( list ));
 	TEST_EQUALS(final, 2, *((int*)listGetNext( list )));
 
+	List copy = listCopy( list );
+	TEST_EQUALS(final, 2,  *((int*)listGetCurrent( copy )));
+	TEST_EQUALS(final, 1 , *((int*)listGetFirst( copy )) );
+	TEST_EQUALS(final, 2 , *((int*)listGetNext( copy )) );
+	TEST_EQUALS(final, 2, listGetSize( copy ));
+
+	List filtered = listFilter( copy, isShorterThan, &el2 );
+	TEST_EQUALS(final, 1, listGetSize( filtered ));
+	listDestroy( filtered );
+
+	filtered = listFilter( copy, isShorterThan, &el1 );
+	TEST_EQUALS(final, 0, listGetSize( filtered ));
+	listDestroy( filtered );
+
+	filtered = listFilter( copy, isShorterThan, &el3 );
+	TEST_EQUALS(final, 2, listGetSize( filtered ));
+	listDestroy( filtered );
 
 
 	TEST_EQUALS(final, LIST_SUCCESS, listClear( list ));
 	listDestroy( list );
+	listDestroy( copy );
+	list = NULL;
 
 	TEST_EQUALS(final, -1, listGetSize( list ));
 	TEST_EQUALS(final, NULL, listGetCurrent( list ));
@@ -99,7 +123,6 @@ bool list_mtm_TEST() {
 
 
 	/*
-	listDestroy
 	listCopy
 	listFilter
 	*/
