@@ -92,12 +92,14 @@ bool list_mtm_TEST() {
 	TEST_EQUALS(final, 2, listGetSize( list ));
 	TEST_EQUALS(final, 2, *((int*)listGetNext( list )));
 
+	// testing list copy
 	List copy = listCopy( list );
 	TEST_EQUALS(final, 2,  *((int*)listGetCurrent( copy )));
 	TEST_EQUALS(final, 1 , *((int*)listGetFirst( copy )) );
 	TEST_EQUALS(final, 2 , *((int*)listGetNext( copy )) );
 	TEST_EQUALS(final, 2, listGetSize( copy ));
 
+	// testing different filters
 	List filtered = listFilter( copy, isShorterThan, &el2 );
 	TEST_EQUALS(final, 1, listGetSize( filtered ));
 	listDestroy( filtered );
@@ -110,22 +112,19 @@ bool list_mtm_TEST() {
 	TEST_EQUALS(final, 2, listGetSize( filtered ));
 	listDestroy( filtered );
 
-
+	// testing clear and destroy
 	TEST_EQUALS(final, LIST_SUCCESS, listClear( list ));
+	TEST_EQUALS(final, 0, listGetSize( list ));
+
 	listDestroy( list );
 	listDestroy( copy );
+
 	list = NULL;
 
 	TEST_EQUALS(final, -1, listGetSize( list ));
 	TEST_EQUALS(final, NULL, listGetCurrent( list ));
 	TEST_EQUALS(final, NULL, listGetFirst( list ));
 	TEST_EQUALS(final, NULL, listGetNext( list ));
-
-
-	/*
-	listCopy
-	listFilter
-	*/
 
 	return final;
 }
