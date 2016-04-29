@@ -74,12 +74,23 @@ bool list_mtm_TEST() {
 	TEST_EQUALS(final, 1 , *((int*)listGetFirst( list )) );
 	TEST_EQUALS(final, 1, listGetSize( list ));
 	TEST_EQUALS(final, 1, *((int*)listGetCurrent( list )) );
+	TEST_EQUALS(final, NULL, listGetCurrent( list ));
 	TEST_EQUALS(final, NULL, listGetNext( list ));
 
 	// inserting next element
-	TEST_EQUALS(final, LIST_INVALID_CURRENT, listInsertAfterCurrent( list, &el2 ) );
-	//TEST_EQUALS(final, 1 ,  *((int*)listGetFirst( list )) );
-	//TEST_EQUALS(final, 2, listGetSize( list ));
+	TEST_EQUALS(final, 1 , *((int*)listGetFirst( list )) );
+	TEST_EQUALS(final, LIST_SUCCESS, listInsertAfterCurrent( list, &el2 ) );
+	TEST_EQUALS(final, 1 ,  *((int*)listGetFirst( list )) );
+	TEST_EQUALS(final, 2, listGetSize( list ));
+	TEST_EQUALS(final, 2, *((int*)listGetNext( list )));
+
+
+	/*
+	listCreate
+	listDestroy
+	listCopy
+	listFilter
+	*/
 
 	return final;
 }
