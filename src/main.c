@@ -61,6 +61,9 @@ bool list_mtm_TEST() {
 	TEST_EQUALS(final, NULL, listGetFirst( list ));
 	TEST_EQUALS(final, NULL, listGetNext( list ));
 
+	// NULL - if one of the parameters is NULL or allocations failed.
+	TEST_EQUALS( final, NULL, listCreate( NULL, NULL ));
+
 	// list created, size zero everything else null
 	list = listCreate( copyElement, freeElement );
 	TEST_EQUALS(final, 0, listGetSize( list ));
@@ -74,8 +77,8 @@ bool list_mtm_TEST() {
 	TEST_EQUALS(final, 1 , *((int*)listGetFirst( list )) );
 	TEST_EQUALS(final, 1, listGetSize( list ));
 	TEST_EQUALS(final, 1, *((int*)listGetCurrent( list )) );
-	TEST_EQUALS(final, NULL, listGetCurrent( list ));
 	TEST_EQUALS(final, NULL, listGetNext( list ));
+	TEST_EQUALS(final, NULL, listGetCurrent( list ));
 
 	// inserting next element
 	TEST_EQUALS(final, 1 , *((int*)listGetFirst( list )) );
@@ -85,8 +88,17 @@ bool list_mtm_TEST() {
 	TEST_EQUALS(final, 2, *((int*)listGetNext( list )));
 
 
+
+	TEST_EQUALS(final, LIST_SUCCESS, listClear( list ));
+	listDestroy( list );
+
+	TEST_EQUALS(final, -1, listGetSize( list ));
+	TEST_EQUALS(final, NULL, listGetCurrent( list ));
+	TEST_EQUALS(final, NULL, listGetFirst( list ));
+	TEST_EQUALS(final, NULL, listGetNext( list ));
+
+
 	/*
-	listCreate
 	listDestroy
 	listCopy
 	listFilter
