@@ -46,9 +46,11 @@ ClientResult clientCreate(const char* email, int apartment_min_area,
 	if (client->email == NULL) {
 		free(client);
 		return CLIENT_OUT_OF_MEMORY;
+	} else {
+		client->total_mony_paid = 0;
+		*result = client;
+		return CLIENT_SUCCESS;
 	}
-	*result = client;
-	return CLIENT_SUCCESS;
 }
 
 /**

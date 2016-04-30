@@ -4,7 +4,6 @@
 #include <string.h>
 #include "clientsManager.h"
 #include "client.h"
-#include "string.h"
 #include "map.h"
 
 struct clientsManager_t {
