@@ -50,7 +50,7 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client);
 
 /**
 * clientsManagerRemove: removes the given client from the collection.
-* note that the client will not be deallocated!
+* note that the client will be deallocated!
 *
 * @param manager Target clients Manager to remove from.
 * @param email Target client email to remove.
