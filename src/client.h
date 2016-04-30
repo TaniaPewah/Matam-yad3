@@ -1,7 +1,7 @@
 #ifndef SRC_CLIENT_H_
 #define SRC_CLIENT_H_
 
-#define NO_CLIENT_VAL 0
+#define NO_CLIENT_VAL -1
 #define AT_SIGN '@'
 
 /**

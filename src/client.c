@@ -38,9 +38,9 @@ static bool isEmailValid(const char* email);
 ClientResult clientCreate(const char* email, int apartment_min_area,
 		int apartment_min_rooms, int apartment_max_price, Client* result) {
 	if ((result == NULL) || (!isEmailValid(email)) ||
-		(apartment_min_area < 0) || (apartment_min_area < 0) ||
-		 (apartment_min_area < 0)) return CLIENT_INVALID_PARAMETERS;
-	Client client = malloc (sizeof(Client*));
+		(apartment_min_area <= 0) || (apartment_min_rooms <= 0) ||
+		 (apartment_max_price <= 0)) return CLIENT_INVALID_PARAMETERS;
+	Client client = malloc (sizeof(*client));
 	if (client == NULL) return CLIENT_OUT_OF_MEMORY;
 	client->email = strdup(email);
 	if (client->email == NULL) {
@@ -48,6 +48,9 @@ ClientResult clientCreate(const char* email, int apartment_min_area,
 		return CLIENT_OUT_OF_MEMORY;
 	} else {
 		client->total_money_paid = 0;
+		client->apartment_min_area = apartment_min_area;
+		client->apartment_min_rooms = apartment_min_rooms;
+		client->apartment_max_price = apartment_max_price;
 		*result = client;
 		return CLIENT_SUCCESS;
 	}
