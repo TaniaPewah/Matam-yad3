@@ -12,9 +12,13 @@ typedef struct ListItem_t *Client;
 
 struct Cliet_t {
 	char* Email;
-	char* Name;
+	int Apartment_Min_Area;
+	int Apartment_Min_Rooms;
+	int Apartment_Max_Price;
 	int Total_Mony_Paid;
 };
 
 
 #endif /* SRC_CLIENT_H_ */
+
+Client ClientCreate();
