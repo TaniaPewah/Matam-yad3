@@ -4,6 +4,7 @@
 #include <string.h>
 #include "client.h"
 
+
 struct Cliet_t {
 	char* email;
 	int apartment_min_area;
