@@ -9,7 +9,7 @@ struct Cliet_t {
 	int apartment_min_area;
 	int apartment_min_rooms;
 	int apartment_max_price;
-	int total_mony_paid;
+	int total_money_paid;
 };
 
 static bool isEmailValid(const char* email);
@@ -47,7 +47,7 @@ ClientResult clientCreate(const char* email, int apartment_min_area,
 		free(client);
 		return CLIENT_OUT_OF_MEMORY;
 	} else {
-		client->total_mony_paid = 0;
+		client->total_money_paid = 0;
 		*result = client;
 		return CLIENT_SUCCESS;
 	}
@@ -146,7 +146,7 @@ int clientGetMaxPrice(Client client) {
 */
 void clientAddPayment(Client client, int payment) {
 	if ((client != NULL) && (payment > 0)) {
-		client->total_mony_paid += payment;
+		client->total_money_paid += payment;
 	}
 }
 
@@ -160,5 +160,5 @@ void clientAddPayment(Client client, int payment) {
 */
 int clientGetTotalPayments(Client client) {
 	if (client == NULL) return NO_CLIENT_VAL;
-	return client->total_mony_paid;
+	return client->total_money_paid;
 }
