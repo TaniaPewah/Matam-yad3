@@ -1,17 +1,18 @@
-/*
- * Client.h
- *
- *  Created on: 30 באפר׳ 2016
- *      Author: binder
- */
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <string.h>
+#include "client.h"
 
-#ifndef SRC_CLIENT_H_
-#define SRC_CLIENT_H_
+struct Cliet_t {
+	char* email;
+	int apartment_min_area;
+	int apartment_min_rooms;
+	int apartment_max_price;
+	int total_mony_paid;
+};
 
-#define NO_CLIENT_VAL 0
-#define AT_SIGN '@'
-
-typedef struct Cliet_t *Client;
+static bool isEmailValid(const char* email);
 
 /**
 * Allocates a new client.
@@ -31,7 +32,31 @@ typedef struct Cliet_t *Client;
 * 	A new clients in case of success.
 */
 Client clientCreate(const char* email, int apartment_min_area,
-		int apartment_min_rooms, int apartment_max_price);
+		int apartment_min_rooms, int apartment_max_price) {
+	if (!isEmailValid(email)) return NULL;
+	if (apartment_min_area < 0 || apartment_min_area < 0 ||
+			apartment_min_area < 0) return NULL;
+	Client client = malloc (sizeof(Client*));
+	if (client == NULL) return false;
+	client->email = strdup(email);
+	if (client->email == NULL) {
+		free(client);
+		client = NULL;
+	}
+	return client;
+}
+
+/**
+* isMainValied: checks if the given email adress is Valid.
+*
+* @param email email to check.
+*
+* @return
+* 	false if email is NULL or does not contian AT_SIGN, else return true
+*/
+static bool isEmailValid(const char* email) {
+	return ((email != NULL) && (strchr(email, AT_SIGN) != NULL));
+}
 
 /**
 * ClientDestroy: Deallocates an existing client.
@@ -40,7 +65,12 @@ Client clientCreate(const char* email, int apartment_min_area,
 * @param client Target client to be deallocated.
 * If client is NULL nothing will be done
 */
-void clientDestroy(Client client);
+void clientDestroy(Client client) {
+	if (client != NULL) {
+		free(client->email);
+		free(client);
+	}
+}
 
 /**
 * clientGetMail: gets the given client email.
@@ -51,7 +81,10 @@ void clientDestroy(Client client);
 * 	NULL - if client is NULL
 * 	The clients email in case of success.
 */
-char* clientGetMail(Client client);
+char* clientGetMail(Client client) {
+	if (client == NULL) return NULL;
+	return client->email;
+}
 
 /**
 * clientGetMinArea: gets the given client minimal apartment area wanted.
@@ -62,7 +95,10 @@ char* clientGetMail(Client client);
 * 	NO_CLIENT_VAL - if client is NULL
 * 	The clients minimal apartment area wanted in case of success.
 */
-int clientGetMinArea(Client client);
+int clientGetMinArea(Client client) {
+	if (client == NULL) return NO_CLIENT_VAL;
+	return client->apartment_min_area;
+}
 
 /**
 * clientGetMinRooms: gets the given client minimal room count wanted.
@@ -73,7 +109,10 @@ int clientGetMinArea(Client client);
 * 	NO_CLIENT_VAL - if client is NULL
 * 	The clients minimal room count wanted in case of success.
 */
-int clientGetMinRooms(Client client);
+int clientGetMinRooms(Client client) {
+	if (client == NULL) return NO_CLIENT_VAL;
+	return client->apartment_min_rooms;
+}
 
 /**
 * clientGetMaxPrice: gets the given client maximum price that can be paid for
@@ -85,7 +124,10 @@ int clientGetMinRooms(Client client);
 * 	NO_CLIENT_VAL - if client is NULL
 * 	The clients  maximum price that can be paid for an apartment.
 */
-int clientGetMaxPrice(Client client);
+int clientGetMaxPrice(Client client) {
+	if (client == NULL) return NO_CLIENT_VAL;
+	return client->apartment_max_price;
+}
 
 /**
 * clientAddPaiment: Adds an apartment payment to the given client.
@@ -95,7 +137,11 @@ int clientGetMaxPrice(Client client);
 *
 * If client is NULL or payment is negative nothing will be done
 */
-void clientAddPayment(Client client, int payment);
+void clientAddPayment(Client client, int payment) {
+	if ((client != NULL) && (payment > 0)) {
+		client->total_mony_paid += payment;
+	}
+}
 
 /**
 * clientGetTotalPayments: gets the total payments sum the client payed.
@@ -105,7 +151,7 @@ void clientAddPayment(Client client, int payment);
 * 	NO_CLIENT_VAL - if client is NULL
 * 	or the clients total payments sum in case of success.
 */
-int clientGetTotalPayments(Client client);
-
-
-#endif /* SRC_CLIENT_H_ */
+int clientGetTotalPayments(Client client) {
+	if (client == NULL) return NO_CLIENT_VAL;
+	return client->total_mony_paid;
+}
