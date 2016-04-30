@@ -18,6 +18,7 @@ static void FreeKey(MapKeyElement key);
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
 static void freeListElement(ListElement element);
 static ListElement copyListElement(ListElement element);
+static int compareListElements(ListElement first, ListElement second);
 
 /**
 * Allocates a new ClientsManager.
@@ -151,19 +152,23 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 		List* list) {
 	if (manager == NULL || list == NULL)
 		return CLIENT_MANAGRE_INVALID_PARAMETERS;
-	List new_list = listCreate(freeListElement, copyListElement);
+	List new_list = listCreate(copyListElement, freeListElement);
 	if (new_list == NULL) return CLIENT_MANAGRE_OUT_OF_MEMORY;
 	bool error = false;
 	MapDataElement element = mapGetFirst(manager->clientsMap);
 	while (element != NULL && !error) {
-		error = listInsertLast(new_list, (ListElement)((Client)element))
-				!= LIST_SUCCESS;
+		Client client = (Client)mapGet(manager->clientsMap, element);
+		if (clientGetTotalPayments(client) > 0) {
+			error = listInsertLast(new_list, (ListElement)(client))
+					!= LIST_SUCCESS;
+		}
+		element = mapGetNext(manager->clientsMap);
 	}
 	if (error) {
 		listDestroy(new_list);
 		return CLIENT_MANAGRE_OUT_OF_MEMORY;
-
 	} else {
+		listSort(new_list, compareListElements);
 		return CLIENT_MANAGRE_SUCCESS;
 	}
 }
@@ -173,5 +178,16 @@ void freeListElement(ListElement element) {
 }
 
 ListElement copyListElement(ListElement element) {
-	return (Client)element; // Do copy, use the same client
+	return (Client)element; // Don't copy, use the same client!
+}
+
+
+static int compareListElements(ListElement first, ListElement second) {
+	int diff = clientGetTotalPayments((Client)first) -
+			 clientGetTotalPayments((Client)second);
+	if (diff == 0) {
+		diff = strcmp(clientGetMail((Client)first),
+			clientGetMail((Client)second));
+	}
+	return diff;
 }
