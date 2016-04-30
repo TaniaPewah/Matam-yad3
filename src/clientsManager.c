@@ -5,6 +5,7 @@
 #include "clientsManager.h"
 #include "client.h"
 #include "map.h"
+#include "list.h"
 
 struct clientsManager_t {
 	Map clientsMap;
@@ -15,6 +16,8 @@ static MapKeyElement GetKeyCopy(constMapKeyElement key);
 static void FreeData(MapDataElement data);
 static void FreeKey(MapKeyElement key);
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
+static void freeListElement(ListElement element);
+static ListElement copyListElement(ListElement element);
 
 /**
 * Allocates a new ClientsManager.
@@ -142,4 +145,33 @@ ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
 		return CLIENT_MANAGRE_NOT_EXISTS;
 	*client = (Client)mapGet(manager->clientsMap, (constMapKeyElement)email);
 	return CLIENT_MANAGRE_SUCCESS;
+}
+
+ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
+		List* list) {
+	if (manager == NULL || list == NULL)
+		return CLIENT_MANAGRE_INVALID_PARAMETERS;
+	List new_list = listCreate(freeListElement, copyListElement);
+	if (new_list == NULL) return CLIENT_MANAGRE_OUT_OF_MEMORY;
+	bool error = false;
+	MapDataElement element = mapGetFirst(manager->clientsMap);
+	while (element != NULL && !error) {
+		error = listInsertLast(new_list, (ListElement)((Client)element))
+				!= LIST_SUCCESS;
+	}
+	if (error) {
+		listDestroy(new_list);
+		return CLIENT_MANAGRE_OUT_OF_MEMORY;
+
+	} else {
+		return CLIENT_MANAGRE_SUCCESS;
+	}
+}
+
+void freeListElement(ListElement element) {
+	// Do nothing, don't deallocate the client! still using it in the map!
+}
+
+ListElement copyListElement(ListElement element) {
+	return (Client)element; // Do copy, use the same client
 }
