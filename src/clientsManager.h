@@ -12,7 +12,7 @@ typedef enum {
 	CLIENT_MANAGRE_ALREADY_EXISTS = 2,
 	CLIENT_MANAGRE_NOT_EXISTS = 3,
 	CLIENT_MANAGRE_SUCCESS = 4
-} ClientsManagerCode;
+} ClientsManagerResult;
 
 typedef struct clientsManager_t *ClientsManager;
 
@@ -43,36 +43,38 @@ void clientsManagerDestroy(ClientsManager manager);
 * @return
 * 	CLIENT_MANAGRE_INVALID_PARAMETERS - if client is NULL.
 * 	CLIENT_MANAGRE_ALREADY_EXISTS - if client email already registered.
+* 	CLIENT_MANAGRE_OUT_OF_MEMORY - if failed allocating.
 * 	CLIENT_MANAGRE_SUCCESS - in case of success.
 */
-ClientsManagerCode clientsManagerAdd(ClientsManager manager, Client client);
+ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client);
 
 /**
 * clientsManagerRemove: removes the given client from the collection.
 * note that the client will not be deallocated!
 *
 * @param manager Target clients Manager to remove from.
-* @param client Target client to remove.
+* @param email Target client email to remove.
 *
 * @return
 * 	CLIENT_MANAGRE_INVALID_PARAMETERS - if client is NULL.
 * 	CLIENT_MANAGRE_NOT_EXISTS - if client is not registered.
 * 	CLIENT_MANAGRE_SUCCESS - in case of success.
 */
-ClientsManagerCode clientsManagerRemove(ClientsManager manager, Client client);
+ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email);
 
 /**
 * clientsManagerGetClient: searches for client with the specified email address
 *
 * @param manager Target clients Manager to search in.
 * @param email address to search. searches by string value and not by pointers.
+* @param client pointer to save client in.
 *
 * @return
-* 	NULL if manager is NULL or client email not registered,
-* 	else in case of success.
+* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if manager or email are NULL.
+* 	CLIENT_MANAGRE_NOT_EXISTS - if client is not registered.
+* 	CLIENT_MANAGRE_SUCCESS - in case of success.
 */
-Client clientsManagerGetClient(ClientsManager manager, char* email);
-
-
+ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
+		char* email, Client* client);
 
 #endif /* SRC_CLIENTSMANAGER_H_ */

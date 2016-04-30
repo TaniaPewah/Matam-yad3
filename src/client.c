@@ -35,7 +35,7 @@ static bool isEmailValid(const char* email);
 * 	CLIENT_SUCCESS - in case of success.  A new client is saved in the result
 * 	parameter.
 */
-ClientCode clientCreate(const char* email, int apartment_min_area,
+ClientResult clientCreate(const char* email, int apartment_min_area,
 		int apartment_min_rooms, int apartment_max_price, Client* result) {
 	if ((result == NULL) || (!isEmailValid(email)) ||
 		(apartment_min_area < 0) || (apartment_min_area < 0) ||

@@ -11,7 +11,7 @@ typedef enum {
 	CLIENT_OUT_OF_MEMORY = 0,
 	CLIENT_INVALID_PARAMETERS = 1,
 	CLIENT_SUCCESS = 2
-} ClientCode;
+} ClientResult;
 
 typedef struct Cliet_t *Client;
 
@@ -36,7 +36,7 @@ typedef struct Cliet_t *Client;
 * 	CLIENT_SUCCESS - in case of success.  A new client is saved in the result
 * 	parameter.
 */
-ClientCode clientCreate(const char* email, int apartment_min_area,
+ClientResult clientCreate(const char* email, int apartment_min_area,
 		int apartment_min_rooms, int apartment_max_price, Client* result);
 
 /**
