@@ -148,6 +148,19 @@ ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
 	return CLIENT_MANAGRE_SUCCESS;
 }
 
+/**
+* clientsManagerGetSortedPayments: creates a list of all the registered clients
+* who bought apartments, sorted firstly by the payment size, and secondly
+* Alphabetically by the email
+*
+* @param manager Target clients Manager to use.
+* @param list pointer to save destination list in.
+*
+* @return
+* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if manager or list are NULL.
+* 	CLIENT_MANAGRE_OUT_OF_MEMORY - in case of allocation failure.
+* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+*/
 ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 		List* list) {
 	if (manager == NULL || list == NULL)
@@ -173,15 +186,17 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 	}
 }
 
-void freeListElement(ListElement element) {
+/** Function to be used for freeing data elements from list */
+static void freeListElement(ListElement element) {
 	// Do nothing, don't deallocate the client! still using it in the map!
 }
 
-ListElement copyListElement(ListElement element) {
+/** Function to be used for coping data elements from list */
+static ListElement copyListElement(ListElement element) {
 	return (Client)element; // Don't copy, use the same client!
 }
 
-
+/** Function to be used for comparing data elements in the list */
 static int compareListElements(ListElement first, ListElement second) {
 	int diff = clientGetTotalPayments((Client)first) -
 			 clientGetTotalPayments((Client)second);
