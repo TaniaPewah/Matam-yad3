@@ -1,15 +1,17 @@
-/*
- * Client.h
- *
- *  Created on: 30 באפר׳ 2016
- *      Author: binder
- */
-
 #ifndef SRC_CLIENT_H_
 #define SRC_CLIENT_H_
 
 #define NO_CLIENT_VAL 0
 #define AT_SIGN '@'
+
+/**
+* This type defines end codes for the methods.
+*/
+typedef enum {
+	CLIENT_OUT_OF_MEMORY = 0,
+	CLIENT_INVALID_PARAMETERS = 1,
+	CLIENT_SUCCESS = 2
+} ClientCode;
 
 typedef struct Cliet_t *Client;
 
@@ -23,19 +25,23 @@ typedef struct Cliet_t *Client;
 * @param apartment_min_area minimal area for the clients wanted apartments
 * @param apartment_min_rooms minimal room count in clients wanted apartments
 * @param apartment_max_price maximum price for the clients wanted apartments
+* @param result pointer to save the result client in
 *
 * @return
-* 	NULL - if one email is NULL or does not contain the character AT_SIGN,
-* 	apartment_min_area apartment_min_rooms or apartment_max_price is not bigger
-* 	then zero  or allocations failed.
-* 	A new clients in case of success.
+*
+* 	CLIENT_INVALID_PARAMETERS - if one email is NULL or does not contain the
+* 	character AT_SIGN, apartment_min_area apartment_min_rooms or
+* 	apartment_max_price is not bigger then zero, or result is NULL.
+* 	CLIENT_OUT_OF_MEMORY - if allocations failed
+* 	CLIENT_SUCCESS - in case of success.  A new client is saved in the result
+* 	parameter.
 */
-Client clientCreate(const char* email, int apartment_min_area,
-		int apartment_min_rooms, int apartment_max_price);
+ClientCode clientCreate(const char* email, int apartment_min_area,
+		int apartment_min_rooms, int apartment_max_price, Client* result);
 
 /**
 * ClientDestroy: Deallocates an existing client.
-* Clears all elements by using the stored free function.
+* Clears the element by using the stored free function.
 *
 * @param client Target client to be deallocated.
 * If client is NULL nothing will be done

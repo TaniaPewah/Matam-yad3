@@ -3,7 +3,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include "client.h"
-//ggg
 
 struct Cliet_t {
 	char* email;
@@ -25,26 +24,31 @@ static bool isEmailValid(const char* email);
 * @param apartment_min_area minimal area for the clients wanted apartments
 * @param apartment_min_rooms minimal room count in clients wanted apartments
 * @param apartment_max_price maximum price for the clients wanted apartments
+* @param result pointer to save the result client in
 *
 * @return
-* 	NULL - if one email is NULL or does not contain the character AT_SIGN,
-* 	apartment_min_area apartment_min_rooms or apartment_max_price is not bigger
-* 	then zero  or allocations failed.
-* 	A new clients in case of success.
+*
+* 	CLIENT_OUT_OF_MEMORY - if one email is NULL or does not contain the
+* 	character AT_SIGN, apartment_min_area apartment_min_rooms or
+* 	apartment_max_price is not bigger then zero, or result is NULL.
+* 	CLIENT_OUT_OF_MEMORY - if allocations failed
+* 	CLIENT_SUCCESS - in case of success.  A new client is saved in the result
+* 	parameter.
 */
-Client clientCreate(const char* email, int apartment_min_area,
-		int apartment_min_rooms, int apartment_max_price) {
-	if (!isEmailValid(email)) return NULL;
-	if (apartment_min_area < 0 || apartment_min_area < 0 ||
-			apartment_min_area < 0) return NULL;
+ClientCode clientCreate(const char* email, int apartment_min_area,
+		int apartment_min_rooms, int apartment_max_price, Client* result) {
+	if ((result == NULL) || (!isEmailValid(email)) ||
+		(apartment_min_area < 0) || (apartment_min_area < 0) ||
+		 (apartment_min_area < 0)) return CLIENT_INVALID_PARAMETERS;
 	Client client = malloc (sizeof(Client*));
-	if (client == NULL) return false;
+	if (client == NULL) return CLIENT_OUT_OF_MEMORY;
 	client->email = strdup(email);
 	if (client->email == NULL) {
 		free(client);
-		client = NULL;
+		return CLIENT_OUT_OF_MEMORY;
 	}
-	return client;
+	*result = client;
+	return CLIENT_SUCCESS;
 }
 
 /**
@@ -61,7 +65,7 @@ static bool isEmailValid(const char* email) {
 
 /**
 * ClientDestroy: Deallocates an existing client.
-* Clears all elements by using the stored free function.
+* Clears the element by using the stored free function.
 *
 * @param client Target client to be deallocated.
 * If client is NULL nothing will be done
