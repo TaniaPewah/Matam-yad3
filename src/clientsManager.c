@@ -2,10 +2,11 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "clientsManager.h"
-#include "client.h"
 #include "map.h"
 #include "list.h"
+#include "clientsManager.h"
+#include "client.h"
+
 
 struct clientsManager_t {
 	Map clientsMap;
@@ -187,12 +188,12 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 }
 
 /** Function to be used for freeing data elements from list */
-static void freeListElement(ListElement element) {
+void freeListElement(ListElement element) {
 	// Do nothing, don't deallocate the client! still using it in the map!
 }
 
 /** Function to be used for coping data elements from list */
-static ListElement copyListElement(ListElement element) {
+ListElement copyListElement(ListElement element) {
 	return (Client)element; // Don't copy, use the same client!
 }
 

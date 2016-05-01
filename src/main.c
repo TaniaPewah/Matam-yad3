@@ -7,5 +7,8 @@
 
 int main(){
 
+	RunClientTest();
+	RunClientManagerTest();
+
 	return 0;
 }

@@ -165,3 +165,11 @@ int clientGetTotalPayments(Client client) {
 	if (client == NULL) return NO_CLIENT_VAL;
 	return client->total_money_paid;
 }
+
+char *strdup(const char *str)
+{
+	char *dupstr = malloc(strlen(str) * sizeof(char) + 1);
+	strcpy(dupstr, str);
+
+	return dupstr;
+}
