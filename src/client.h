@@ -113,5 +113,7 @@ void clientAddPayment(Client client, int payment);
 */
 int clientGetTotalPayments(Client client);
 
+char* strdup(const char *str);
+
 
 #endif /* SRC_CLIENT_H_ */
