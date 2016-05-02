@@ -18,7 +18,9 @@ struct Agent_t{
 	Map apartmentServices;
 };
 
- bool isEmailValid(const char* email);
+bool isEmailValid( char* email);
+static bool isTaxValid( int taxPercentage );
+static char* strdup(const char *str);
 
  /**
  * agentGetMail: gets the agents mail
@@ -27,8 +29,72 @@ struct Agent_t{
  *
  * @return the agent's mail
  */
- char* agentGetMail( Agent agent ){
+char* agentGetMail( Agent agent ){
 	 return(agent->email);
+}
+
+/**
+ * agentGetTax: gets the agents tax percentage
+ *
+ * @param  agent  - Target Agent
+ *
+ * @return the agent's  tax percentage
+ */
+int agentGetTax( Agent agent ){
+	return( agent->taxPercentge );
+}
+
+ /**
+ * Allocates a new agent.
+ *
+ * Creates a new agent. This function receives the agent email and agent
+ *  company name and tax percentage
+ *  and retrieves the new agent created.
+ *
+ * @param email   		agents email.
+ * @param companyName   agents company name
+ * @param taxPercentge  percentage of tax the agent takes
+ * @param result 		pointer to save the result agent in
+ *
+ * @return
+ *
+ * 	AGENT_INVALID_PARAMETERS - if one email is NULL or
+ * 	email does not contain the character AT_SIGN, or result is NULL.
+ * 	AGENT_OUT_OF_MEMORY - if allocations failed
+ * 	AGENT_SUCCESS - in case of success.  A new agent is saved in the result
+ * 	parameter.
+ */
+ AgentResult agentCreate( char* email, char* companyName,
+		 int taxPercentge, Agent* result) {
+ 	if ((result == NULL) || (!isEmailValid(email)) || !isTaxValid(taxPercentge))
+ 		return AGENT_INVALID_PARAMETERS;
+ 	Agent agent = malloc (sizeof(*agent));
+ 	if (agent == NULL)
+ 		return AGENT_OUT_OF_MEMORY;
+ 	agent->email = strdup(email);
+ 	agent->companyName = companyName ? strdup(companyName) : NULL;
+ 	if (agent->email == NULL || agent->companyName == NULL ) {
+ 		free(agent);
+ 		return AGENT_OUT_OF_MEMORY;
+ 	} else {
+ 		agent->taxPercentge = taxPercentge;
+ 		*result = agent;
+ 		return AGENT_SUCCESS;
+ 	}
+ }
+
+ /**
+ * AgentDestroy: Deallocates an existing agent.
+ * Clears the element by using the stored free function.
+ *
+ * @param agent Target agent to be deallocated.
+ * If agent is NULL nothing will be done
+ */
+ void agentDestroy(Agent agent) {
+ 	if (agent != NULL) {
+ 		free(agent->email);
+ 		free(agent);
+ 	}
  }
 
  /**
@@ -65,7 +131,7 @@ ApartmentService agentGetService( Agent agent, char* serviceName ){
  * 	AGENT_OUT_OF_MEMORY       if failed to add the service to serviceMap
  *	AGENT_SUCCESS    		  if succeeded
  */
-AgentCode agentAddService( Agent agent, ApartmentService service,
+AgentResult agentAddService( Agent agent, ApartmentService service,
 						   char* serviceName ){
 	if( agent == NULL || service == NULL || serviceName == NULL)
 		return AGENT_INVALID_PARAMETERS;
@@ -85,6 +151,21 @@ AgentCode agentAddService( Agent agent, ApartmentService service,
 * @return
 * 	false if email is NULL or does not contian AT_SIGN, else return true
 */
-/*static bool isEmailValid(const char* email) {
+bool isEmailValid( char* email) {
 	return ((email != NULL) && (strchr(email, AT_SIGN) != NULL));
-}*/
+}
+
+static bool isTaxValid( int taxPercentage ){
+
+	return ((taxPercentage >=1) && (taxPercentage <= 100));
+}
+
+// TODO take care of strdup
+static char* strdup(const char* str){
+
+	char *dupstr = malloc(strlen(str) * sizeof(char) + 1);
+	strcpy(dupstr, str);
+
+	return dupstr;
+}
+
