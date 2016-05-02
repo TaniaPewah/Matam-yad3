@@ -19,7 +19,9 @@
 typedef enum {
 	AGENT_OUT_OF_MEMORY = 0,
 	AGENT_INVALID_PARAMETERS = 1,
-	AGENT_SUCCESS = 2
+	AGENT_APARTMENT_SERVICE_FULL = 2,
+	AGENT_APARTMENT_EXISTS = 3,
+	AGENT_SUCCESS = 4
 } AgentResult;
 
 typedef struct Agent_t* Agent;

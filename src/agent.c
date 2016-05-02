@@ -144,6 +144,26 @@ AgentResult agentAddService( Agent agent, ApartmentService service,
 }
 
 /**
+ * agentAddService: adds the apartment to the requested agent
+ * 					in the requested service
+ *
+ * @param agent - target agent
+ * @param apartment - the apartment to add
+ * @param serviceName  the name of the requested service
+ *
+ * @return
+ *
+ * 	AGENT_APARTMENT_EXISTS         if the apartment already in the service
+ * 	AGENT_APARTMENT_SERVICE_FULL   if apartment service is full
+ *	AGENT_SUCCESS    			   if succeeded
+ */
+AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
+										char* serviceName ){
+	return AGENT_SUCCESS;
+}
+
+
+/**
 * isMainValied: checks if the given email adress is Valid.
 *
 * @param email email to check.
