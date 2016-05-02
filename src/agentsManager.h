@@ -14,12 +14,12 @@
 * This type defines end codes for the methods.
 */
 typedef enum {
-	AGENT_MANAGRE_OUT_OF_MEMORY = 0,
-	AGENT_MANAGRE_INVALID_PARAMETERS = 1,
-	AGENT_MANAGRE_ALREADY_EXISTS = 2,
-	AGENT_MANAGRE_NOT_EXISTS = 3,
-	AGENT_MANAGRE_SUCCESS = 4
-} AgentsManagerCode;
+	AGENT_MANAGER_OUT_OF_MEMORY = 0,
+	AGENT_MANAGER_INVALID_PARAMETERS = 1,
+	AGENT_MANAGER_ALREADY_EXISTS = 2,
+	AGENT_MANAGER_NOT_EXISTS = 3,
+	AGENT_MANAGER_SUCCESS = 4
+} AgentsManagerResult;
 
 typedef struct agentsManager_t *AgentsManager;
 
@@ -48,11 +48,11 @@ void AgentsManagerDestroy(AgentsManager manager);
 * @param Agent Target Agent to add.
 *
 * @return
-* 	Agent_MANAGRE_INVALID_PARAMETERS - if Agent is NULL.
-* 	Agent_MANAGRE_ALREADY_EXISTS - if Agent email already registered.
-* 	Agent_MANAGRE_SUCCESS - in case of success.
+* 	Agent_MANAGER_INVALID_PARAMETERS - if Agent is NULL.
+* 	Agent_MANAGER_ALREADY_EXISTS - if Agent email already registered.
+* 	Agent_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerCode AgentsManagerAdd(AgentsManager manager, Agent Agent);
+AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent Agent);
 
 /**
 * AgentsManagerRemove: removes the given Agent from the collection.
@@ -62,11 +62,11 @@ AgentsManagerCode AgentsManagerAdd(AgentsManager manager, Agent Agent);
 * @param Agent Target Agent to remove.
 *
 * @return
-* 	Agent_MANAGRE_INVALID_PARAMETERS - if Agent is NULL.
-* 	Agent_MANAGRE_NOT_EXISTS - if Agent is not registered.
-* 	Agent_MANAGRE_SUCCESS - in case of success.
+* 	Agent_MANAGER_INVALID_PARAMETERS - if Agent is NULL.
+* 	Agent_MANAGER_NOT_EXISTS - if Agent is not registered.
+* 	Agent_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerCode AgentsManagerRemove(AgentsManager manager, Agent Agent);
+AgentsManagerResult AgentsManagerRemove(AgentsManager manager, Agent Agent);
 
 /**
 * AgentsManagerGetAgent: searches for Agent with the specified email address
@@ -89,14 +89,14 @@ Agent AgentsManagerGetAgent(AgentsManager manager, char* email);
 *
 * @return
 *
-* 	AGENT_MANAGRE_OUT_OF_MEMORY 	if memory allocation failed
-*	AGENT_MANAGRE_INVALID_PARAMETERS   if any of parameters are NULL
-*	AGENT_MANAGRE_ALREADY_EXISTS       if service with same name already exists
-*	AGENT_MANAGRE_NOT_EXISTS           if agent by this name does not exist
-*	AGENT_MANAGRE_SUCCESS              if service successfully added
+* 	AGENT_MANAGER_OUT_OF_MEMORY 	if memory allocation failed
+*	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_MANAGER_ALREADY_EXISTS       if service with same name already exists
+*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist
+*	AGENT_MANAGER_SUCCESS              if service successfully added
 */
-AgentsManagerCode AgentManagerAddApartmentService(AgentsManager manager,
-										char* email, void* appartmentService);
+AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
+										char* email, void* apartmentService);
 
 /**
 * AgentManagerRemoveApartmentService: remove apartment service
@@ -106,12 +106,51 @@ AgentsManagerCode AgentManagerAddApartmentService(AgentsManager manager,
 * @param serviceName a name of the service to remove
 *
 * @return
-*	AGENT_MANAGRE_INVALID_PARAMETERS   if any of parameters are NULL
-*	AGENT_MANAGRE_NOT_EXISTS           if agent by this name does not exist or
+*	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist or
 *									service with the given name does not exist
-*	AGENT_MANAGRE_SUCCESS              if service successfully removed
+*	AGENT_MANAGER_SUCCESS              if service successfully removed
 */
-AgentsManagerCode AgentManagerRemoveApartmentService(AgentsManager manager,
+AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
 										char* email, char* serviceName);
+
+/**
+* AgentManagerAddApartmentToService: add apartment to apartment service
+* 									  of requested agent
+* @param manager 	 Target Agents Manager
+* @param email   	 email of the requested agent
+* @param serviceName a name of the service to add the apartment to
+* @param apartment	 the apartment to add
+*
+* @return
+*	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist or
+*									service with the given name does not exist
+*	AGENT_MANAGER_ALREADY_EXISTS       if apartment with the given id
+*									already exist
+*	AGENT_MANAGER_SUCCESS              if apartment successfully added
+*/
+AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
+							char* email, char* serviceName, void* apartment);
+
+
+/**
+* AgentManagerAddApartmentToService: add apartment to apartment service
+* 									  of requested agent
+* @param manager 	 Target Agents Manager
+* @param email   	 email of the requested agent
+* @param serviceName a name of the service to remove the apartment from
+* @param apartmentId the id of apartment to remove
+*
+* @return
+*	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist or
+*									service with the given name does not exist
+*									or apartment does not exist
+*	AGENT_MANAGER_SUCCESS              if apartment successfully removed
+*/
+AgentsManagerResult AgentManagerRemoveApartmentFromService(AgentsManager manager,
+							char* email, char* serviceName, int apartmentId );
+
 
 #endif /* SRC_AGENTSMANAGER_H_ */

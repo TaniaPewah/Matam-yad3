@@ -7,11 +7,11 @@
 * This type defines end codes for the methods.
 */
 typedef enum {
-	CLIENT_MANAGRE_OUT_OF_MEMORY = 0,
-	CLIENT_MANAGRE_INVALID_PARAMETERS = 1,
-	CLIENT_MANAGRE_ALREADY_EXISTS = 2,
-	CLIENT_MANAGRE_NOT_EXISTS = 3,
-	CLIENT_MANAGRE_SUCCESS = 4
+	CLIENT_MANAGER_OUT_OF_MEMORY = 0,
+	CLIENT_MANAGER_INVALID_PARAMETERS = 1,
+	CLIENT_MANAGER_ALREADY_EXISTS = 2,
+	CLIENT_MANAGER_NOT_EXISTS = 3,
+	CLIENT_MANAGER_SUCCESS = 4
 } ClientsManagerResult;
 
 typedef struct clientsManager_t *ClientsManager;
@@ -41,10 +41,10 @@ void clientsManagerDestroy(ClientsManager manager);
 * @param client Target client to add.
 *
 * @return
-* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if client is NULL.
-* 	CLIENT_MANAGRE_ALREADY_EXISTS - if client email already registered.
-* 	CLIENT_MANAGRE_OUT_OF_MEMORY - if failed allocating.
-* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if client is NULL.
+* 	CLIENT_MANAGER_ALREADY_EXISTS - if client email already registered.
+* 	CLIENT_MANAGER_OUT_OF_MEMORY - if failed allocating.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client);
 
@@ -56,9 +56,9 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client);
 * @param email Target client email to remove.
 *
 * @return
-* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if client is NULL.
-* 	CLIENT_MANAGRE_NOT_EXISTS - if client is not registered.
-* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if client is NULL.
+* 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email);
 
@@ -70,9 +70,9 @@ ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email);
 * @param client pointer to save client in.
 *
 * @return
-* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if manager or email are NULL.
-* 	CLIENT_MANAGRE_NOT_EXISTS - if client is not registered.
-* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if manager or email are NULL.
+* 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
 		char* email, Client* client);

@@ -33,7 +33,7 @@ ClientsManager clientsManagerCreate() {
 			CompareKeys);
 	if (clients == NULL) return NULL;
 	ClientsManager manager = malloc (sizeof(*manager));
-	if (clients == NULL) {
+	if (manager == NULL) {
 		free(clients);
 		return NULL;
 	} else {
@@ -88,21 +88,21 @@ void clientsManagerDestroy(ClientsManager manager) {
 * @param client Target client to add.
 *
 * @return
-* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if client is NULL.
-* 	CLIENT_MANAGRE_ALREADY_EXISTS - if client email already registered.
-* 	CLIENT_MANAGRE_OUT_OF_MEMORY - if failed allocating.
-* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if client is NULL.
+* 	CLIENT_MANAGER_ALREADY_EXISTS - if client email already registered.
+* 	CLIENT_MANAGER_OUT_OF_MEMORY - if failed allocating.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client) {
 	if (manager == NULL || client == NULL)
-		return CLIENT_MANAGRE_INVALID_PARAMETERS;
+		return CLIENT_MANAGER_INVALID_PARAMETERS;
 	if (mapContains(manager->clientsMap, (constMapKeyElement)clientGetMail
-			(client))) return CLIENT_MANAGRE_ALREADY_EXISTS;
+			(client))) return CLIENT_MANAGER_ALREADY_EXISTS;
 	if (!mapPut(manager->clientsMap, (constMapKeyElement)clientGetMail(client),
 				(constMapDataElement)client) != MAP_SUCCESS) {
-		return CLIENT_MANAGRE_OUT_OF_MEMORY;
+		return CLIENT_MANAGER_OUT_OF_MEMORY;
 	} else {
-		return CLIENT_MANAGRE_SUCCESS;
+		return CLIENT_MANAGER_SUCCESS;
 	}
 }
 
@@ -114,17 +114,17 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client) {
 * @param email Target client email to remove.
 *
 * @return
-* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if client is NULL.
-* 	CLIENT_MANAGRE_NOT_EXISTS - if client is not registered.
-* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if client is NULL.
+* 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email){
 	if (manager == NULL || email == NULL)
-		return CLIENT_MANAGRE_INVALID_PARAMETERS;
+		return CLIENT_MANAGER_INVALID_PARAMETERS;
 	if (!mapContains(manager->clientsMap, (constMapKeyElement)email))
-		return CLIENT_MANAGRE_NOT_EXISTS;
+		return CLIENT_MANAGER_NOT_EXISTS;
 	mapRemove(manager->clientsMap, (constMapKeyElement)email);
-	return CLIENT_MANAGRE_SUCCESS;
+	return CLIENT_MANAGER_SUCCESS;
 }
 
 /**
@@ -135,18 +135,18 @@ ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email){
 * @param client pointer to save client in.
 *
 * @return
-* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if manager or email are NULL.
-* 	CLIENT_MANAGRE_NOT_EXISTS - if client is not registered.
-* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if manager or email are NULL.
+* 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
 		char* email, Client* client) {
 	if (manager == NULL || email == NULL)
-		return CLIENT_MANAGRE_INVALID_PARAMETERS;
+		return CLIENT_MANAGER_INVALID_PARAMETERS;
 	if (!mapContains(manager->clientsMap, (constMapKeyElement)email))
-		return CLIENT_MANAGRE_NOT_EXISTS;
+		return CLIENT_MANAGER_NOT_EXISTS;
 	*client = (Client)mapGet(manager->clientsMap, (constMapKeyElement)email);
-	return CLIENT_MANAGRE_SUCCESS;
+	return CLIENT_MANAGER_SUCCESS;
 }
 
 /**
@@ -158,16 +158,16 @@ ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
 * @param list pointer to save destination list in.
 *
 * @return
-* 	CLIENT_MANAGRE_INVALID_PARAMETERS - if manager or list are NULL.
-* 	CLIENT_MANAGRE_OUT_OF_MEMORY - in case of allocation failure.
-* 	CLIENT_MANAGRE_SUCCESS - in case of success.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if manager or list are NULL.
+* 	CLIENT_MANAGER_OUT_OF_MEMORY - in case of allocation failure.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 		List* list) {
 	if (manager == NULL || list == NULL)
-		return CLIENT_MANAGRE_INVALID_PARAMETERS;
+		return CLIENT_MANAGER_INVALID_PARAMETERS;
 	List new_list = listCreate(copyListElement, freeListElement);
-	if (new_list == NULL) return CLIENT_MANAGRE_OUT_OF_MEMORY;
+	if (new_list == NULL) return CLIENT_MANAGER_OUT_OF_MEMORY;
 	bool error = false;
 	MapDataElement element = mapGetFirst(manager->clientsMap);
 	while (element != NULL && !error) {
@@ -180,10 +180,10 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 	}
 	if (error) {
 		listDestroy(new_list);
-		return CLIENT_MANAGRE_OUT_OF_MEMORY;
+		return CLIENT_MANAGER_OUT_OF_MEMORY;
 	} else {
 		listSort(new_list, compareListElements);
-		return CLIENT_MANAGRE_SUCCESS;
+		return CLIENT_MANAGER_SUCCESS;
 	}
 }
 

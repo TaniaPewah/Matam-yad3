@@ -13,6 +13,7 @@
 */
 #include "apartment_service.h"
 
+
 #define AT_SIGN '@'
 
 typedef enum {
@@ -23,7 +24,7 @@ typedef enum {
 
 typedef struct Agent_t* Agent;
 
-
+AgentCode addAgent( void* p, void* agent);
 
 
 #endif /* SRC_AGENT_H_ */

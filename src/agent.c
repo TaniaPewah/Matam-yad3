@@ -8,8 +8,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "agent.h";
-#include "map.h";
+#include "agent.h"
+#include "map.h"
 
 struct Agent_t{
 	char* email;
@@ -19,7 +19,7 @@ struct Agent_t{
 };
 
 
-static bool isEmailValid(const char* email);
+ bool isEmailValid(const char* email);
 
 
 /**
@@ -30,6 +30,6 @@ static bool isEmailValid(const char* email);
 * @return
 * 	false if email is NULL or does not contian AT_SIGN, else return true
 */
-static bool isEmailValid(const char* email) {
+/*static bool isEmailValid(const char* email) {
 	return ((email != NULL) && (strchr(email, AT_SIGN) != NULL));
-}
+}*/
