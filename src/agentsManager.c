@@ -60,6 +60,8 @@ void AgentsManagerDestroy(AgentsManager manager){
 	}
 }
 
+
+
 /**
 * AgentsManagerAddAgent: adds the new Agent to the collection.
 *
@@ -69,32 +71,44 @@ void AgentsManagerDestroy(AgentsManager manager){
 * @return
 * 	AGENT_MANAGER_INVALID_PARAMETERS - if Agent or manager is NULL .
 * 	AGENT_MANAGER_ALREADY_EXISTS - if Agent email already registered.
+* 	AGENT_MANAGER_OUT_OF_MEMORY - if failed to add the agent because of
+* 									failed memory allocation
 * 	AGENT_MANAGER_SUCCESS - in case of success.
-*//*
+*/
 AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent agent){
-	if(manager == NULL || agent == NULL){
+	if(manager == NULL || agent == NULL)
 		return AGENT_MANAGER_INVALID_PARAMETERS;
-	} else if(AgentsManagerGetAgent(manager, agent->email)){
+	if(AgentsManagerGetAgent(manager, agentGetMail(agent)) != NULL)
 		return AGENT_MANAGER_ALREADY_EXISTS;
+	if (!mapPut(manager->agentsMap, (constMapKeyElement)agentGetMail(agent),
+				(constMapDataElement)agent) != MAP_SUCCESS) {
+		return AGENT_MANAGER_OUT_OF_MEMORY;
 	} else {
-		addAgent(manager->agentsMap, agent);
 		return AGENT_MANAGER_SUCCESS;
 	}
-}*/
+}
 
 /**
 * AgentsManagerRemove: removes the given Agent from the collection.
 * note that the Agent will not be deallocated!
 *
 * @param manager Target Agents Manager to remove from.
-* @param Agent Target Agent to remove.
+* @param email email of target Agent to remove.
 *
 * @return
 * 	AGENT_MANAGER_INVALID_PARAMETERS - if Agent is NULL.
 * 	AGENT_MANAGER_NOT_EXISTS - if Agent is not registered.
 * 	AGENT_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerResult AgentsManagerRemove(AgentsManager manager, Agent Agent);
+AgentsManagerResult AgentsManagerRemove(AgentsManager manager, char* email){
+
+	if( manager == NULL || email == NULL )
+		return AGENT_MANAGER_INVALID_PARAMETERS;
+	if( !mapContains( manager->agentsMap, (constMapKeyElement)email))
+		return AGENT_MANAGER_NOT_EXISTS;
+	mapRemove( manager->agentsMap, (constMapKeyElement)email);
+	return AGENT_MANAGER_SUCCESS;
+}
 
 /**
 * AgentsManagerGetAgent: searches for Agent with the specified email address
@@ -108,7 +122,8 @@ AgentsManagerResult AgentsManagerRemove(AgentsManager manager, Agent Agent);
 */
 Agent AgentsManagerGetAgent(AgentsManager manager, char* email){
 
-	return NULL;
+	Agent agent = NULL;
+	return agent;
 }
 
 /**
@@ -163,7 +178,6 @@ AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
 */
 AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
 							char* email, char* serviceName, void* apartment);
-
 
 /**
 * AgentManagerAddApartmentToService: add apartment to apartment service

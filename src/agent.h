@@ -24,7 +24,6 @@ typedef enum {
 
 typedef struct Agent_t* Agent;
 
-AgentCode addAgent( void* p, void* agent);
-
+char* agentGetMail( Agent agent );
 
 #endif /* SRC_AGENT_H_ */

@@ -21,6 +21,9 @@ struct Agent_t{
 
  bool isEmailValid(const char* email);
 
+ char* agentGetMail( Agent agent ){
+	 return(agent->email);
+ }
 
 /**
 * isMainValied: checks if the given email adress is Valid.

@@ -59,14 +59,14 @@ AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent Agent);
 * note that the Agent will not be deallocated!
 *
 * @param manager Target Agents Manager to remove from.
-* @param Agent Target Agent to remove.
+* @param email   the email of Target Agent to remove.
 *
 * @return
 * 	Agent_MANAGER_INVALID_PARAMETERS - if Agent is NULL.
 * 	Agent_MANAGER_NOT_EXISTS - if Agent is not registered.
 * 	Agent_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerResult AgentsManagerRemove(AgentsManager manager, Agent Agent);
+AgentsManagerResult AgentsManagerRemove(AgentsManager manager, char* email);
 
 /**
 * AgentsManagerGetAgent: searches for Agent with the specified email address
