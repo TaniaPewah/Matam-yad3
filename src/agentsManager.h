@@ -96,7 +96,7 @@ Agent AgentsManagerGetAgent(AgentsManager manager, char* email);
 *	AGENT_MANAGER_SUCCESS              if service successfully added
 */
 AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
-										char* email, void* apartmentService);
+					char* email, void* apartmentService, char* serviceName);
 
 /**
 * AgentManagerRemoveApartmentService: remove apartment service

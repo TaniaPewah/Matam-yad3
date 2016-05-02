@@ -60,8 +60,6 @@ void AgentsManagerDestroy(AgentsManager manager){
 	}
 }
 
-
-
 /**
 * AgentsManagerAddAgent: adds the new Agent to the collection.
 *
@@ -78,7 +76,7 @@ void AgentsManagerDestroy(AgentsManager manager){
 AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent agent){
 	if(manager == NULL || agent == NULL)
 		return AGENT_MANAGER_INVALID_PARAMETERS;
-	if(AgentsManagerGetAgent(manager, agentGetMail(agent)) != NULL)
+	if( !AgentsManagerGetAgent(manager, agentGetMail(agent)))
 		return AGENT_MANAGER_ALREADY_EXISTS;
 	if (!mapPut(manager->agentsMap, (constMapKeyElement)agentGetMail(agent),
 				(constMapDataElement)agent) != MAP_SUCCESS) {
@@ -104,7 +102,7 @@ AgentsManagerResult AgentsManagerRemove(AgentsManager manager, char* email){
 
 	if( manager == NULL || email == NULL )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
-	if( !mapContains( manager->agentsMap, (constMapKeyElement)email))
+	if( !AgentsManagerGetAgent( manager, email))
 		return AGENT_MANAGER_NOT_EXISTS;
 	mapRemove( manager->agentsMap, (constMapKeyElement)email);
 	return AGENT_MANAGER_SUCCESS;
@@ -123,6 +121,9 @@ AgentsManagerResult AgentsManagerRemove(AgentsManager manager, char* email){
 Agent AgentsManagerGetAgent(AgentsManager manager, char* email){
 
 	Agent agent = NULL;
+	if( manager != NULL && email != NULL ){
+		agent = mapGet( manager->agentsMap, (constMapKeyElement)email );
+	}
 	return agent;
 }
 
@@ -135,14 +136,27 @@ Agent AgentsManagerGetAgent(AgentsManager manager, char* email){
 *
 * @return
 *
-* 	AGENT_MANAGER_OUT_OF_MEMORY 	if memory allocation failed
+* 	AGENT_MANAGER_OUT_OF_MEMORY 	   if memory allocation failed
 *	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
 *	AGENT_MANAGER_ALREADY_EXISTS       if service with same name already exists
 *	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist
 *	AGENT_MANAGER_SUCCESS              if service successfully added
 */
 AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
-										char* email, void* apartmentService);
+					char* email, void* apartmentService, char* serviceName){
+
+	if( manager == NULL || email == NULL || apartmentService )
+		return AGENT_MANAGER_INVALID_PARAMETERS;
+	Agent agent = AgentsManagerGetAgent( manager, email );
+	if( !agent)
+		return AGENT_MANAGER_NOT_EXISTS;
+	if( agentGetService(agent, apartmentService))
+		return AGENT_MANAGER_ALREADY_EXISTS;
+	if (agentAddService( agent, apartmentService, serviceName ) != AGENT_SUCCESS)
+		return AGENT_MANAGER_OUT_OF_MEMORY;
+	else
+		return AGENT_MANAGER_SUCCESS;
+}
 
 /**
 * AgentManagerRemoveApartmentService: remove apartment service
@@ -158,7 +172,15 @@ AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
 *	AGENT_MANAGER_SUCCESS              if service successfully removed
 */
 AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
-										char* email, char* serviceName);
+										char* email, char* serviceName){
+
+	if( manager == NULL || email == NULL )
+			return AGENT_MANAGER_INVALID_PARAMETERS;
+		if( !AgentsManagerGetAgent( manager, email))
+			return AGENT_MANAGER_NOT_EXISTS;
+		mapRemove( manager->agentsMap, (constMapKeyElement)email);
+		return AGENT_MANAGER_SUCCESS;
+}
 
 /**
 * AgentManagerAddApartmentToService: add apartment to apartment service
