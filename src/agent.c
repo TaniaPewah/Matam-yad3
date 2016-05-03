@@ -242,6 +242,7 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 			}
 			case APARTMENT_SUCCESS:{
 				return AGENT_SUCCESS;
+
 				break;
 			}
 			default:
@@ -291,4 +292,3 @@ char* strdup(const char* str){
 
 	return dupstr;
 }
-
