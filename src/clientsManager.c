@@ -1,12 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include "map.h"
-#include "list.h"
 #include "clientsManager.h"
 #include "client.h"
 #include "email.h"
-
+#include "list.h"
+#include "map.h"
 
 struct clientsManager_t {
 	Map clientsMap;
@@ -58,12 +57,12 @@ static MapKeyElement GetKeyCopy(constMapKeyElement key) {
 
 /** Function to be used for freeing data elements into the map */
 static void FreeData(MapDataElement data) {
-	clientDestroy((Client)data);
+	if (data != NULL) clientDestroy((Client)data);
 }
 
 /** Function to be used for freeing key elements into the map */
 static void FreeKey(MapKeyElement key) {
-	emailDestroy((Email)key);
+	if (key != NULL) emailDestroy((Email)key);
 }
 
 /** Function to be used for comparing key elements in the map */

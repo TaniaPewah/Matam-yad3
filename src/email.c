@@ -120,6 +120,20 @@ bool emailAreEqual(Email first, Email second) {
 }
 
 /*
+ * emailToString: returns a copy of the email address.
+ * this method uses malloc in order to allocate memory to save new string in.
+*
+* @param email the email.
+*
+* @return
+* 	NULL if email is NULL or memory allocation failed. else the email address.
+*/
+char* emailToString(Email email) {
+	if (email == NULL) return NULL;
+	return duplicateString(email->address);
+}
+
+/*
  * duplicateString: Allocates and duplicates a new copy given string
  *
  * * @param string string to dupicate.
