@@ -12,6 +12,7 @@
 * This type defines end codes for the methods.
 */
 #include "apartment_service.h"
+#include "email.h"
 
 
 #define AT_SIGN '@'
@@ -22,11 +23,20 @@ typedef enum {
 	AGENT_APARTMENT_SERVICE_FULL = 2,
 	AGENT_APARTMENT_EXISTS = 3,
 	AGENT_APARTMENT_NOT_EXISTS = 4,
-	AGENT_APARTMENT_SERVICE_NOT_EXISTS = 5,
-	AGENT_SUCCESS = 6
+	AGENT_APARTMENT_SERVICE_NOT_EXISTS = 6,
+	AGENT_SUCCESS = 7
 } AgentResult;
 
 typedef struct Agent_t* Agent;
+
+/**
+ * agentGetMail: gets the agents mail
+ *
+ * @param  agent  - Target Agent
+ *
+ * @return the agent's mail
+ */
+Email agentGetMail( Agent agent );
 
 /**
 * Allocates a new agent.
@@ -48,7 +58,7 @@ typedef struct Agent_t* Agent;
 * 	AGENT_SUCCESS - in case of success.  A new agent is saved in the result
 * 	parameter.
 */
-AgentResult agentCreate( char* email, char* companyName,
+AgentResult agentCreate( Email email, char* companyName,
 		 int taxPercentge, Agent* result);
 
 /**
@@ -59,15 +69,6 @@ AgentResult agentCreate( char* email, char* companyName,
 * If agent is NULL nothing will be done
 */
 void agentDestroy(Agent agent);
-
-/**
-* agentGetMail: gets the agents mail
-*
-* @param  agent  - Target Agent
-*
-* @return the agent's mail
-*/
-char* agentGetMail( Agent agent );
 
 /**
  * agentGetTax: gets the agents tax percentage

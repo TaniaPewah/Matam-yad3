@@ -17,6 +17,7 @@ struct agentsManager_t {
 	Map agentsMap;
 };
 
+static Agent AgentsManagerGetAgent(AgentsManager manager, Email email);
 static MapDataElement GetDataCopy(constMapDataElement data);
 static MapKeyElement GetKeyCopy(constMapKeyElement key);
 static void FreeData(MapDataElement data);
@@ -76,7 +77,7 @@ void AgentsManagerDestroy(AgentsManager manager){
 AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent agent){
 	if(manager == NULL || agent == NULL)
 		return AGENT_MANAGER_INVALID_PARAMETERS;
-	if( !AgentsManagerGetAgent(manager, agentGetMail(agent)))
+	if( AgentsManagerGetAgent(manager, agentGetMail(agent)) == NULL )
 		return AGENT_MANAGER_ALREADY_EXISTS;
 	if (!mapPut(manager->agentsMap, (constMapKeyElement)agentGetMail(agent),
 				(constMapDataElement)agent) != MAP_SUCCESS) {
@@ -98,7 +99,7 @@ AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent agent){
 * 	AGENT_MANAGER_AGENT_NOT_EXISTS - if Agent is not registered.
 * 	AGENT_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerResult AgentsManagerRemove(AgentsManager manager, char* email){
+AgentsManagerResult AgentsManagerRemove(AgentsManager manager, Email email){
 
 	if( manager == NULL || email == NULL )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
@@ -118,7 +119,7 @@ AgentsManagerResult AgentsManagerRemove(AgentsManager manager, char* email){
 * 	NULL if manager is NULL or Agent email not registered,
 * 	the agent in case of success.
 */
-Agent AgentsManagerGetAgent(AgentsManager manager, char* email){
+static Agent AgentsManagerGetAgent(AgentsManager manager, Email email){
 
 	Agent agent = NULL;
 	if( manager != NULL && email != NULL ){
@@ -143,7 +144,7 @@ Agent AgentsManagerGetAgent(AgentsManager manager, char* email){
 *	AGENT_MANAGER_SUCCESS              if service successfully added
 */
 AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
-					char* email, void* apartmentService, char* serviceName){
+					Email email, void* apartmentService, char* serviceName){
 
 	if( manager == NULL || email == NULL || apartmentService )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
@@ -172,7 +173,7 @@ AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
 *	AGENT_MANAGER_SUCCESS              if service successfully removed
 */
 AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
-										char* email, char* serviceName){
+										Email email, char* serviceName){
 
 	if( manager == NULL || email == NULL )
 			return AGENT_MANAGER_INVALID_PARAMETERS;
@@ -200,7 +201,7 @@ AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
 *	AGENT_MANAGER_SUCCESS          if apartment successfully added
 */
 AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
-				char* email, char* serviceName, Apartment apartment, int id ){
+				Email email, char* serviceName, Apartment apartment, int id ){
 
 	if( manager == NULL || email == NULL ||	apartment == NULL )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
@@ -242,18 +243,17 @@ AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
 *
 * @return
 *	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
-*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist or
-*									service with the given name does not exist
-*									or apartment does not exist
+*	AGENT_MANAGER_AGENT_NOT_EXISTS       if agent by this name doesnt exist
+*	AGENT_MANAGER_APARTMENT_NOT_EXISTS apartment with the given id doesnt exist
+*	AGENT_MANAGER_SERVICE_NOT_EXISTS	service does not exist
 *	AGENT_MANAGER_SUCCESS              if apartment successfully removed
 */
 AgentsManagerResult AgentManagerRemoveApartmentFromService(AgentsManager manager,
-							char* email, char* serviceName, int apartmentId ){
+							Email email, char* serviceName, int apartmentId ){
 	if( manager == NULL || email == NULL || serviceName ||
 												!idIsValid( apartmentId ) )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 
-	// check if email is valid
 	Agent agent = AgentsManagerGetAgent( manager, email);
 
 	if( agent == NULL )
@@ -266,8 +266,12 @@ AgentsManagerResult AgentManagerRemoveApartmentFromService(AgentsManager manager
 			return AGENT_MANAGER_INVALID_PARAMETERS;
 			break;
 		}
-		case: AGENT_APARTMENT_NOT_EXISTS:{
-			return AGENT_;
+		case AGENT_APARTMENT_NOT_EXISTS:{
+			return AGENT_MANAGER_APARTMENT_NOT_EXISTS;
+			break;
+		}
+		case AGENT_APARTMENT_SERVICE_NOT_EXISTS:{
+			return AGENT_MANAGER_SERVICE_NOT_EXISTS;
 			break;
 		}
 		default:{

@@ -12,7 +12,7 @@
 #include "map.h"
 
 struct Agent_t{
-	char* email;
+	Email email;
 	char* companyName;
 	int taxPercentge;
 	Map apartmentServices;
@@ -29,7 +29,7 @@ char* strdup(const char *str);
  *
  * @return the agent's mail
  */
-char* agentGetMail( Agent agent ){
+Email agentGetMail( Agent agent ){
 	 return(agent->email);
 }
 
@@ -64,14 +64,18 @@ int agentGetTax( Agent agent ){
  * 	AGENT_SUCCESS - in case of success.  A new agent is saved in the result
  * 	parameter.
  */
- AgentResult agentCreate( char* email, char* companyName,
+ AgentResult agentCreate( Email email, char* companyName,
 		 int taxPercentge, Agent* result) {
- 	if ((result == NULL) || (!isEmailValid(email)) || !isTaxValid(taxPercentge))
+ 	if (result == NULL || email == NULL || !isTaxValid(taxPercentge))
  		return AGENT_INVALID_PARAMETERS;
  	Agent agent = malloc (sizeof(*agent));
  	if (agent == NULL)
  		return AGENT_OUT_OF_MEMORY;
- 	agent->email = strdup(email);
+ 	EmailResult eResult = emailCopy( email, &(agent->email));
+
+ 	if( eResult != EMAIL_SUCCESS)
+ 		return AGENT_INVALID_PARAMETERS;
+
  	agent->companyName = companyName ? strdup(companyName) : NULL;
  	if (agent->email == NULL || agent->companyName == NULL ) {
  		free(agent);
@@ -92,7 +96,7 @@ int agentGetTax( Agent agent ){
  */
  void agentDestroy(Agent agent) {
  	if (agent != NULL) {
- 		free(agent->email);
+ 		emailDestroy( agent->email );
  		free(agent);
  	}
  }
@@ -217,8 +221,8 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 			return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
 
 		Apartment apartment = NULL;
-		ApartmentResult getResult = serviceGetById( service, apartmentId,
-													apartment );
+		ApartmentServiceResult getResult = serviceGetById( service,
+												 apartmentId, &apartment );
 		if( getResult == APARTMENT_SERVICE_NULL_ARG )
 			return AGENT_INVALID_PARAMETERS;
 
@@ -246,17 +250,6 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 		}
 
 		return AGENT_SUCCESS;
-}
-/**
-* isMainValied: checks if the given email adress is Valid.
-*
-* @param email email to check.
-*
-* @return
-* 	false if email is NULL or does not contian AT_SIGN, else return true
-*/
-bool isEmailValid( char* email) {
-	return ((email != NULL) && (strchr(email, AT_SIGN) != NULL));
 }
 
 static bool isTaxValid( int taxPercentage ){
