@@ -8,6 +8,8 @@ struct Email_t {
 	char* address;
 };
 
+static char* duplicateString(const char *str);
+
 /**
 * Allocates a new email.
 *
@@ -27,7 +29,7 @@ struct Email_t {
 EmailResult EmailCreate(char* address, Email* result) {
 	if (address == NULL || result == NULL) return EMAIL_NULL_PARAMETERS;
 	if (strchr(address, AT_SIGN) == NULL) return EMAIL_INVALID_PARAMETERS;
-	char* adress_copy = strdup(address);
+	char* adress_copy = duplicateString(address);
 	if (adress_copy == NULL) return EMAIL_OUT_OF_MEMORY;
 	Email mail = malloc(sizeof(*mail));
 	if (mail == NULL) {
@@ -77,7 +79,7 @@ void EmailDestroy(Email email) {
 }
 
 /*
- * Compares two Emails by comparing there addresses using srtcmp.
+ * EmailComapre: Compares two Emails by comparing there addresses using srtcmp.
 *
 * @param first first email.
 * @param second second email.
@@ -95,7 +97,7 @@ int EmailComapre(Email first, Email second) {
 }
 
 /*
- * Checks if both emails are equal.
+ * EmailAreEqual: Checks if both emails are equal.
 *
 * @param first first email.
 * @param second second email.
@@ -105,4 +107,21 @@ int EmailComapre(Email first, Email second) {
 */
 bool EmailAreEqual(Email first, Email second) {
 	return (EmailComapre(first, second) == 0);
+}
+
+/*
+ * duplicateString: Allocates and duplicates a new copy given string
+ *
+ * * @param string string to dupicate.
+*
+* @return
+* 	NULL is source string was NULL or allocation failed, else returns a copy of
+* 	the string.
+ */
+static char* duplicateString(const char *string)
+{
+	if (string == NULL) return NULL;
+	char *result = malloc((strlen(string) * sizeof(char)) + 1);
+	if (*result != NULL) strcpy(result, string);
+	return result;
 }

@@ -64,7 +64,7 @@ EmailResult EmailCopy(Email email, Email* result);
 void EmailDestroy(Email email);
 
 /*
- * Compares two Emails by comparing there addresses using srtcmp.
+ * EmailComapre: Compares two Emails by comparing there addresses using srtcmp.
 *
 * @param first first email.
 * @param second second email.
@@ -77,7 +77,7 @@ void EmailDestroy(Email email);
 int EmailComapre(Email first, Email second);
 
 /*
- * Checks if both emails are equal.
+ * EmailAreEqual: Checks if both emails are equal.
 *
 * @param first first email.
 * @param second second email.

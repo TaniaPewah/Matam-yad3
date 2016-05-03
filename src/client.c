@@ -12,8 +12,7 @@ struct Cliet_t {
 	int total_money_paid;
 };
 
-static bool isEmailValid(const char* email);
-//static char* strdup(const char *str);
+static bool isEmailValid(const char* email);\
 
 /**
 * Allocates a new client.
@@ -166,11 +165,3 @@ int clientGetTotalPayments(Client client) {
 	if (client == NULL) return NO_CLIENT_VAL;
 	return client->total_money_paid;
 }
-
-/*static char* strdup(const char *str)
-{
-	char *dupstr = malloc(strlen(str) * sizeof(char) + 1);
-	strcpy(dupstr, str);
-
-	return dupstr;
-}*/
