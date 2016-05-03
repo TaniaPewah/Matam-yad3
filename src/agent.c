@@ -18,7 +18,6 @@ struct Agent_t{
 	Map apartmentServices;
 };
 
-bool isEmailValid( char* email);
 static bool isTaxValid( int taxPercentage );
 char* strdup(const char *str);
 
@@ -255,6 +254,33 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 static bool isTaxValid( int taxPercentage ){
 
 	return ((taxPercentage >=1) && (taxPercentage <= 100));
+}
+
+/**
+* agentCopy: Allocates a new agent, identical to the old agent
+*
+* Creates a new agent. This function receives a agent, and retrieves
+* a new identical agent pointer in the out pointer parameter.
+*
+* @param agent the original agent.
+* @param result pointer to save the new agent in.
+*
+* @return
+*
+* 	EMAIL_NULL_PARAMETERS - if agent or pointer are NULL.
+*
+* 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
+* 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
+*/
+AgentResult agentCopy(Agent agent, Agent* result){
+	if (agent || result == NULL) return AGENT_INVALID_PARAMETERS;
+		Agent new_agent = NULL;
+		AgentResult result_state = agentCreate( agent->email,
+				agent->companyName, agent->taxPercentge, &new_agent);
+	if (result_state != AGENT_SUCCESS) return  AGENT_OUT_OF_MEMORY;
+
+		return AGENT_SUCCESS;
 }
 
 // TODO take care of strdup

@@ -80,6 +80,25 @@ void agentDestroy(Agent agent);
 int agentGetTax( Agent agent );
 
 /**
+* agentCopy: Allocates a new agent, identical to the old agent
+*
+* Creates a new agent. This function receives a agent, and retrieves
+* a new identical agent pointer in the out pointer parameter.
+*
+* @param agent the original agent.
+* @param result pointer to save the new agent in.
+*
+* @return
+*
+* 	EMAIL_NULL_PARAMETERS - if agent or pointer are NULL.
+*
+* 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
+* 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
+*/
+AgentResult agentCopy(Agent agent, Agent* result);
+
+/**
 * agentAddApartmentToService: add apartment to apartment service
 * 									  of requested agent
 * @param agent   	 the requested agent

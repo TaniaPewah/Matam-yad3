@@ -17,6 +17,7 @@ struct agentsManager_t {
 	Map agentsMap;
 };
 
+AgentResult agentCopy(Agent agent, Agent* result);
 static Agent AgentsManagerGetAgent(AgentsManager manager, Email email);
 static MapDataElement GetDataCopy(constMapDataElement data);
 static MapKeyElement GetKeyCopy(constMapKeyElement key);
@@ -83,6 +84,7 @@ AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent agent){
 				(constMapDataElement)agent) != MAP_SUCCESS) {
 		return AGENT_MANAGER_OUT_OF_MEMORY;
 	} else {
+		agentDestroy( agent );
 		return AGENT_MANAGER_SUCCESS;
 	}
 }
@@ -287,26 +289,29 @@ bool idIsValid( int id ){
 
 /** Function to be used for copying data elements into the map */
 static MapDataElement GetDataCopy(constMapDataElement data) {
-	return (Agent)data;
+	Agent new_agent = NULL;
+	agentCopy((Agent)data, &new_agent);
+	return (MapDataElement)new_agent;
 }
 
 /** Function to be used for copying key elements into the map */
 static MapKeyElement GetKeyCopy(constMapKeyElement key) {
-	//return strdup((char*)key);
-	return NULL;
+	Email new_email = NULL;
+	emailCopy((Email)key, &new_email);
+	return (MapKeyElement)new_email;
 }
 
 /** Function to be used for freeing data elements into the map */
 static void FreeData(MapDataElement data) {
-	agentDestroy((Agent)data);
+	if (data != NULL) agentDestroy((Agent)data);
 }
 
 /** Function to be used for freeing key elements into the map */
 static void FreeKey(MapKeyElement key) {
-	free((char*)key);
+	if (key != NULL) emailDestroy((Email)key);
 }
 
 /** Function to be used for comparing key elements in the map */
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
-	return strcmp((char*)first, (char*)second);
+	return emailComapre((Email)first, (Email)second);
 }
