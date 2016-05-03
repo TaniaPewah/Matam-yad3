@@ -43,7 +43,7 @@ ClientResult clientCreate(Email email, int apartment_min_area,
 			|| (apartment_max_price <= 0)) return CLIENT_INVALID_PARAMETERS;
 	Client client = malloc (sizeof(*client));
 	if (client == NULL) return CLIENT_OUT_OF_MEMORY;
-	EmailResult copy_result = EmailCopy(email, &(client->email));
+	EmailResult copy_result = emailCopy(email, &(client->email));
 	if (copy_result != EMAIL_SUCCESS) {
 		free(client);
 		return CLIENT_OUT_OF_MEMORY;
@@ -94,7 +94,7 @@ ClientResult clientCopy(Client client, Client* result) {
 */
 void clientDestroy(Client client) {
 	if (client != NULL) {
-		EmailDestroy(client->email);
+		emailDestroy(client->email);
 		free(client);
 	}
 }

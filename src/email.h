@@ -36,7 +36,7 @@ typedef enum {
 *
 * 	EMAIL_SUCCESS - in case of success.  A new email is saved in the result.
 */
-EmailResult EmailCreate(char* address, Email* result);
+EmailResult emailCreate(char* address, Email* result);
 
 /**
 * Allocates a new email, identical to the old email
@@ -55,7 +55,7 @@ EmailResult EmailCreate(char* address, Email* result);
 *
 * 	EMAIL_SUCCESS - in case of success. A new email is saved in the result.
 */
-EmailResult EmailCopy(Email email, Email* result);
+EmailResult emailCopy(Email email, Email* result);
 
 /**
 * EmailDestroy: Deallocates an existing email.
@@ -65,7 +65,7 @@ EmailResult EmailCopy(Email email, Email* result);
 *
 * If email is NULL nothing will be done
 */
-void EmailDestroy(Email email);
+void emailDestroy(Email email);
 
 /*
  * EmailComapre: Compares two Emails by comparing there addresses using srtcmp.
@@ -81,7 +81,7 @@ void EmailDestroy(Email email);
 *
 * 	positive value if first is less than second or second is NULL.
 */
-int EmailComapre(Email first, Email second);
+int emailComapre(Email first, Email second);
 
 /*
  * EmailAreEqual: Checks if both emails are equal.
@@ -92,6 +92,6 @@ int EmailComapre(Email first, Email second);
 * @return
 * 	true if both are NULL or equal, else returns false.
 */
-bool EmailAreEqual(Email first, Email second);
+bool emailAreEqual(Email first, Email second);
 
 #endif /* SRC_EMAIL_H_ */

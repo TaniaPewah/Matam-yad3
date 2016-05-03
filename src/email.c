@@ -1,8 +1,9 @@
+#include "email.h"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include "Email.h"
 
 struct Email_t {
 	char* address;
@@ -29,7 +30,7 @@ static char* duplicateString(const char *str);
 *
 * 	EMAIL_SUCCESS - in case of success.  A new email is saved in the result.
 */
-EmailResult EmailCreate(char* address, Email* result) {
+EmailResult emailCreate(char* address, Email* result) {
 	if (address == NULL || result == NULL) return EMAIL_NULL_PARAMETERS;
 	if (strchr(address, AT_SIGN) == NULL) return EMAIL_INVALID_PARAMETERS;
 	char* adress_copy = duplicateString(address);
@@ -62,9 +63,9 @@ EmailResult EmailCreate(char* address, Email* result) {
 *
 * 	EMAIL_SUCCESS - in case of success. A new email is saved in the result.
 */
-EmailResult EmailCopy(Email email, Email* result) {
+EmailResult emailCopy(Email email, Email* result) {
 	if (email == NULL) return EMAIL_NULL_PARAMETERS;
-	if (EmailCreate(email->address, result) != EMAIL_SUCCESS)
+	if (emailCreate(email->address, result) != EMAIL_SUCCESS)
 		return EMAIL_OUT_OF_MEMORY;
 	return EMAIL_SUCCESS;
 }
@@ -77,7 +78,7 @@ EmailResult EmailCopy(Email email, Email* result) {
 *
 * If email is NULL nothing will be done
 */
-void EmailDestroy(Email email) {
+void emailDestroy(Email email) {
 	if (email != NULL) {
 		free(email->address);
 		free(email);
@@ -98,7 +99,7 @@ void EmailDestroy(Email email) {
 *
 * 	positive value if first is less than second or second is NULL.
 */
-int EmailComapre(Email first, Email second) {
+int emailComapre(Email first, Email second) {
 	if ((first == NULL) && (second == NULL)) return 0;
 	if (first == NULL)  return -1;
 	if (second == NULL) return  1;
@@ -114,8 +115,8 @@ int EmailComapre(Email first, Email second) {
 * @return
 * 	true if both are NULL or equal, else returns false.
 */
-bool EmailAreEqual(Email first, Email second) {
-	return (EmailComapre(first, second) == 0);
+bool emailAreEqual(Email first, Email second) {
+	return (emailComapre(first, second) == 0);
 }
 
 /*

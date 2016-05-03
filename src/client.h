@@ -4,7 +4,7 @@
 #define NO_CLIENT_VAL -1
 #define AT_SIGN '@'
 
-#include "Email.h"
+#include "email.h"
 
 /**
 * This type defines end codes for the methods.
