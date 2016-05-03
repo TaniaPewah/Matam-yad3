@@ -2,6 +2,7 @@
 #define SRC_CLIENTSMANAGER_H_
 
 #include "client.h"
+#include "email.h"
 
 /**
 * This type defines end codes for the methods.
@@ -60,7 +61,7 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client);
 * 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
-ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email);
+ClientsManagerResult clientsManagerRemove(ClientsManager manager, Email email);
 
 /**
 * clientsManagerGetClient: searches for client with the specified email address
@@ -75,6 +76,6 @@ ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email);
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
-		char* email, Client* client);
+		Email email, Client* client);
 
 #endif /* SRC_CLIENTSMANAGER_H_ */

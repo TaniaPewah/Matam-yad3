@@ -1,12 +1,11 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
-#include "map.h"
-#include "list.h"
 #include "clientsManager.h"
 #include "client.h"
-
+#include "email.h"
+#include "list.h"
+#include "map.h"
 
 struct clientsManager_t {
 	Map clientsMap;
@@ -44,27 +43,31 @@ ClientsManager clientsManagerCreate() {
 
 /** Function to be used for copying data elements into the map */
 static MapDataElement GetDataCopy(constMapDataElement data) {
-	return (Client)data;
+	Client new_client = NULL;
+	clientCopy((Client)data, &new_client);
+	return (MapDataElement)new_client;
 }
 
 /** Function to be used for copying key elements into the map */
 static MapKeyElement GetKeyCopy(constMapKeyElement key) {
-	return strdup((char*)key);
+	Email new_email = NULL;
+	emailCopy((Email)key, &new_email);
+	return (MapKeyElement)new_email;
 }
 
 /** Function to be used for freeing data elements into the map */
 static void FreeData(MapDataElement data) {
-	clientDestroy((Client)data);
+	if (data != NULL) clientDestroy((Client)data);
 }
 
 /** Function to be used for freeing key elements into the map */
 static void FreeKey(MapKeyElement key) {
-	free((char*)key);
+	if (key != NULL) emailDestroy((Email)key);
 }
 
 /** Function to be used for comparing key elements in the map */
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
-	return strcmp((char*)first, (char*)second);
+	return emailComapre((Email)first, (Email)second);
 }
 
 /**
@@ -118,7 +121,7 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client) {
 * 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
-ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email){
+ClientsManagerResult clientsManagerRemove(ClientsManager manager, Email email){
 	if (manager == NULL || email == NULL)
 		return CLIENT_MANAGER_INVALID_PARAMETERS;
 	if (!mapContains(manager->clientsMap, (constMapKeyElement)email))
@@ -140,7 +143,7 @@ ClientsManagerResult clientsManagerRemove(ClientsManager manager, char* email){
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
 ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
-		char* email, Client* client) {
+		Email email, Client* client) {
 	if (manager == NULL || email == NULL)
 		return CLIENT_MANAGER_INVALID_PARAMETERS;
 	if (!mapContains(manager->clientsMap, (constMapKeyElement)email))
@@ -189,12 +192,14 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 
 /** Function to be used for freeing data elements from list */
 void freeListElement(ListElement element) {
-	// Do nothing, don't deallocate the client! still using it in the map!
+	if (element != NULL) clientDestroy((Client)element);
 }
 
 /** Function to be used for coping data elements from list */
 ListElement copyListElement(ListElement element) {
-	return (Client)element; // Don't copy, use the same client!
+	Client new_client = NULL;
+	clientCopy((Client)element, &new_client);
+	return (Client)new_client;
 }
 
 /** Function to be used for comparing data elements in the list */
@@ -202,8 +207,8 @@ static int compareListElements(ListElement first, ListElement second) {
 	int diff = clientGetTotalPayments((Client)first) -
 			 clientGetTotalPayments((Client)second);
 	if (diff == 0) {
-		diff = strcmp(clientGetMail((Client)first),
-			clientGetMail((Client)second));
+		diff = emailComapre(
+			clientGetMail((Client)first), clientGetMail((Client)second));
 	}
 	return diff;
 }
