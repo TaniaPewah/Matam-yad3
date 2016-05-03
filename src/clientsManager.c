@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include "clientPurchaseBill.h"
 #include "clientsManager.h"
 #include "client.h"
 #include "email.h"
@@ -88,25 +89,47 @@ void clientsManagerDestroy(ClientsManager manager) {
 * clientsManagerAddClient: adds the new client to the collection.
 *
 * @param manager Target clients Manager to add to.
-* @param client Target client to add.
+* @param email clients email.
+* @param apartment_min_area minimal area for the clients wanted apartments
+* @param apartment_min_rooms minimal room count in clients wanted apartments
+* @param apartment_max_price maximum price for the clients wanted apartments
 *
 * @return
-* 	CLIENT_MANAGER_INVALID_PARAMETERS - if client is NULL.
+* 	CLIENT_MANAGER_NULL_PARAMETERS - if manager or email is NULL.
+*
 * 	CLIENT_MANAGER_ALREADY_EXISTS - if client email already registered.
+*
+* 	CLIENT_MANAGER_INVALID_PARAMETERS -  if apartment_min_area,
+* 		apartment_min_rooms or apartment_max_price are not bigger then zero.
+*
 * 	CLIENT_MANAGER_OUT_OF_MEMORY - if failed allocating.
+*
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
-ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client) {
-	if (manager == NULL || client == NULL)
-		return CLIENT_MANAGER_INVALID_PARAMETERS;
-	if (mapContains(manager->clientsMap, (constMapKeyElement)clientGetMail
-			(client))) return CLIENT_MANAGER_ALREADY_EXISTS;
-	if (!mapPut(manager->clientsMap, (constMapKeyElement)clientGetMail(client),
-				(constMapDataElement)client) != MAP_SUCCESS) {
+ClientsManagerResult clientsManagerAdd(ClientsManager manager, Email email,
+		int apartment_min_area, int apartment_min_rooms,
+		int apartment_max_price) {
+	if (manager == NULL || email == NULL)
+		return CLIENT_MANAGER_NULL_PARAMETERS;
+	Client client = NULL;
+	ClientResult result = clientCreate(email, apartment_min_area,
+			apartment_min_rooms, apartment_max_price, &client);
+	if (result != CLIENT_SUCCESS){
+		if (result == CLIENT_INVALID_PARAMETERS)
+			return CLIENT_MANAGER_INVALID_PARAMETERS;
 		return CLIENT_MANAGER_OUT_OF_MEMORY;
-	} else {
-		return CLIENT_MANAGER_SUCCESS;
 	}
+	ClientsManagerResult manager_result;
+	if (mapContains(manager->clientsMap, email)) {
+		manager_result = CLIENT_MANAGER_ALREADY_EXISTS;
+	} else if (!mapPut(manager->clientsMap, (constMapKeyElement)email,
+			(constMapDataElement)client) != MAP_SUCCESS) {
+		manager_result =  CLIENT_MANAGER_OUT_OF_MEMORY;
+	} else {
+		manager_result = CLIENT_MANAGER_SUCCESS;
+	}
+	clientDestroy(client);
+	return manager_result;
 }
 
 /**
@@ -130,26 +153,19 @@ ClientsManagerResult clientsManagerRemove(ClientsManager manager, Email email){
 	return CLIENT_MANAGER_SUCCESS;
 }
 
-/**
-* clientsManagerGetClient: searches for client with the specified email address
-*
-* @param manager Target clients Manager to search in.
-* @param email address to search. searches by string value and not by pointers.
-* @param client pointer to save client in.
-*
-* @return
-* 	CLIENT_MANAGER_INVALID_PARAMETERS - if manager or email are NULL.
-* 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
-* 	CLIENT_MANAGER_SUCCESS - in case of success.
-*/
-ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
-		Email email, Client* client) {
-	if (manager == NULL || email == NULL)
-		return CLIENT_MANAGER_INVALID_PARAMETERS;
-	if (!mapContains(manager->clientsMap, (constMapKeyElement)email))
-		return CLIENT_MANAGER_NOT_EXISTS;
-	*client = (Client)mapGet(manager->clientsMap, (constMapKeyElement)email);
-	return CLIENT_MANAGER_SUCCESS;
+/* clientsManagerClientExists: The function checks whether there is a customer
+ * registered under the given e-mail
+ *
+ * @param manager Target clients Manager to search in.
+ * @param email address to search client by.
+ *
+ * * @return
+ * false if one of the parameters is NULL or if the client does not exist in
+ * the managers collection; else if client exists returns true.
+ */
+bool clientsManagerClientExists(ClientsManager manager, Email email) {
+	if ((manager == NULL) || (email == NULL)) return false;
+	return mapContains(manager->clientsMap, email);
 }
 
 /**
@@ -176,39 +192,36 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 	while (element != NULL && !error) {
 		Client client = (Client)mapGet(manager->clientsMap, element);
 		if (clientGetTotalPayments(client) > 0) {
-			error = listInsertLast(new_list, (ListElement)(client))
-					!= LIST_SUCCESS;
+			ClientPurchaseBill bill = clientPurchaseBillCreate
+					(clientGetMail(client), clientGetTotalPayments(client));
+			error = (bill == NULL) ||
+					(listInsertLast(new_list, (ListElement)(bill))
+					!= LIST_SUCCESS);
 		}
 		element = mapGetNext(manager->clientsMap);
 	}
-	if (error) {
+	if ((error) || (listSort(new_list, compareListElements) != LIST_SUCCESS)) {
 		listDestroy(new_list);
 		return CLIENT_MANAGER_OUT_OF_MEMORY;
-	} else {
-		listSort(new_list, compareListElements);
-		return CLIENT_MANAGER_SUCCESS;
 	}
+	return CLIENT_MANAGER_SUCCESS;
 }
 
 /** Function to be used for freeing data elements from list */
 void freeListElement(ListElement element) {
-	if (element != NULL) clientDestroy((Client)element);
+	if (element != NULL)
+		clientPurchaseBillDestroy((ClientPurchaseBill)element);
 }
 
 /** Function to be used for coping data elements from list */
 ListElement copyListElement(ListElement element) {
-	Client new_client = NULL;
-	clientCopy((Client)element, &new_client);
-	return (Client)new_client;
+	ClientPurchaseBill new_bill =
+			clientPurchaseBillCopy((ClientPurchaseBill)element);
+	return new_bill;
 }
 
 /** Function to be used for comparing data elements in the list */
 static int compareListElements(ListElement first, ListElement second) {
-	int diff = clientGetTotalPayments((Client)first) -
-			 clientGetTotalPayments((Client)second);
-	if (diff == 0) {
-		diff = emailComapre(
-			clientGetMail((Client)first), clientGetMail((Client)second));
-	}
-	return diff;
+	return clientPurchaseBillComapre((ClientPurchaseBill)first,
+			(ClientPurchaseBill)second);
 }
