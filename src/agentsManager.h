@@ -134,8 +134,7 @@ AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
 *	AGENT_MANAGER_SUCCESS              if apartment successfully added
 */
 AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
-							char* email, char* serviceName, void* apartment);
-
+				char* email, char* serviceName, Apartment apartment, int id );
 
 /**
 * AgentManagerAddApartmentToService: add apartment to apartment service
@@ -152,8 +151,8 @@ AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
 *									or apartment does not exist
 *	AGENT_MANAGER_SUCCESS              if apartment successfully removed
 */
-AgentsManagerResult AgentManagerRemoveApartmentFromService(AgentsManager manager,
-							char* email, char* serviceName, int apartmentId );
+AgentsManagerResult AgentManagerRemoveApartmentFromService(
+	AgentsManager manager, char* email, char* serviceName, int apartmentId );
 
 
 #endif /* SRC_AGENTSMANAGER_H_ */

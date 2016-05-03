@@ -192,34 +192,44 @@ AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
 *
 * @return
 *	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
-*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist or
-*									service with the given name does not exist
-*	AGENT_MANAGER_ALREADY_EXISTS       if apartment with the given id
-*									already exist
-*	AGENT_MANAGER_SUCCESS              if apartment successfully added
+*	AGENT_MANAGER_AGENT_NOT_EXISTS    if agent by this name does not exist
+*	AGENT_MANAGER_OUT_OF_MEMORY		  if allocation failed
+*	AGENT_MANAGER_SERVICE_NOT_EXISTS service with the given name does not exist
+*	AGENT_MANAGER_ALREADY_EXISTS   if apartment with the given id already exist
+*	AGENT_MANAGER_SERVICE_FULL	   if apartment service is full
+*	AGENT_MANAGER_SUCCESS          if apartment successfully added
 */
 AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
-						char* email, char* serviceName, void* apartment){
+				char* email, char* serviceName, Apartment apartment, int id ){
 
-	if( manager == NULL || email == NULL || /*!isEmailValid( email) || TODO*/
-		apartment == NULL )
+	if( manager == NULL || email == NULL ||	apartment == NULL )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 	Agent agent = AgentsManagerGetAgent( manager, email);
 	if( agent == NULL )
 		return AGENT_MANAGER_AGENT_NOT_EXISTS;
-	if ( !agentGetService( agent, serviceName ))
-		return AGENT_MANAGER_SERVICE_NOT_EXISTS;
 
-	AgentResult result = agentAddApartmentToService( agent, apartment,
-													serviceName );
-	if( result == AGENT_APARTMENT_SERVICE_FULL )
-		return AGENT_MANAGER_APARTMENT_SERVICE_FULL;
-
-	if( result == AGENT_APARTMENT_EXISTS )
-		return AGENT_MANAGER_ALREADY_EXISTS;
-	else
+	AgentResult result = agentAddApartmentToService( agent, apartment, id,
+													  serviceName );
+	switch( result ){
+		case AGENT_APARTMENT_SERVICE_NOT_EXISTS:{
+			return AGENT_MANAGER_SERVICE_NOT_EXISTS;
+			break;
+		}
+		case AGENT_OUT_OF_MEMORY : {
+			return AGENT_MANAGER_OUT_OF_MEMORY;
+			break;
+		}
+		case AGENT_APARTMENT_EXISTS: {
+			return AGENT_MANAGER_ALREADY_EXISTS;
+			break;
+		}
+		case AGENT_APARTMENT_SERVICE_FULL: {
+			return AGENT_MANAGER_APARTMENT_SERVICE_FULL;
+			break;
+		}
+		default:
 		return AGENT_MANAGER_SUCCESS;
-
+	}
 }
 
 /**
