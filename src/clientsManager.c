@@ -193,12 +193,14 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 
 /** Function to be used for freeing data elements from list */
 void freeListElement(ListElement element) {
-	// Do nothing, don't deallocate the client! still using it in the map!
+	if (element != NULL) clientDestroy((Client)element);
 }
 
 /** Function to be used for coping data elements from list */
 ListElement copyListElement(ListElement element) {
-	return (Client)element; // Don't copy, use the same client!
+	Client new_client = NULL;
+	clientCopy((Client)element, &new_client);
+	return (Client)new_client;
 }
 
 /** Function to be used for comparing data elements in the list */
