@@ -21,7 +21,8 @@ typedef enum {
 	AGENT_INVALID_PARAMETERS = 1,
 	AGENT_APARTMENT_SERVICE_FULL = 2,
 	AGENT_APARTMENT_EXISTS = 3,
-	AGENT_SUCCESS = 4
+	AGENT_APARTMENT_SERVICE_NOT_EXISTS = 4,
+	AGENT_SUCCESS = 5
 } AgentResult;
 
 typedef struct Agent_t* Agent;
@@ -76,8 +77,23 @@ char* agentGetMail( Agent agent );
  */
 int agentGetTax( Agent agent );
 
+/**
+* agentAddApartmentToService: add apartment to apartment service
+* 									  of requested agent
+* @param agent   	 the requested agent
+* @param serviceName a name of the service to add the apartment to
+* @param apartment	 the apartment to add
+*
+* @return
+*	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_APARTMENT_SERVICE_FULL       if service is full
+*	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
+*	AGENT_ALREADY_EXISTS   if apartment with the given id already exist
+*	AGENT_OUT_OF_MEMORY      if allocation failed
+*	AGENT_SUCCESS            if apartment successfully added
+*/
 AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
-										char* serviceName );
+									int id, char* serviceName );
 
 AgentResult agentRemoveApartmentFromService( Agent agent, Apartment apartment,
 											char* serviceName );

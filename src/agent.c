@@ -144,21 +144,55 @@ AgentResult agentAddService( Agent agent, ApartmentService service,
 }
 
 /**
- * agentAddService: adds the apartment to the requested agent
- * 					in the requested service
- *
- * @param agent - target agent
- * @param apartment - the apartment to add
- * @param serviceName  the name of the requested service
- *
- * @return
- *
- * 	AGENT_APARTMENT_EXISTS         if the apartment already in the service
- * 	AGENT_APARTMENT_SERVICE_FULL   if apartment service is full
- *	AGENT_SUCCESS    			   if succeeded
- */
+* agentAddApartmentToService: add apartment to apartment service
+* 									  of requested agent
+* @param agent   	 the requested agent
+* @param serviceName a name of the service to add the apartment to
+* @param apartment	 the apartment to add
+*
+* @return
+*	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_APARTMENT_SERVICE_FULL       if service is full
+*	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
+*	AGENT_ALREADY_EXISTS     if apartment with the given id already exist
+*	AGENT_OUT_OF_MEMORY      if allocation failed
+*	AGENT_SUCCESS            if apartment successfully added
+*/
 AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
-										char* serviceName ){
+										 int id, char* serviceName){
+
+	ApartmentService service = agentGetService( agent, serviceName );
+	if ( service == NULL )
+		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+
+	ApartmentServiceResult result =
+								serviceAddApartment( service, apartment, id );
+
+	switch (result){
+		case APARTMENT_SERVICE_OUT_OF_MEM : {
+			return AGENT_OUT_OF_MEMORY;
+			break;
+		}
+		case APARTMENT_SERVICE_ALREADY_EXISTS:{
+			return AGENT_APARTMENT_EXISTS;
+			break;
+		}
+		case APARTMENT_SERVICE_FULL:{
+			return AGENT_APARTMENT_SERVICE_FULL;
+			break;
+		}
+		case APARTMENT_SERVICE_NULL_ARG:{
+			return AGENT_INVALID_PARAMETERS;
+			break;
+		}
+		case APARTMENT_SUCCESS:{
+			return AGENT_SUCCESS;
+			break;
+		}
+		default:
+			break;
+	}
+
 	return AGENT_SUCCESS;
 }
 
