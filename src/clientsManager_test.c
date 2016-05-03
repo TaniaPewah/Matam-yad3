@@ -7,7 +7,7 @@
 #include "clientsManager.h"
 #include "client.h"
 
-int RunClientManagerTest();
+//int RunClientManagerTest();
 /*static bool testClientCreate();
 static bool testClientGetersAndSetters();
 
