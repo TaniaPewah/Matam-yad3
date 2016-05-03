@@ -249,8 +249,36 @@ AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
 */
 AgentsManagerResult AgentManagerRemoveApartmentFromService(AgentsManager manager,
 							char* email, char* serviceName, int apartmentId ){
+	if( manager == NULL || email == NULL || serviceName ||
+												!idIsValid( apartmentId ) )
+		return AGENT_MANAGER_INVALID_PARAMETERS;
 
+	// check if email is valid
+	Agent agent = AgentsManagerGetAgent( manager, email);
+
+	if( agent == NULL )
+		return AGENT_MANAGER_AGENT_NOT_EXISTS;
+
+	AgentResult result = agentRemoveApartmentFromService(
+											agent, apartmentId, serviceName );
+	switch( result ){
+		case AGENT_INVALID_PARAMETERS:{
+			return AGENT_MANAGER_INVALID_PARAMETERS;
+			break;
+		}
+		case: AGENT_APARTMENT_NOT_EXISTS:{
+			return AGENT_;
+			break;
+		}
+		default:{
+			break;
+		}
+	}
 	return AGENT_MANAGER_SUCCESS;
+}
+
+bool idIsValid( int id ){
+	return id > 0;
 }
 
 /** Function to be used for copying data elements into the map */
@@ -266,7 +294,7 @@ static MapKeyElement GetKeyCopy(constMapKeyElement key) {
 
 /** Function to be used for freeing data elements into the map */
 static void FreeData(MapDataElement data) {
-	//agentDestroy((Agent)data);
+	agentDestroy((Agent)data);
 }
 
 /** Function to be used for freeing key elements into the map */
@@ -278,8 +306,3 @@ static void FreeKey(MapKeyElement key) {
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
 	return strcmp((char*)first, (char*)second);
 }
-
-
-
-
-

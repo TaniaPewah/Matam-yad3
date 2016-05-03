@@ -35,6 +35,7 @@ typedef struct agentsManager_t *AgentsManager;
 */
 AgentsManager AgentsManagerCreate();
 
+bool idIsValid( int id );
 /**
 * AgentsManagerDestroy: Deallocates an existing manager.
 * Clears the element by using the stored free function.

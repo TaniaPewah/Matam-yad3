@@ -196,7 +196,57 @@ AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
 	return AGENT_SUCCESS;
 }
 
+/**
+* agentRemoveApartmentFromService: remove apartment from apartment service
+* 									  of requested agent
+* @param agent   	 the requested agent
+* @param apartmentId  the apartmentId to remove
+* @param serviceName a name of the service to remove the apartment from
+*
+* @return
+*	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_APARTMENT_NOT_EXISTS if apartment not found in the service
+* 	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
+*	AGENT_OUT_OF_MEMORY      if allocation failed
+*	AGENT_SUCCESS            if apartment successfully added
+*/
+AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
+											char* serviceName ){
+	ApartmentService service = agentGetService( agent, serviceName );
+		if ( service == NULL )
+			return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
 
+		Apartment apartment = NULL;
+		ApartmentResult getResult = serviceGetById( service, apartmentId,
+													apartment );
+		if( getResult == APARTMENT_SERVICE_NULL_ARG )
+			return AGENT_INVALID_PARAMETERS;
+
+		if( getResult != APARTMENT_SERVICE_SUCCESS )
+			return AGENT_APARTMENT_NOT_EXISTS;
+
+		ApartmentServiceResult deleteResult =
+								serviceDeleteApartment( service, apartment );
+
+		switch ( deleteResult ){
+			case APARTMENT_SERVICE_EMPTY:{
+				return AGENT_APARTMENT_NOT_EXISTS;
+				break;
+			}
+			case APARTMENT_SERVICE_NULL_ARG:{
+				return AGENT_INVALID_PARAMETERS;
+				break;
+			}
+			case APARTMENT_SUCCESS:{
+				return AGENT_SUCCESS;
+				break;
+			}
+			default:
+				break;
+		}
+
+		return AGENT_SUCCESS;
+}
 /**
 * isMainValied: checks if the given email adress is Valid.
 *
