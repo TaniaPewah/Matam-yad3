@@ -1,10 +1,10 @@
-//#include <stdlib.h>
-//#include <stdio.h>
-//#include <assert.h>
-//#include <string.h>
-//#include <stdbool.h>
-//#include "test_utilities.h"
-//#include "client.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <assert.h>
+#include <string.h>
+#include <stdbool.h>
+#include "test_utilities.h"
+#include "client.h"
 //
 //int RunClientTest();
 //static bool testClientCreate();
