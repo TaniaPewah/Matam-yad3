@@ -20,7 +20,7 @@ struct Agent_t{
 
 bool isEmailValid( char* email);
 static bool isTaxValid( int taxPercentage );
-static char* strdup(const char *str);
+char* strdup(const char *str);
 
  /**
  * agentGetMail: gets the agents mail
@@ -181,7 +181,7 @@ static bool isTaxValid( int taxPercentage ){
 }
 
 // TODO take care of strdup
-static char* strdup(const char* str){
+char* strdup(const char* str){
 
 	char *dupstr = malloc(strlen(str) * sizeof(char) + 1);
 	strcpy(dupstr, str);
