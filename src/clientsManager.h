@@ -9,10 +9,11 @@
 */
 typedef enum {
 	CLIENT_MANAGER_OUT_OF_MEMORY = 0,
-	CLIENT_MANAGER_INVALID_PARAMETERS = 1,
-	CLIENT_MANAGER_ALREADY_EXISTS = 2,
-	CLIENT_MANAGER_NOT_EXISTS = 3,
-	CLIENT_MANAGER_SUCCESS = 4
+	CLIENT_MANAGER_NULL_PARAMETERS = 1,
+	CLIENT_MANAGER_INVALID_PARAMETERS = 2,
+	CLIENT_MANAGER_ALREADY_EXISTS = 3,
+	CLIENT_MANAGER_NOT_EXISTS = 4,
+	CLIENT_MANAGER_SUCCESS = 5
 } ClientsManagerResult;
 
 typedef struct clientsManager_t *ClientsManager;
@@ -39,15 +40,26 @@ void clientsManagerDestroy(ClientsManager manager);
 * clientsManagerAddClient: adds the new client to the collection.
 *
 * @param manager Target clients Manager to add to.
-* @param client Target client to add.
+* @param email clients email.
+* @param apartment_min_area minimal area for the clients wanted apartments
+* @param apartment_min_rooms minimal room count in clients wanted apartments
+* @param apartment_max_price maximum price for the clients wanted apartments
 *
 * @return
-* 	CLIENT_MANAGER_INVALID_PARAMETERS - if client is NULL.
+* 	CLIENT_MANAGER_NULL_PARAMETERS - if manager or email is NULL.
+*
 * 	CLIENT_MANAGER_ALREADY_EXISTS - if client email already registered.
+*
+* 	CLIENT_MANAGER_INVALID_PARAMETERS -  if apartment_min_area,
+* 		apartment_min_rooms or apartment_max_price are not bigger then zero.
+*
 * 	CLIENT_MANAGER_OUT_OF_MEMORY - if failed allocating.
+*
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
-ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client);
+ClientsManagerResult clientsManagerAdd(ClientsManager manager, Email email,
+		int apartment_min_area, int apartment_min_rooms,
+		int apartment_max_price);
 
 /**
 * clientsManagerRemove: removes the given client from the collection.
@@ -63,19 +75,16 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Client client);
 */
 ClientsManagerResult clientsManagerRemove(ClientsManager manager, Email email);
 
-/**
-* clientsManagerGetClient: searches for client with the specified email address
-*
-* @param manager Target clients Manager to search in.
-* @param email address to search. searches by string value and not by pointers.
-* @param client pointer to save client in.
-*
-* @return
-* 	CLIENT_MANAGER_INVALID_PARAMETERS - if manager or email are NULL.
-* 	CLIENT_MANAGER_NOT_EXISTS - if client is not registered.
-* 	CLIENT_MANAGER_SUCCESS - in case of success.
-*/
-ClientsManagerResult clientsManagerGetClient(ClientsManager manager,
-		Email email, Client* client);
+/* clientsManagerClientExists: The function checks whether there is a customer
+ * registered under the given e-mail
+ *
+ * @param manager Target clients Manager to search in.
+ * @param email address to search client by.
+ *
+ * * @return
+ * false if one of the parameters is NULL or if the client does not exist in
+ * the managers collection; else if client exists returns true.
+ */
+bool clientsManagerClientExists(ClientsManager manager, Email email);
 
 #endif /* SRC_CLIENTSMANAGER_H_ */
