@@ -5,14 +5,12 @@
 #include "client.h"
 
 struct Cliet_t {
-	char* email;
+	Email email;
 	int apartment_min_area;
 	int apartment_min_rooms;
 	int apartment_max_price;
 	int total_money_paid;
 };
-
-static bool isEmailValid(const char* email);\
 
 /**
 * Allocates a new client.
@@ -28,22 +26,25 @@ static bool isEmailValid(const char* email);\
 *
 * @return
 *
-* 	CLIENT_OUT_OF_MEMORY - if one email is NULL or does not contain the
-* 	character AT_SIGN, apartment_min_area apartment_min_rooms or
-* 	apartment_max_price is not bigger then zero, or result is NULL.
-* 	CLIENT_OUT_OF_MEMORY - if allocations failed
-* 	CLIENT_SUCCESS - in case of success.  A new client is saved in the result
-* 	parameter.
+*	CLIENT_NULL_PARAMETERS - if email is NULL or result are NULL.
+*
+* 	CLIENT_INVALID_PARAMETERS - if apartment_min_area, apartment_min_rooms or
+* 		apartment_max_price are not bigger then zero.
+*
+* 	CLIENT_OUT_OF_MEMORY - if allocations failed.
+*
+* 	CLIENT_SUCCESS - in case of success.
+* 		A new client is saved in the result parameter.
 */
-ClientResult clientCreate(const char* email, int apartment_min_area,
+ClientResult clientCreate(Email email, int apartment_min_area,
 		int apartment_min_rooms, int apartment_max_price, Client* result) {
-	if ((result == NULL) || (!isEmailValid(email)) ||
-		(apartment_min_area <= 0) || (apartment_min_rooms <= 0) ||
-		 (apartment_max_price <= 0)) return CLIENT_INVALID_PARAMETERS;
+	if ((result == NULL) || (email == NULL)) return CLIENT_NULL_PARAMETERS;
+	if ((apartment_min_area <= 0) || (apartment_min_rooms <= 0)
+			|| (apartment_max_price <= 0)) return CLIENT_INVALID_PARAMETERS;
 	Client client = malloc (sizeof(*client));
 	if (client == NULL) return CLIENT_OUT_OF_MEMORY;
-	client->email = strdup(email);
-	if (client->email == NULL) {
+	EmailResult copy_result = EmailCopy(email, &(client->email));
+	if (copy_result != EMAIL_SUCCESS) {
 		free(client);
 		return CLIENT_OUT_OF_MEMORY;
 	} else {
@@ -57,15 +58,31 @@ ClientResult clientCreate(const char* email, int apartment_min_area,
 }
 
 /**
-* isMainValied: checks if the given email adress is Valid.
+* clientCopy: Allocates a new client, identical to the old client
 *
-* @param email email to check.
+* Creates a new client. This function receives a client, and retrieves
+* a new identical client pointer in the out pointer parameter.
+*
+* @param client the original client.
+* @param result pointer to save the new client in.
 *
 * @return
-* 	false if email is NULL or does not contian AT_SIGN, else return true
+*
+* 	CLIENT_NULL_PARAMETERS - if client or pointer are NULL.
+*
+* 	CLIENT_OUT_OF_MEMORY - if allocations failed.
+*
+* 	CLIENT_SUCCESS - in case of success. A new client is saved in the result.
 */
-static bool isEmailValid(const char* email) {
-	return ((email != NULL) && (strchr(email, AT_SIGN) != NULL));
+ClientResult clientCopy(Client client, Client* result) {
+	if (client || result == NULL) return CLIENT_NULL_PARAMETERS;
+	Client new_client = NULL;
+	ClientResult result_state = clientCreate(client->email,
+			client->apartment_min_area, client->apartment_min_rooms,
+			client->apartment_max_price, &new_client);
+	if (result_state != CLIENT_SUCCESS) return  CLIENT_OUT_OF_MEMORY;
+	new_client->total_money_paid = client->total_money_paid;
+	return CLIENT_SUCCESS;
 }
 
 /**
@@ -77,7 +94,7 @@ static bool isEmailValid(const char* email) {
 */
 void clientDestroy(Client client) {
 	if (client != NULL) {
-		free(client->email);
+		EmailDestroy(client->email);
 		free(client);
 	}
 }
@@ -91,7 +108,7 @@ void clientDestroy(Client client) {
 * 	NULL - if client is NULL
 * 	The clients email in case of success.
 */
-char* clientGetMail(Client client) {
+Email clientGetMail(Client client) {
 	if (client == NULL) return NULL;
 	return client->email;
 }

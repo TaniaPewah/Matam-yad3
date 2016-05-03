@@ -4,13 +4,16 @@
 #define NO_CLIENT_VAL -1
 #define AT_SIGN '@'
 
+#include "Email.h"
+
 /**
 * This type defines end codes for the methods.
 */
 typedef enum {
 	CLIENT_OUT_OF_MEMORY = 0,
-	CLIENT_INVALID_PARAMETERS = 1,
-	CLIENT_SUCCESS = 2
+	CLIENT_NULL_PARAMETERS = 1,
+	CLIENT_INVALID_PARAMETERS = 2,
+	CLIENT_SUCCESS = 3
 } ClientResult;
 
 typedef struct Cliet_t *Client;
@@ -29,15 +32,19 @@ typedef struct Cliet_t *Client;
 *
 * @return
 *
-* 	CLIENT_INVALID_PARAMETERS - if one email is NULL or does not contain the
-* 	character AT_SIGN, apartment_min_area apartment_min_rooms or
-* 	apartment_max_price is not bigger then zero, or result is NULL.
-* 	CLIENT_OUT_OF_MEMORY - if allocations failed
-* 	CLIENT_SUCCESS - in case of success.  A new client is saved in the result
-* 	parameter.
+*	CLIENT_NULL_PARAMETERS - if email is NULL or result are NULL.
+*
+* 	CLIENT_INVALID_PARAMETERS - if apartment_min_area, apartment_min_rooms or
+* 		apartment_max_price are not bigger then zero.
+*
+* 	CLIENT_OUT_OF_MEMORY - if allocations failed.
+*
+* 	CLIENT_SUCCESS - in case of success.
+* 		A new client is saved in the result parameter.
 */
-ClientResult clientCreate(const char* email, int apartment_min_area,
+ClientResult clientCreate(Email email, int apartment_min_area,
 		int apartment_min_rooms, int apartment_max_price, Client* result);
+
 
 /**
 * ClientDestroy: Deallocates an existing client.
@@ -49,6 +56,25 @@ ClientResult clientCreate(const char* email, int apartment_min_area,
 void clientDestroy(Client client);
 
 /**
+* clientCopy: Allocates a new client, identical to the old client
+*
+* Creates a new client. This function receives a client, and retrieves
+* a new identical client pointer in the out pointer parameter.
+*
+* @param client the original client.
+* @param result pointer to save the new client in.
+*
+* @return
+*
+* 	EMAIL_NULL_PARAMETERS - if client or pointer are NULL.
+*
+* 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
+* 	EMAIL_SUCCESS - in case of success. A new client is saved in the result.
+*/
+ClientResult clientCopy(Client client, Client* result);
+
+/**
 * clientGetMail: gets the given client email.
 *
 * @param client Target client.
@@ -57,7 +83,7 @@ void clientDestroy(Client client);
 * 	NULL - if client is NULL
 * 	The clients email in case of success.
 */
-char* clientGetMail(Client client);
+Email clientGetMail(Client client);
 
 /**
 * clientGetMinArea: gets the given client minimal apartment area wanted.
@@ -112,8 +138,5 @@ void clientAddPayment(Client client, int payment);
 * 	or the clients total payments sum in case of success.
 */
 int clientGetTotalPayments(Client client);
-
-char* strdup(const char *str);
-
 
 #endif /* SRC_CLIENT_H_ */

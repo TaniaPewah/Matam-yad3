@@ -29,8 +29,11 @@ typedef enum {
 * @return
 *
 * 	EMAIL_NULL_PARAMETERS - if email address or pointer are NULL.
+*
 * 	EMAIL_INVALID_PARAMETERS - address contains no AT_SIGN character.
+*
 * 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
 * 	EMAIL_SUCCESS - in case of success.  A new email is saved in the result.
 */
 EmailResult EmailCreate(char* address, Email* result);
@@ -47,9 +50,9 @@ EmailResult EmailCreate(char* address, Email* result);
 * @return
 *
 * 	EMAIL_NULL_PARAMETERS - if email or pointer are NULL.
-* 	EMAIL_INVALID_PARAMETERS - source email address contains no AT_SIGN
-* 		character.
+
 * 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
 * 	EMAIL_SUCCESS - in case of success. A new email is saved in the result.
 */
 EmailResult EmailCopy(Email email, Email* result);
@@ -59,6 +62,7 @@ EmailResult EmailCopy(Email email, Email* result);
 * Clears the element by using the stored free function.
 *
 * @param email Target email to be deallocated.
+*
 * If email is NULL nothing will be done
 */
 void EmailDestroy(Email email);
@@ -70,8 +74,11 @@ void EmailDestroy(Email email);
 * @param second second email.
 *
 * @return
+*
 * 	zero if both are equal or both are NULL.
+*
 * 	negative value if first is less than second or first is NULL.
+*
 * 	positive value if first is less than second or second is NULL.
 */
 int EmailComapre(Email first, Email second);

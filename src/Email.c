@@ -22,8 +22,11 @@ static char* duplicateString(const char *str);
 * @return
 *
 * 	EMAIL_NULL_PARAMETERS - if email address or pointer are NULL.
+*
 * 	EMAIL_INVALID_PARAMETERS - address contains no AT_SIGN character.
+*
 * 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
 * 	EMAIL_SUCCESS - in case of success.  A new email is saved in the result.
 */
 EmailResult EmailCreate(char* address, Email* result) {
@@ -54,14 +57,16 @@ EmailResult EmailCreate(char* address, Email* result) {
 * @return
 *
 * 	EMAIL_NULL_PARAMETERS - if email or pointer are NULL.
-* 	EMAIL_INVALID_PARAMETERS - source email address contains no AT_SIGN
-* 		character.
+
 * 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
 * 	EMAIL_SUCCESS - in case of success. A new email is saved in the result.
 */
 EmailResult EmailCopy(Email email, Email* result) {
 	if (email == NULL) return EMAIL_NULL_PARAMETERS;
-	return EmailCreate(email->address, result);
+	if (EmailCreate(email->address, result) != EMAIL_SUCCESS)
+		return EMAIL_OUT_OF_MEMORY;
+	return EMAIL_SUCCESS;
 }
 
 /**
@@ -69,6 +74,7 @@ EmailResult EmailCopy(Email email, Email* result) {
 * Clears the element by using the stored free function.
 *
 * @param email Target email to be deallocated.
+*
 * If email is NULL nothing will be done
 */
 void EmailDestroy(Email email) {
@@ -85,8 +91,11 @@ void EmailDestroy(Email email) {
 * @param second second email.
 *
 * @return
+*
 * 	zero if both are equal or both are NULL.
+*
 * 	negative value if first is less than second or first is NULL.
+*
 * 	positive value if first is less than second or second is NULL.
 */
 int EmailComapre(Email first, Email second) {
@@ -115,13 +124,13 @@ bool EmailAreEqual(Email first, Email second) {
  * * @param string string to dupicate.
 *
 * @return
-* 	NULL is source string was NULL or allocation failed, else returns a copy of
-* 	the string.
+* 	NULL is source string was NULL or allocation failed,
+* 	else returns a copy of the string.
  */
 static char* duplicateString(const char *string)
 {
 	if (string == NULL) return NULL;
 	char *result = malloc((strlen(string) * sizeof(char)) + 1);
-	if (*result != NULL) strcpy(result, string);
+	if (result != NULL) strcpy(result, string);
 	return result;
 }
