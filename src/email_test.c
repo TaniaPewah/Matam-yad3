@@ -23,6 +23,7 @@ static bool testEmailCreate() {
 	char* good_mail = "baba@ganosh";
 	char* bad_mail_1  = "baba+ganosh";
 	char* bad_mail_2  = "";
+	//char* bad_mail_3  = "lala lala";
 	Email mail;
 	ASSERT_TEST(emailCreate(NULL, NULL) == EMAIL_NULL_PARAMETERS);
 	ASSERT_TEST(emailCreate(NULL, &mail) == EMAIL_NULL_PARAMETERS);
