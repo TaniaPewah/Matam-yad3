@@ -65,25 +65,26 @@ int agentGetTax( Agent agent ){
  */
  AgentResult agentCreate( Email email, char* companyName,
 		 int taxPercentge, Agent* result) {
- 	if (result == NULL || email == NULL || !isTaxValid(taxPercentge))
+ 	if ( result == NULL || email == NULL || !isTaxValid(taxPercentge))
  		return AGENT_INVALID_PARAMETERS;
  	Agent agent = malloc (sizeof(*agent));
  	if (agent == NULL)
  		return AGENT_OUT_OF_MEMORY;
  	EmailResult eResult = emailCopy( email, &(agent->email));
 
- 	if( eResult != EMAIL_SUCCESS)
- 		return AGENT_INVALID_PARAMETERS;
-
- 	agent->companyName = companyName ? strdup(companyName) : NULL;
- 	if (agent->email == NULL || agent->companyName == NULL ) {
+ 	if( eResult == EMAIL_OUT_OF_MEMORY ){
  		free(agent);
  		return AGENT_OUT_OF_MEMORY;
- 	} else {
- 		agent->taxPercentge = taxPercentge;
- 		*result = agent;
- 		return AGENT_SUCCESS;
  	}
+ 	agent->companyName = companyName ? strdup(companyName) : NULL;
+ 	if ( agent->companyName == NULL ) {
+ 		emailDestroy(agent->email);
+ 		free(agent);
+ 		return AGENT_OUT_OF_MEMORY;
+ 	}
+	agent->taxPercentge = taxPercentge;
+	*result = agent;
+	return AGENT_SUCCESS;
  }
 
  /**
@@ -242,7 +243,6 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 			}
 			case APARTMENT_SUCCESS:{
 				return AGENT_SUCCESS;
-
 				break;
 			}
 			default:
@@ -268,21 +268,31 @@ static bool isTaxValid( int taxPercentage ){
 *
 * @return
 *
-* 	EMAIL_NULL_PARAMETERS - if agent or pointer are NULL.
+* 	EMAIL_NULL_PARAMETERS - if agent or pointer -are NULL.
 *
 * 	EMAIL_OUT_OF_MEMORY - if allocations failed.
 *
 * 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
 */
-AgentResult agentCopy(Agent agent, Agent* result){
-	if (agent || result == NULL) return AGENT_INVALID_PARAMETERS;
-		Agent new_agent = NULL;
-		AgentResult result_state = agentCreate( agent->email,
+AgentResult agentCopy(Agent agent, Agent* result_agent){
+	if (agent == NULL || result_agent == NULL) return AGENT_INVALID_PARAMETERS;
+	Agent new_agent = NULL;
+	AgentResult result_state = agentCreate( agent->email,
 				agent->companyName, agent->taxPercentge, &new_agent);
 	if (result_state != AGENT_SUCCESS) return  AGENT_OUT_OF_MEMORY;
-
-		return AGENT_SUCCESS;
+	*result_agent = new_agent;
+	return AGENT_SUCCESS;
 }
+
+/*AgentResult agentCopy(Agent agent, Agent* result) {
+	if (agent == NULL || result == NULL) return AGENT_INVALID_PARAMETERS;
+	Agent new_agent = NULL;
+	AgentResult result_state = agentCreate(agent->email, agent->companyName,
+			agent->taxPercentge, &new_agent);
+	if (result_state != AGENT_SUCCESS) return  AGENT_OUT_OF_MEMORY;
+	*result = new_agent;
+	return AGENT_SUCCESS;
+}*/
 
 // TODO take care of strdup
 char* strdup(const char* str){
