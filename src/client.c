@@ -75,13 +75,14 @@ ClientResult clientCreate(Email email, int apartment_min_area,
 * 	CLIENT_SUCCESS - in case of success. A new client is saved in the result.
 */
 ClientResult clientCopy(Client client, Client* result) {
-	if (client || result == NULL) return CLIENT_NULL_PARAMETERS;
+	if ((client == NULL) || (result == NULL)) return CLIENT_NULL_PARAMETERS;
 	Client new_client = NULL;
 	ClientResult result_state = clientCreate(client->email,
 			client->apartment_min_area, client->apartment_min_rooms,
 			client->apartment_max_price, &new_client);
 	if (result_state != CLIENT_SUCCESS) return  CLIENT_OUT_OF_MEMORY;
 	new_client->total_money_paid = client->total_money_paid;
+	*result = new_client;
 	return CLIENT_SUCCESS;
 }
 

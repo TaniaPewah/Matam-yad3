@@ -122,8 +122,8 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Email email,
 	ClientsManagerResult manager_result;
 	if (mapContains(manager->clientsMap, email)) {
 		manager_result = CLIENT_MANAGER_ALREADY_EXISTS;
-	} else if (!mapPut(manager->clientsMap, (constMapKeyElement)email,
-			(constMapDataElement)client) != MAP_SUCCESS) {
+	} else if (!(mapPut(manager->clientsMap, (constMapKeyElement)email,
+			(constMapDataElement)client) != MAP_SUCCESS)) {
 		manager_result =  CLIENT_MANAGER_OUT_OF_MEMORY;
 	} else {
 		manager_result = CLIENT_MANAGER_SUCCESS;
