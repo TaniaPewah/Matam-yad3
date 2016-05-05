@@ -36,10 +36,6 @@ static bool testAgentCreate(){
 	agentDestroy(agent);
 	return true;
 }
-/*
-static bool testAgentGetersAndSetters(){
-	return true;
-}*/
 
 /**
  * Test create & destroy method
