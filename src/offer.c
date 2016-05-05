@@ -4,6 +4,7 @@
 #include <string.h>
 #include "email.h"
 #include "offer.h"
+#include "utilities.h"
 
 struct offer_t {
 	Email client;
@@ -12,8 +13,6 @@ struct offer_t {
 	char* service_name;
 	int price;
 };
-
-static char* duplicateString(const char *string);
 
 /**
 * Allocates a new apartment perches offer.
@@ -99,19 +98,3 @@ bool offerAreOverlapping(Offer first, Offer second) {
 			(strcmp(first->service_name, first->service_name) == 0));
 }
 
-/*
- * duplicateString: Allocates and duplicates a new copy given string
- *
- * * @param string string to dupicate.
-*
-* @return
-* 	NULL is source string was NULL or allocation failed,
-* 	else returns a copy of the string.
- */
-static char* duplicateString(const char *string)
-{
-	if (string == NULL) return NULL;
-	char *result = malloc((strlen(string) * sizeof(char)) + 1);
-	if (result != NULL) strcpy(result, string);
-	return result;
-}
