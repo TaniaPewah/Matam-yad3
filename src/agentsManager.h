@@ -9,6 +9,7 @@
 #define SRC_AGENTSMANAGER_H_
 
 #include "agent.h"
+#include "email.h"
 
 /**
 * This type defines end codes for the methods.
@@ -18,34 +19,36 @@ typedef enum {
 	AGENT_MANAGER_INVALID_PARAMETERS = 1,
 	AGENT_MANAGER_ALREADY_EXISTS = 2,
 	AGENT_MANAGER_AGENT_NOT_EXISTS = 3,
-	AGENT_MANAGER_SERVICE_NOT_EXISTS = 4,
-	AGENT_MANAGER_APARTMENT_SERVICE_FULL = 5,
-	AGENT_MANAGER_SUCCESS = 6
+	AGENT_MANAGER_APARTMENT_NOT_EXISTS = 4,
+	AGENT_MANAGER_SERVICE_NOT_EXISTS = 5,
+	AGENT_MANAGER_APARTMENT_SERVICE_FULL = 6,
+	AGENT_MANAGER_SUCCESS = 7
 
 } AgentsManagerResult;
 
-typedef struct agentsManager_t *AgentsManager;
+typedef struct agentsManager_t* AgentsManager;
 
 /**
-* Allocates a new AgentsManager.
+* Allocates a new agentsManager.
 *
 * @return
 * 	NULL - if allocations failed.
-* 	A new AgentsManager in case of success.
+* 	A new agentsManager in case of success.
 */
-AgentsManager AgentsManagerCreate();
+AgentsManager agentsManagerCreate();
 
+bool idIsValid( int id );
 /**
-* AgentsManagerDestroy: Deallocates an existing manager.
+* agentsManagerDestroy: Deallocates an existing manager.
 * Clears the element by using the stored free function.
 *
 * @param manager Target Agents Manager to be deallocated.
 * If manager is NULL nothing will be done
 */
-void AgentsManagerDestroy(AgentsManager manager);
+void agentsManagerDestroy(AgentsManager manager);
 
 /**
-* AgentsManagerAddAgent: adds the new Agent to the collection.
+* agentsManagerAddAgent: adds the new Agent to the collection.
 *
 * @param manager Target Agents Manager to add to.
 * @param Agent Target Agent to add.
@@ -55,41 +58,29 @@ void AgentsManagerDestroy(AgentsManager manager);
 * 	Agent_MANAGER_ALREADY_EXISTS - if Agent email already registered.
 * 	Agent_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerResult AgentsManagerAdd(AgentsManager manager, Agent Agent);
+AgentsManagerResult agentsManagerAdd(AgentsManager manager, Agent Agent);
 
 /**
-* AgentsManagerRemove: removes the given Agent from the collection.
+* agentsManagerRemove: removes the given Agent from the collection.
 * note that the Agent will not be deallocated!
 *
 * @param manager Target Agents Manager to remove from.
 * @param email   the email of Target Agent to remove.
 *
 * @return
-* 	Agent_MANAGER_INVALID_PARAMETERS - if Agent is NULL.
-* 	Agent_MANAGER_NOT_EXISTS - if Agent is not registered.
-* 	Agent_MANAGER_SUCCESS - in case of success.
+* 	AGENT_MANAGER_INVALID_PARAMETERS - if Agent is NULL.
+* 	AGENT_MANAGER_NOT_EXISTS - if Agent is not registered.
+* 	AGENT_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerResult AgentsManagerRemove(AgentsManager manager, char* email);
+AgentsManagerResult agentsManagerRemove(AgentsManager manager, Email email);
 
 /**
-* AgentsManagerGetAgent: searches for Agent with the specified email address
-*
-* @param manager Target Agents Manager to search in.
-* @param email address to search. searches by string value and not by pointers.
-*
-* @return
-* 	NULL if manager is NULL or Agent email not registered,
-* 	else in case of success.
-*/
-Agent AgentsManagerGetAgent(AgentsManager manager, char* email);
-
-/**
-* AgentManagerAddApartmentService: add apartment service to requested agent
+* agentManagerAddApartmentService: add apartment service to requested agent
 *
 * @param manager Target Agents Manager
 * @param email  email of the requested agent
-* @param appartmentService a pointer to a service to add to the agent
-*
+* @param appartmentService  a service to add to the agent
+* @param serviceName the name of the service
 * @return
 *
 * 	AGENT_MANAGER_OUT_OF_MEMORY 	if memory allocation failed
@@ -98,11 +89,11 @@ Agent AgentsManagerGetAgent(AgentsManager manager, char* email);
 *	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist
 *	AGENT_MANAGER_SUCCESS              if service successfully added
 */
-AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
-					char* email, void* apartmentService, char* serviceName);
+AgentsManagerResult agentsManagerAddApartmentService(AgentsManager manager,
+			Email email, ApartmentService apartmentService, char* serviceName);
 
 /**
-* AgentManagerRemoveApartmentService: remove apartment service
+* agentManagerRemoveApartmentService: remove apartment service
 * 									  from requested agent
 * @param manager 	 Target Agents Manager
 * @param email   	 email of the requested agent
@@ -114,11 +105,11 @@ AgentsManagerResult AgentManagerAddApartmentService(AgentsManager manager,
 *									service with the given name does not exist
 *	AGENT_MANAGER_SUCCESS              if service successfully removed
 */
-AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
-										char* email, char* serviceName);
+AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
+										Email email, char* serviceName);
 
 /**
-* AgentManagerAddApartmentToService: add apartment to apartment service
+* agentManagerAddApartmentToService: add apartment to apartment service
 * 									  of requested agent
 * @param manager 	 Target Agents Manager
 * @param email   	 email of the requested agent
@@ -133,11 +124,11 @@ AgentsManagerResult AgentManagerRemoveApartmentService(AgentsManager manager,
 *									already exist
 *	AGENT_MANAGER_SUCCESS              if apartment successfully added
 */
-AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
-				char* email, char* serviceName, Apartment apartment, int id );
+AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
+				Email email, char* serviceName, Apartment apartment, int id );
 
 /**
-* AgentManagerAddApartmentToService: add apartment to apartment service
+* agentManagerAddApartmentToService: add apartment to apartment service
 * 									  of requested agent
 * @param manager 	 Target Agents Manager
 * @param email   	 email of the requested agent
@@ -151,8 +142,8 @@ AgentsManagerResult AgentManagerAddApartmentToService(AgentsManager manager,
 *									or apartment does not exist
 *	AGENT_MANAGER_SUCCESS              if apartment successfully removed
 */
-AgentsManagerResult AgentManagerRemoveApartmentFromService(
-	AgentsManager manager, char* email, char* serviceName, int apartmentId );
+AgentsManagerResult agentsManagerRemoveApartmentFromService(
+	AgentsManager manager, Email email, char* serviceName, int apartmentId );
 
 
 #endif /* SRC_AGENTSMANAGER_H_ */

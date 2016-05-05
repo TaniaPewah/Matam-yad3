@@ -12,6 +12,7 @@
 * This type defines end codes for the methods.
 */
 #include "apartment_service.h"
+#include "email.h"
 
 
 #define AT_SIGN '@'
@@ -21,11 +22,21 @@ typedef enum {
 	AGENT_INVALID_PARAMETERS = 1,
 	AGENT_APARTMENT_SERVICE_FULL = 2,
 	AGENT_APARTMENT_EXISTS = 3,
-	AGENT_APARTMENT_SERVICE_NOT_EXISTS = 4,
-	AGENT_SUCCESS = 5
+	AGENT_APARTMENT_NOT_EXISTS = 4,
+	AGENT_APARTMENT_SERVICE_NOT_EXISTS = 6,
+	AGENT_SUCCESS = 7
 } AgentResult;
 
 typedef struct Agent_t* Agent;
+
+/**
+ * agentGetMail: gets the agents mail
+ *
+ * @param  agent  - Target Agent
+ *
+ * @return the agent's mail
+ */
+Email agentGetMail( Agent agent );
 
 /**
 * Allocates a new agent.
@@ -47,7 +58,7 @@ typedef struct Agent_t* Agent;
 * 	AGENT_SUCCESS - in case of success.  A new agent is saved in the result
 * 	parameter.
 */
-AgentResult agentCreate( char* email, char* companyName,
+AgentResult agentCreate( Email email, char* companyName,
 		 int taxPercentge, Agent* result);
 
 /**
@@ -60,15 +71,6 @@ AgentResult agentCreate( char* email, char* companyName,
 void agentDestroy(Agent agent);
 
 /**
-* agentGetMail: gets the agents mail
-*
-* @param  agent  - Target Agent
-*
-* @return the agent's mail
-*/
-char* agentGetMail( Agent agent );
-
-/**
  * agentGetTax: gets the agents tax percentage
  *
  * @param  agent  - Target Agent
@@ -76,6 +78,25 @@ char* agentGetMail( Agent agent );
  * @return the agent's  tax percentage
  */
 int agentGetTax( Agent agent );
+
+/**
+* agentCopy: Allocates a new agent, identical to the old agent
+*
+* Creates a new agent. This function receives a agent, and retrieves
+* a new identical agent pointer in the out pointer parameter.
+*
+* @param agent the original agent.
+* @param result pointer to save the new agent in.
+*
+* @return
+*
+* 	EMAIL_NULL_PARAMETERS - if agent or pointer are NULL.
+*
+* 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
+* 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
+*/
+AgentResult agentCopy(Agent agent, Agent* result);
 
 /**
 * agentAddApartmentToService: add apartment to apartment service
@@ -95,7 +116,21 @@ int agentGetTax( Agent agent );
 AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
 									int id, char* serviceName );
 
-AgentResult agentRemoveApartmentFromService( Agent agent, Apartment apartment,
+/**
+* agentRemoveApartmentFromService: remove apartment from apartment service
+* 									  of requested agent
+* @param agent   	 the requested agent
+* @param apartmentId  the apartmentId to remove
+* @param serviceName a name of the service to remove the apartment from
+*
+* @return
+*	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_APARTMENT_NOT_EXISTS if apartment not found in the service
+* 	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
+*	AGENT_OUT_OF_MEMORY      if allocation failed
+*	AGENT_SUCCESS            if apartment successfully added
+*/
+AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 											char* serviceName );
 
 /**

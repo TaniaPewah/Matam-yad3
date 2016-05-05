@@ -12,13 +12,12 @@
 #include "map.h"
 
 struct Agent_t{
-	char* email;
+	Email email;
 	char* companyName;
 	int taxPercentge;
 	Map apartmentServices;
 };
 
-bool isEmailValid( char* email);
 static bool isTaxValid( int taxPercentage );
 char* strdup(const char *str);
 
@@ -29,7 +28,7 @@ char* strdup(const char *str);
  *
  * @return the agent's mail
  */
-char* agentGetMail( Agent agent ){
+Email agentGetMail( Agent agent ){
 	 return(agent->email);
 }
 
@@ -64,14 +63,18 @@ int agentGetTax( Agent agent ){
  * 	AGENT_SUCCESS - in case of success.  A new agent is saved in the result
  * 	parameter.
  */
- AgentResult agentCreate( char* email, char* companyName,
+ AgentResult agentCreate( Email email, char* companyName,
 		 int taxPercentge, Agent* result) {
- 	if ((result == NULL) || (!isEmailValid(email)) || !isTaxValid(taxPercentge))
+ 	if (result == NULL || email == NULL || !isTaxValid(taxPercentge))
  		return AGENT_INVALID_PARAMETERS;
  	Agent agent = malloc (sizeof(*agent));
  	if (agent == NULL)
  		return AGENT_OUT_OF_MEMORY;
- 	agent->email = strdup(email);
+ 	EmailResult eResult = emailCopy( email, &(agent->email));
+
+ 	if( eResult != EMAIL_SUCCESS)
+ 		return AGENT_INVALID_PARAMETERS;
+
  	agent->companyName = companyName ? strdup(companyName) : NULL;
  	if (agent->email == NULL || agent->companyName == NULL ) {
  		free(agent);
@@ -92,7 +95,7 @@ int agentGetTax( Agent agent ){
  */
  void agentDestroy(Agent agent) {
  	if (agent != NULL) {
- 		free(agent->email);
+ 		emailDestroy( agent->email );
  		free(agent);
  	}
  }
@@ -196,22 +199,89 @@ AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
 	return AGENT_SUCCESS;
 }
 
-
 /**
-* isMainValied: checks if the given email adress is Valid.
-*
-* @param email email to check.
+* agentRemoveApartmentFromService: remove apartment from apartment service
+* 									  of requested agent
+* @param agent   	 the requested agent
+* @param apartmentId  the apartmentId to remove
+* @param serviceName a name of the service to remove the apartment from
 *
 * @return
-* 	false if email is NULL or does not contian AT_SIGN, else return true
+*	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_APARTMENT_NOT_EXISTS if apartment not found in the service
+* 	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
+*	AGENT_OUT_OF_MEMORY      if allocation failed
+*	AGENT_SUCCESS            if apartment successfully added
 */
-bool isEmailValid( char* email) {
-	return ((email != NULL) && (strchr(email, AT_SIGN) != NULL));
+AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
+											char* serviceName ){
+	ApartmentService service = agentGetService( agent, serviceName );
+		if ( service == NULL )
+			return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+
+		Apartment apartment = NULL;
+		ApartmentServiceResult getResult = serviceGetById( service,
+												 apartmentId, &apartment );
+		if( getResult == APARTMENT_SERVICE_NULL_ARG )
+			return AGENT_INVALID_PARAMETERS;
+
+		if( getResult != APARTMENT_SERVICE_SUCCESS )
+			return AGENT_APARTMENT_NOT_EXISTS;
+
+		ApartmentServiceResult deleteResult =
+								serviceDeleteApartment( service, apartment );
+
+		switch ( deleteResult ){
+			case APARTMENT_SERVICE_EMPTY:{
+				return AGENT_APARTMENT_NOT_EXISTS;
+				break;
+			}
+			case APARTMENT_SERVICE_NULL_ARG:{
+				return AGENT_INVALID_PARAMETERS;
+				break;
+			}
+			case APARTMENT_SUCCESS:{
+				return AGENT_SUCCESS;
+
+				break;
+			}
+			default:
+				break;
+		}
+
+		return AGENT_SUCCESS;
 }
 
 static bool isTaxValid( int taxPercentage ){
 
 	return ((taxPercentage >=1) && (taxPercentage <= 100));
+}
+
+/**
+* agentCopy: Allocates a new agent, identical to the old agent
+*
+* Creates a new agent. This function receives a agent, and retrieves
+* a new identical agent pointer in the out pointer parameter.
+*
+* @param agent the original agent.
+* @param result pointer to save the new agent in.
+*
+* @return
+*
+* 	EMAIL_NULL_PARAMETERS - if agent or pointer are NULL.
+*
+* 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+*
+* 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
+*/
+AgentResult agentCopy(Agent agent, Agent* result){
+	if (agent || result == NULL) return AGENT_INVALID_PARAMETERS;
+		Agent new_agent = NULL;
+		AgentResult result_state = agentCreate( agent->email,
+				agent->companyName, agent->taxPercentge, &new_agent);
+	if (result_state != AGENT_SUCCESS) return  AGENT_OUT_OF_MEMORY;
+
+		return AGENT_SUCCESS;
 }
 
 // TODO take care of strdup
@@ -222,4 +292,3 @@ char* strdup(const char* str){
 
 	return dupstr;
 }
-
