@@ -64,10 +64,8 @@ EmailResult emailCreate(char* address, Email* result) {
 * 	EMAIL_SUCCESS - in case of success. A new email is saved in the result.
 */
 EmailResult emailCopy(Email email, Email* result) {
-	if (email == NULL) return EMAIL_NULL_PARAMETERS;
-	if (emailCreate(email->address, result) != EMAIL_SUCCESS)
-		return EMAIL_OUT_OF_MEMORY;
-	return EMAIL_SUCCESS;
+	if ((email == NULL) || (result == NULL)) return EMAIL_NULL_PARAMETERS;
+	return emailCreate(email->address, result);
 }
 
 /**
