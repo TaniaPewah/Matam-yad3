@@ -7,7 +7,6 @@
 #include "client.h"
 #include "email.h"
 
-int RunClientTest();
 static bool testClientCreate();
 static bool testClientGetersAndSetters();
 static bool testClientCopy();

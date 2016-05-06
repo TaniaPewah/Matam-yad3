@@ -29,6 +29,54 @@ typedef enum {
 	MTM_SERVICE_REQUEST_WRONG_PROPERTIES,
 	MTM_SERVICE_REQUEST_ILLOGICAL_PRICE,
 	MTM_SERVICE_SUCCESS
-} ServiceResult;
+} MTMServiceResult;
+
+/*
+ * mtmServiceAddClient: Adds new client with the given parameters.
+*
+* @param service service to add to.
+* @param email_adress client email address.
+* @param min_area minimal area for the clients wanted apartments
+* @param min_rooms minimal room count in clients wanted apartments
+* @param max_price maximum price for the clients wanted apartments
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal, or if min_area or min_rooms or max_price
+* 		are negative.
+*
+* 	MTM_SERVICE_EMAIL_ALREADY_EXISTS if service already contains a client or an
+* 		agent under the given email address.
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+* 	MTM_SERVICE_SUCCESS a new client added successfully
+*
+*/
+MTMServiceResult mtmServiceAddClient(MTMService Service, char* email_adress,
+		int minArea, int minRooms, int maxPrice);
+
+/*
+ * mtmServiceRemoveClient: removes client from service.
+*
+* @param service service to remove from.
+* @param email_adress client email address.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal.
+*
+* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 		the given email address.
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+* 	MTM_SERVICE_SUCCESS the client removed successfully
+*
+*/
+MTMServiceResult mtmServiceRemoveClient(MTMService service,
+		char* email_adress);
 
 #endif /* SRC_MTMSERVICE_H_ */

@@ -6,7 +6,6 @@
 #include "test_utilities.h"
 #include "agentsManager.h"
 #include "agent.h"
-#include "agentsManager_test.h"
 #include "apartment_service.h"
 
 static bool testAgentsManagerAddService();
@@ -18,6 +17,7 @@ static bool testAgentsManagerCreate();
 static bool testAgentsManagerAddApartmentToService();
 static bool testAgentsManagerRemoveApartmentFromService();
 
+//int main() {
 int RunAgentManagerTest() {
 
 	RUN_TEST( testAgentsManagerCreate );
