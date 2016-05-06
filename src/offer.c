@@ -98,3 +98,81 @@ bool offerAreOverlapping(Offer first, Offer second) {
 			(strcmp(first->service_name, first->service_name) == 0));
 }
 
+/**
+* offerGetClientEmail: gets the offer client email.
+*
+* @param offer Target offer.
+*
+* @return
+* 	NULL - if client is NULL
+* 	else returns the offer client email.
+*/
+Email offerGetClientEmail(Offer offer) {
+	if (offer == NULL) return NULL;
+	return offer->client;
+}
+
+/**
+* offerGetAgentEmail: gets the offer agent email.
+*
+* @param offer Target offer.
+*
+* @return
+* 	NULL - if agent is NULL
+* 	else returns the offer agent email.
+*/
+Email offerGetAgentEmail(Offer offer) {
+	if (offer == NULL) return NULL;
+	return offer->agent;
+}
+
+/**
+* offerGetServiceName: gets the offer service name.
+*
+* @param offer Target offer.
+*
+* @return
+* 	NULL - if client is NULL
+* 	else returns the offer service name.
+*/
+char* offerGetServiceName(Offer offer) {
+	if (offer == NULL) return NULL;
+	return offer->service_name;
+}
+
+/**
+* offerGetApartmentId: gets the offer apartment id.
+*
+* @param offer Target offer.
+*
+* @return
+* 	NO_OFFER_VAL - if client is NULL
+* 	else returns the offer apartment id.
+*/
+int offerGetApartmentId(Offer offer) {
+	if (offer == NULL) return NO_OFFER_VAL;
+	return offer->apartment_id;
+}
+
+/**
+* Allocates a new offer, identical to the old offer
+*
+* Creates a new offer. This function receives an offer elemnet, and retrieves
+* a new identical offer element pointer in the out pointer parameter.
+*
+* @param offer the original offer.
+* @param result pointer to save the new offer in.
+*
+* @return
+*
+* 	OFFER_NULL_PARAMETERS - if offer or pointer are NULL.
+
+* 	Offer_OUT_OF_MEMORY - if allocations failed.
+*
+* 	EMAIL_SUCCESS - in case of success. A new offer is saved in the result.
+*/
+OfferResult offerCopy(Offer offer, Offer* result) {
+	if ((offer == NULL) || (result == NULL)) return OFFER_NULL_PARAMETERS;
+	return offerCreate(offer->client, offer->agent, offer->service_name,
+			offer->apartment_id, offer->price, result);
+}

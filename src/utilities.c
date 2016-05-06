@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "utilities.h"
 
 /*
@@ -17,4 +18,17 @@ char* duplicateString(const char *string)
 	char *result = malloc((strlen(string) * sizeof(char)) + 1);
 	if (result != NULL) strcpy(result, string);
 	return result;
+}
+
+/*
+ * areStringsEquel: checks if two strings are equal using the srtcmp method
+ *
+ * * @param first first string.
+ * * @param second second string.
+*
+* @return
+* 	true if equals; else returns false
+ */
+bool areStringsEquel(const char *first, const char *second) {
+	return (strcmp(first, second) == 0);
 }

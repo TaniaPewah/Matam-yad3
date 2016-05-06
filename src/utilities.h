@@ -12,4 +12,15 @@
  */
 char* duplicateString(const char *string);
 
+/*
+ * areStringsEquel: checks if two strings are equal using the srtcmp method
+ *
+ * * @param first first string.
+ * * @param second second string.
+*
+* @return
+* 	true if equals; else returns false
+ */
+bool areStringsEquel(const char *first, const char *second);
+
 #endif /* SRC_UTILITIES_H_ */
