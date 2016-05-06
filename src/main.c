@@ -5,13 +5,11 @@
 #include "apartment_service.h"
 #include "agentsManager_test.h"
 #include "aux_macros.h"
+//#include "email_test.c"
 
 int main(){
 
-	//RunClientTest();
-	//RunClientManagerTest();
 	RunAgentManagerTest();
-	//testAgentsManagerAdd();
 
 	return 0;
 }

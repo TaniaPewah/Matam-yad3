@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "agent.h"
+#include "utilities.h"
 #include "map.h"
 
 struct Agent_t{
@@ -19,7 +20,11 @@ struct Agent_t{
 };
 
 static bool isTaxValid( int taxPercentage );
-char* strdup(const char *str);
+static MapDataElement GetDataCopy(constMapDataElement data);
+static MapKeyElement GetKeyCopy(constMapKeyElement key);
+static void FreeData(MapDataElement data);
+static void FreeKey(MapKeyElement key);
+static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
 
  /**
  * agentGetMail: gets the agents mail
@@ -65,25 +70,28 @@ int agentGetTax( Agent agent ){
  */
  AgentResult agentCreate( Email email, char* companyName,
 		 int taxPercentge, Agent* result) {
- 	if (result == NULL || email == NULL || !isTaxValid(taxPercentge))
+ 	if ( result == NULL || email == NULL || !isTaxValid(taxPercentge))
  		return AGENT_INVALID_PARAMETERS;
  	Agent agent = malloc (sizeof(*agent));
  	if (agent == NULL)
  		return AGENT_OUT_OF_MEMORY;
  	EmailResult eResult = emailCopy( email, &(agent->email));
 
- 	if( eResult != EMAIL_SUCCESS)
- 		return AGENT_INVALID_PARAMETERS;
-
- 	agent->companyName = companyName ? strdup(companyName) : NULL;
- 	if (agent->email == NULL || agent->companyName == NULL ) {
+ 	if( eResult == EMAIL_OUT_OF_MEMORY ){
  		free(agent);
  		return AGENT_OUT_OF_MEMORY;
- 	} else {
- 		agent->taxPercentge = taxPercentge;
- 		*result = agent;
- 		return AGENT_SUCCESS;
  	}
+ 	agent->companyName = companyName ? duplicateString(companyName) : NULL;
+ 	if ( agent->companyName == NULL ) {
+ 		emailDestroy(agent->email);
+ 		free(agent);
+ 		return AGENT_OUT_OF_MEMORY;
+ 	}
+ 	agent->apartmentServices = mapCreate(GetDataCopy, GetKeyCopy,
+ 			FreeData, FreeKey, CompareKeys);
+	agent->taxPercentge = taxPercentge;
+	*result = agent;
+	return AGENT_SUCCESS;
  }
 
  /**
@@ -117,7 +125,7 @@ ApartmentService agentGetService( Agent agent, char* serviceName ){
 
 	if( serviceName != NULL )
 		service = mapGet( agent->apartmentServices,
-						(constMapKeyElement)serviceName );
+						serviceName );
 	return service;
 }
 
@@ -138,9 +146,8 @@ AgentResult agentAddService( Agent agent, ApartmentService service,
 						   char* serviceName ){
 	if( agent == NULL || service == NULL || serviceName == NULL)
 		return AGENT_INVALID_PARAMETERS;
-	if (mapPut(agent->apartmentServices,
-			(constMapKeyElement)service,
-			(constMapDataElement)serviceName) != MAP_SUCCESS)
+	if (mapPut( agent->apartmentServices, (constMapKeyElement)serviceName,
+			(constMapDataElement)service) != MAP_SUCCESS)
 		return AGENT_OUT_OF_MEMORY;
 	else
 		return AGENT_SUCCESS;
@@ -242,7 +249,6 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 			}
 			case APARTMENT_SUCCESS:{
 				return AGENT_SUCCESS;
-
 				break;
 			}
 			default:
@@ -268,21 +274,22 @@ static bool isTaxValid( int taxPercentage ){
 *
 * @return
 *
-* 	EMAIL_NULL_PARAMETERS - if agent or pointer are NULL.
+* 	EMAIL_NULL_PARAMETERS - if agent or pointer -are NULL.
 *
 * 	EMAIL_OUT_OF_MEMORY - if allocations failed.
 *
 * 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
 */
-AgentResult agentCopy(Agent agent, Agent* result){
-	if (agent || result == NULL) return AGENT_INVALID_PARAMETERS;
-		Agent new_agent = NULL;
-		AgentResult result_state = agentCreate( agent->email,
+AgentResult agentCopy(Agent agent, Agent* result_agent){
+	if (agent == NULL || result_agent == NULL) return AGENT_INVALID_PARAMETERS;
+	Agent new_agent = NULL;
+	AgentResult result_state = agentCreate( agent->email,
 				agent->companyName, agent->taxPercentge, &new_agent);
 	if (result_state != AGENT_SUCCESS) return  AGENT_OUT_OF_MEMORY;
-
-		return AGENT_SUCCESS;
+	*result_agent = new_agent;
+	return AGENT_SUCCESS;
 }
+
 
 // TODO take care of strdup
 char* strdup(const char* str){
@@ -292,3 +299,33 @@ char* strdup(const char* str){
 
 	return dupstr;
 }
+
+/** Function to be used for copying data elements into the map */
+static MapDataElement GetDataCopy(constMapDataElement data) {
+	ApartmentService new_service = NULL;
+	new_service = serviceCopy( (ApartmentService)data );
+	return (MapDataElement)new_service;
+}
+
+/** Function to be used for copying key elements into the map */
+static MapKeyElement GetKeyCopy(constMapKeyElement key) {
+	char* name = NULL;
+	name = duplicateString( key );
+	return name;
+}
+
+/** Function to be used for freeing data elements into the map */
+static void FreeData(MapDataElement data) {
+	if (data != NULL) serviceDestroy((ApartmentService)data);
+}
+
+/** Function to be used for freeing key elements into the map */
+static void FreeKey(MapKeyElement key) {
+	if (key != NULL) free(key);
+}
+
+/** Function to be used for comparing key elements in the map */
+static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
+	return strcmp( first, second);
+}
+
