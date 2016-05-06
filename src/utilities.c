@@ -55,7 +55,7 @@ char* IntToString(int number) {
 		start_index++;
 	}
 	result[word_length - 1] = END_OF_STRING;
-	for (int i = word_length - 2; i > start_index; i--) {
+	for (int i = word_length - 2; i >= start_index; i--) {
 		result[i] = DIGITS_STRING[number % 10];
 		number /= 10;
 	}

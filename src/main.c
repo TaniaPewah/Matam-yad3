@@ -8,10 +8,12 @@
 int RunEmailTest();
 int	RunAgentManagerTest();
 int RunClientTest();
+int RunClientPurchaseBillTest();
 
 int main(){
 	RunEmailTest();
 	RunClientTest();
+	RunClientPurchaseBillTest();
 	RunAgentManagerTest();
 	return 0;
 }
