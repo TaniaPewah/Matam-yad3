@@ -330,19 +330,3 @@ static void FreeKey(MapKeyElement key) {
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
 	return emailComapre((Email)first, (Email)second);
 }
-
-/* agentsManagerAgentExists: The function checks whether there is an agent
- * registered under the given e-mail
- *
- * @param manager Target agent Manager to search in.
- * @param email address to search agent by.
- *
- * * @return
- * false if one of the parameters is NULL or if the agent does not exist in
- * the managers collection; else if agent exists returns true.
- */
-bool agentsManagerAgentExists(AgentsManager manager, Email email) {
-	if ((manager == NULL) || (email == NULL)) return false;
-	return mapContains(manager->agentsMap, email);
-
-}
