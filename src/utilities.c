@@ -3,6 +3,8 @@
 #include <stdbool.h>
 #include "utilities.h"
 
+static int getDigitsCount(int number);
+
 /*
  * duplicateString: Allocates and duplicates a new copy given string
  *
@@ -32,3 +34,48 @@ char* duplicateString(const char *string)
 bool areStringsEquel(const char *first, const char *second) {
 	return (strcmp(first, second) == 0);
 }
+
+/*
+* IntToString: gets an intager and returns a string with the number
+* this method uses malloc to allocate the string
+*
+* @param number the number.
+*
+* @return
+* 	NULL if allocation failed; else returns the string
+ */
+char* IntToString(int number) {
+	int length = getDigitsCount(number);
+	int word_length = length + (number < 0 ? 2 : 1);
+	char* result = malloc(sizeof(char) * (word_length));
+	if (result == NULL) return NULL;
+	int start_index = 0;
+	if (number < 0) {
+		result[0] = NEGATIVE_SIGN;
+		start_index++;
+	}
+	result[word_length - 1] = END_OF_STRING;
+	for (int i = word_length - 2; i > start_index; i--) {
+		result[i] = DIGITS_STRING[number % 10];
+		number /= 10;
+	}
+	return result;
+}
+
+/*
+* getDigitsCount: gets an intager and returns its digits count
+*
+* @param number the number.
+*
+* @return
+* the digits count
+ */
+static int getDigitsCount(int number) {
+	int count = 0;
+	do {
+		count++;
+		number /= 10;
+	} while (number != 0);
+	return count;
+}
+

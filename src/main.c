@@ -7,10 +7,11 @@
 
 int RunEmailTest();
 int	RunAgentManagerTest();
+int RunClientTest();
 
 int main(){
 	RunEmailTest();
+	RunClientTest();
 	RunAgentManagerTest();
-
 	return 0;
 }
