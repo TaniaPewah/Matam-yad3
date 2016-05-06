@@ -3,12 +3,13 @@
 #include <stdio.h>
 #include <string.h>
 #include "apartment_service.h"
-#include "agentsManager_test.h"
 #include "aux_macros.h"
-//#include "email_test.c"
+
+int RunEmailTest();
+int	RunAgentManagerTest();
 
 int main(){
-
+	RunEmailTest();
 	RunAgentManagerTest();
 
 	return 0;

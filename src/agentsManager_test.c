@@ -8,7 +8,6 @@
 #include "agent.h"
 #include "apartment_service.h"
 
-static int RunAgentManagerTest();
 static bool testAgentsManagerAddService();
 static bool testAgentCreate();
 static bool testAgentsManagerAddAgent();
