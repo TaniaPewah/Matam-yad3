@@ -6,14 +6,15 @@
 #include "test_utilities.h"
 #include "agentsManager.h"
 #include "agent.h"
-#include "agentsManager_test.h"
 #include "apartment_service.h"
 
+static int RunAgentManagerTest();
 static bool testAgentsManagerAddService();
 static bool testAgentCreate();
 static bool testAgentsManagerAddAgent();
 static bool testAgentsManagerCreate();
 
+//int main() {
 int RunAgentManagerTest() {
 
 	RUN_TEST( testAgentsManagerCreate );
