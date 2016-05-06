@@ -104,6 +104,8 @@ int agentGetTax( Agent agent ){
  void agentDestroy(Agent agent) {
  	if (agent != NULL) {
  		emailDestroy( agent->email );
+ 		free(agent->companyName);
+ 		mapDestroy( agent->apartmentServices );
  		free(agent);
  	}
  }
@@ -152,6 +154,34 @@ AgentResult agentAddService( Agent agent, ApartmentService service,
 	else
 		return AGENT_SUCCESS;
 }
+
+/**
+ * agentAddService: removes the apartment service from the requested agent
+ *
+ * @param agent - target agent
+ * @param serviceName  the name of the requested service
+ *
+ * @return
+ *
+ * 	AGENT_INVALID_PARAMETERS  			if any of the parameters is NULL
+ * 	AGENT_APARTMENT_SERVICE_NOT_EXISTS 	if the service does not exist
+ *	AGENT_SUCCESS    		  			if succeeded
+ */
+AgentResult agentRemoveService( Agent agent, char* service_name ){
+
+	if( agent == NULL || service_name == NULL )
+		return AGENT_INVALID_PARAMETERS;
+
+	MapResult result =
+		mapRemove( agent->apartmentServices, (constMapKeyElement)service_name);
+	if ( result == MAP_NULL_ARGUMENT )
+		return AGENT_INVALID_PARAMETERS;
+	if ( result == MAP_ITEM_DOES_NOT_EXIST )
+		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+
+	return AGENT_SUCCESS;
+}
+
 
 /**
 * agentAddApartmentToService: add apartment to apartment service
@@ -258,6 +288,60 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 		return AGENT_SUCCESS;
 }
 
+/**
+* agentFindMatch: finds a matching apartment in each of the agent's services
+*
+* @param agent   	the requested agent
+* @param min_rooms  the minimum amounts of rooms in the requested apartment
+* @param min_area   the minimum area in the requested apartment
+* @param max_price  the maximum price of the apartment
+* @param details out parameter AgentDetails instance with the details of the
+* 				 agent - if the requested apartment was found in at least one
+* 				 of the apartment services that the
+*
+* @return
+*	AGENT_APARTMENT_NOT_EXISTS          if the matching apartment is not found
+*	AGENT_APARTMENT_SERVICE_NOT_EXISTS  if the current agent has no apartment
+*										services
+*	AGENT_OUT_OF_MEMORY                 if any of the allocations failed
+*	AGENT_SUCCESS                       a match is found
+*/
+AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
+									int max_price, AgentDetails* details ){
+
+	ApartmentService current = mapGetFirst( agent->apartmentServices );
+	if( current == NULL)
+		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+
+	Apartment apartment;
+
+	while( current ){
+		ApartmentServiceResult result =
+			serviceSearch( current, min_area, min_rooms, max_price, &apartment);
+
+		if( result == APARTMENT_SERVICE_OUT_OF_MEM )
+			return AGENT_OUT_OF_MEMORY;
+		if( result == APARTMENT_SERVICE_EMPTY ||
+			result == APARTMENT_SERVICE_NO_FIT )
+			return AGENT_APARTMENT_NOT_EXISTS;
+
+		if( result == APARTMENT_SERVICE_SUCCESS ){
+			*details = agentDetailsCreate( agent->email, agent->companyName );
+
+			if(*details == NULL)
+				return AGENT_OUT_OF_MEMORY;
+
+			return AGENT_SUCCESS;
+		}
+
+		current = mapGetNext( agent->apartmentServices );
+	}
+
+	return AGENT_APARTMENT_NOT_EXISTS;
+}
+
+
+// returns true if id is a positive number
 static bool isTaxValid( int taxPercentage ){
 
 	return ((taxPercentage >=1) && (taxPercentage <= 100));
@@ -288,16 +372,6 @@ AgentResult agentCopy(Agent agent, Agent* result_agent){
 	if (result_state != AGENT_SUCCESS) return  AGENT_OUT_OF_MEMORY;
 	*result_agent = new_agent;
 	return AGENT_SUCCESS;
-}
-
-
-// TODO take care of strdup
-char* strdup(const char* str){
-
-	char *dupstr = malloc(strlen(str) * sizeof(char) + 1);
-	strcpy(dupstr, str);
-
-	return dupstr;
 }
 
 /** Function to be used for copying data elements into the map */

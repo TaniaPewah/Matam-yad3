@@ -12,6 +12,7 @@
 * This type defines end codes for the methods.
 */
 #include "apartment_service.h"
+#include "agentDetails.h"
 #include "email.h"
 
 
@@ -161,5 +162,40 @@ ApartmentService agentGetService( Agent agent, char* serviceName );
  */
 AgentResult agentAddService( Agent agent, ApartmentService service,
 						   char* serviceName );
+
+/**
+ * agentAddService: removes the apartment service from the requested agent
+ *
+ * @param agent - target agent
+ * @param serviceName  the name of the requested service
+ *
+ * @return
+ *
+ * 	AGENT_INVALID_PARAMETERS  			if any of the parameters is NULL
+ * 	AGENT_APARTMENT_SERVICE_NOT_EXISTS 	if the service does not exist
+ *	AGENT_SUCCESS    		  			if succeeded
+ */
+AgentResult agentRemoveService( Agent agent, char* service_name );
+
+/**
+* agentFindMatch: finds a matching apartment in each of the agent's services
+*
+* @param agent   	the requested agent
+* @param min_rooms  the minimum amounts of rooms in the requested apartment
+* @param min_area   the minimum area in the requested apartment
+* @param max_price  the maximum price of the apartment
+* @param details out parameter AgentDetails instance with the details of the
+* 				 agent - if the requested apartment was found in at least one
+* 				 of the apartment services that the
+*
+* @return
+*	AGENT_APARTMENT_NOT_EXISTS          if the matching apartment is not found
+*	AGENT_APARTMENT_SERVICE_NOT_EXISTS  if the current agent has no apartment
+*										services
+*	AGENT_OUT_OF_MEMORY                 if any of the allocations failed
+*	AGENT_SUCCESS                       a match is found
+*/
+AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
+									int max_price, AgentDetails* details );
 
 #endif /* SRC_AGENT_H_ */

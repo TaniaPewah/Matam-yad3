@@ -177,12 +177,21 @@ AgentsManagerResult agentsManagerAddApartmentService(AgentsManager manager,
 AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 										Email email, char* serviceName){
 
-	if( manager == NULL || email == NULL )
+	if( manager == NULL || email == NULL || serviceName == NULL )
 			return AGENT_MANAGER_INVALID_PARAMETERS;
-		if( !agentsManagerGetAgent( manager, email))
+	Agent agent = agentsManagerGetAgent( manager, email);
+		if( agent == NULL )
 			return AGENT_MANAGER_AGENT_NOT_EXISTS;
-		mapRemove( manager->agentsMap, (constMapKeyElement)email);
-		return AGENT_MANAGER_SUCCESS;
+
+	AgentResult result = agentRemoveService( agent, serviceName);
+
+	if( result == AGENT_INVALID_PARAMETERS )
+		return AGENT_MANAGER_INVALID_PARAMETERS;
+
+	if( result == AGENT_APARTMENT_SERVICE_NOT_EXISTS )
+		return AGENT_MANAGER_SERVICE_NOT_EXISTS;
+
+	return AGENT_MANAGER_SUCCESS;
 }
 
 /**
@@ -205,7 +214,8 @@ AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
 				Email email, char* serviceName, Apartment apartment, int id ){
 
-	if( manager == NULL || email == NULL ||	apartment == NULL )
+	if( manager == NULL || email == NULL ||	apartment == NULL ||
+															!idIsValid( id ))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 	Agent agent = agentsManagerGetAgent( manager, email);
 	if( agent == NULL )
@@ -252,7 +262,7 @@ AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
 */
 AgentsManagerResult agentsManagerRemoveApartmentFromService(
 	AgentsManager manager, Email email, char* serviceName, int apartmentId ){
-	if( manager == NULL || email == NULL || serviceName ||
+	if( manager == NULL || email == NULL || serviceName == NULL ||
 												!idIsValid( apartmentId ) )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 
