@@ -32,13 +32,13 @@ static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
 
 //int main() {
 int RunAgentManagerTest() {
-	/*RUN_TEST(testAgentsManagerCreate);
+	RUN_TEST(testAgentsManagerCreate);
 	RUN_TEST(testAgentsManagerAddAgent);
 	RUN_TEST(testAgentsManagerRemoveAgent);
 	RUN_TEST(testAgentsManagerAddService);
 	RUN_TEST(testAgentsManagerRemoveService);
 	RUN_TEST(testAgentsManagerAddApartmentToService);
-	RUN_TEST(testAgentsManagerRemoveApartmentFromService);*/
+	RUN_TEST(testAgentsManagerRemoveApartmentFromService);
 	RUN_TEST(testAgentManagerFindMatch);
 	return 0;
 }
@@ -206,14 +206,11 @@ static bool testAgentManagerFindMatch(){
 
 	Email email = NULL;
 	emailCreate( "baba@ganosh", &email );
-	Agent agent = NULL;
-	agentCreate(email,"tania",5, &agent);
 
 	AgentsManager manager = agentsManagerCreate();
-	agentsManagerAdd( manager, agent );
-	ApartmentService service = serviceCreate( 2 );
+	agentsManagerAdd( manager, email, "tania" , 5);
 
-	agentsManagerAddApartmentService( manager, email, service, "serveMe");
+	agentsManagerAddApartmentService( manager, email, "serveMe", 2);
 
 	SquareType square[2] = { WALL, EMPTY };
 	SquareType* squarePtr = square;
@@ -222,17 +219,14 @@ static bool testAgentManagerFindMatch(){
 	AgentsManagerResult result;
 	agentsManagerAddApartmentToService(	manager, email, "serveMe", apartment, 1 );
 
-	/*Map mm = mapCreate(GetDataCopy, GetKeyCopy,
-	 			FreeData, FreeKey, CompareKeys);
-
-	mapPut(mm, "serve", service);
-	char* name = mapGetFirst(mm );*/
 	List agents_list = listCreate(copyListElement, freeListElement);
 	result = agentManagerFindMatch( manager, 1, 1 , 1000, &agents_list);
 	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
+	ASSERT_TEST( listGetSize(agents_list) == 1);
 
-	//result = agentManagerFindMatch( manager, 1, 1 , 10, &agents_list);
-	//ASSERT_TEST( result == AGENT_MANAGER_APARTMENT_NOT_EXISTS );
+	listClear(agents_list);
+	result = agentManagerFindMatch( manager, 1, 1 , 10, &agents_list);
+	ASSERT_TEST( result == AGENT_MANAGER_APARTMENT_NOT_EXISTS );
 	return true;
 }
 

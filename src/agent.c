@@ -127,10 +127,13 @@ int agentGetTax( Agent agent ){
  * 	NULL  if agent is NULL or the service by this name is not found
  *	apartment service otherwise
  */
-ApartmentService agentGetService(Agent agent, char* serviceName) {
+ApartmentService agentGetService( Agent agent, char* serviceName ){
+
 	ApartmentService service = NULL;
-	if (serviceName != NULL)
-		service = mapGet(agent->apartmentServices, serviceName);
+
+	if( serviceName != NULL )
+		service = mapGet( agent->apartmentServices,
+						serviceName );
 	return service;
 }
 
@@ -144,21 +147,9 @@ ApartmentService agentGetService(Agent agent, char* serviceName) {
  * @return
  *
  * 	AGENT_INVALID_PARAMETERS  if any of the parameters is NULL
- *
  * 	AGENT_OUT_OF_MEMORY       if failed to add the service to serviceMap
- *
  *	AGENT_SUCCESS    		  if succeeded
  */
-<<<<<<< HEAD
-AgentResult agentAddService( Agent agent, ApartmentService service,
-						   char* serviceName ){
-	if( agent == NULL || service == NULL || serviceName == NULL)
-		return AGENT_INVALID_PARAMETERS;
-	if (mapPut( agent->apartmentServices, serviceName, service) != MAP_SUCCESS)
-		return AGENT_OUT_OF_MEMORY;
-	else
-		return AGENT_SUCCESS;
-=======
 AgentResult agentAddService(Agent agent, char* serviceName,
 		int max_apartments) {
 	if(agent == NULL || serviceName == NULL || max_apartments <= 0 ||
@@ -170,7 +161,6 @@ AgentResult agentAddService(Agent agent, char* serviceName,
 	serviceDestroy(service);
 	if (result != MAP_SUCCESS) return AGENT_OUT_OF_MEMORY;
 	return AGENT_SUCCESS;
->>>>>>> branch 'master' of https://github.com/TaniaPewah/mtm_yad3.git
 }
 
 /**
@@ -199,7 +189,6 @@ AgentResult agentRemoveService( Agent agent, char* service_name ){
 
 	return AGENT_SUCCESS;
 }
-
 
 /**
 * agentAddApartmentToService: add apartment to apartment service
@@ -355,8 +344,10 @@ AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 			return AGENT_SUCCESS;
 		}
 
+		current = NULL;
 		name = mapGetNext( agent->apartmentServices );
-		current = mapGet( agent->apartmentServices, name );
+		if( name != NULL)
+			current = mapGet( agent->apartmentServices, name );
 	}
 
 	return AGENT_APARTMENT_NOT_EXISTS;

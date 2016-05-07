@@ -339,15 +339,11 @@ AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
 	if ( manager == NULL || result_list == NULL || !isValid(min_area) ||
 			!isValid(min_rooms) || !isPriceValid(max_price))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
-	AgentsManagerResult manager_result = AGENT_MANAGER_SUCCESS;
 	Email curr_email = mapGetFirst( manager->agentsMap );
+	Agent curr_agent = NULL;
+	if( curr_email != NULL)
+		curr_agent = agentsManagerGetAgent( manager, curr_email);
 
-	if( curr_email == NULL)
-		manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
-	Agent curr_agent = agentsManagerGetAgent( manager, curr_email);
-
-	if( curr_agent == NULL)
-		manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
 	AgentDetails curr_details;
 
 	List agents_list = listCreate(copyListElement, freeListElement);
@@ -362,30 +358,25 @@ AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
 			listDestroy(agents_list);
 			return AGENT_MANAGER_OUT_OF_MEMORY;
 		}
-
 		if( result == AGENT_SUCCESS &&
 			listInsertLast(agents_list, (ListElement)(curr_details)) ==
 															LIST_OUT_OF_MEMORY){
 				listDestroy(agents_list);
 				return AGENT_MANAGER_OUT_OF_MEMORY;
-			}
+		}
 
+		curr_agent= NULL;
 		curr_email = mapGetNext( manager->agentsMap );
-		if( curr_email == NULL)
-			manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
-		curr_agent = agentsManagerGetAgent( manager, curr_email);
-
-		if( curr_agent == NULL)
-			manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
+		if( curr_email != NULL)
+			curr_agent = agentsManagerGetAgent( manager, curr_email);
 	}
 
-	if( listGetSize( agents_list ) > 0 ){
-		manager_result = AGENT_MANAGER_SUCCESS;
-	}
+	if( listGetSize( agents_list ) == 0 )
+		return AGENT_MANAGER_APARTMENT_NOT_EXISTS;
 
 	*result_list = agents_list;
 
-	return manager_result;
+	return AGENT_MANAGER_SUCCESS;
 }
 
 /* agentsManagerAgentExists: The function checks whether there is an agent
