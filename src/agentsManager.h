@@ -190,5 +190,7 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email);
 AgentsManagerResult agentManagerFindMatch(AgentsManager manager, int min_rooms,
 					 int min_area, int max_price, List* result_list);
 
+AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
+		List* significal_list );
 
 #endif /* SRC_AGENTSMANAGER_H_ */

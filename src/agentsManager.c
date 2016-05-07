@@ -394,6 +394,53 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
 	return mapContains(manager->agentsMap, email);
 }
 
+AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
+		List* significant_list ){
+	if (isValid(count)){
+
+		Agent curr_agent = NULL;
+		Email curr_email = mapGetFirst(manager->agentsMap);
+		if( curr_email != NULL)
+			curr_agent = agentsManagerGetAgent( manager, curr_email);
+
+		AgentDetails curr_details;
+		List agents_list = listCreate(copyListElement, freeListElement);
+		if(agents_list == NULL)
+			return AGENT_MANAGER_OUT_OF_MEMORY;
+
+		int rank;
+		while( curr_agent ){
+
+			rank = agentGetRank( curr_agent );
+			if( rank != RANK_EMPTY ){
+
+				curr_details = agentDetailsCreate( curr_email,
+										agentGetCompany( curr_agent ), rank);
+				if(curr_details == NULL)
+					listDestroy( agents_list );
+					return AGENT_MANAGER_OUT_OF_MEMORY;
+
+				if ( listInsertLast(agents_list, curr_details) ==
+						LIST_OUT_OF_MEMORY){
+					listDestroy( agents_list );
+					return AGENT_MANAGER_OUT_OF_MEMORY;
+				}
+			}
+
+			curr_agent = NULL;
+			curr_email = mapGetFirst(manager->agentsMap);
+			if( curr_email != NULL)
+				curr_agent = agentsManagerGetAgent( manager, curr_email);
+		}
+
+		*significant_list = agents_list;
+
+		return AGENT_MANAGER_SUCCESS;
+	}
+	return AGENT_MANAGER_INVALID_PARAMETERS;
+}
+
+
 /* isValid: The function checks whether the given apartment numerical
  * 					param is valid
  *

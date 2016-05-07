@@ -9,6 +9,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "agent.h"
+#include "apartment_service.h"
 #include "utilities.h"
 #include "map.h"
 
@@ -35,6 +36,17 @@ static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
  */
 Email agentGetMail( Agent agent ){
 	 return(agent->email);
+}
+
+/**
+* agentGetCompany: gets the agents companyName
+*
+* @param  agent  - Target Agent
+*
+* @return the agent's companyName
+*/
+char* agentGetCompany( Agent agent ){
+	 return(agent->companyName);
 }
 
 /**
@@ -336,7 +348,8 @@ AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 			return AGENT_APARTMENT_NOT_EXISTS;
 
 		if( result == APARTMENT_SERVICE_SUCCESS ){
-			*details = agentDetailsCreate( agent->email, agent->companyName );
+			*details = agentDetailsCreate( agent->email, agent->companyName,
+					RANK_EMPTY);
 
 			if(*details == NULL)
 				return AGENT_OUT_OF_MEMORY;
@@ -353,6 +366,53 @@ AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 	return AGENT_APARTMENT_NOT_EXISTS;
 }
 
+/**
+* agentGetRank: calculates the rank of the agent according to a formula
+*
+* @param agent 	the requested agent
+*
+* @return
+*	the rank of the agent agent if agent has at least 1 apartment, and -1
+*	if has no apartments
+*/
+int agentGetRank( Agent agent ){
+
+	if( agent == NULL )
+			return AGENT_INVALID_PARAMETERS;
+
+	int apartments_count = 0;
+	int median_price = 0;
+	int median_area = 0;
+	int out = 0;
+
+	char* name = mapGetFirst( agent->apartmentServices );
+	ApartmentService current;
+	if( name != NULL)
+		current = mapGet( agent->apartmentServices, name );
+
+	while( current ){
+
+		if (serviceAreaMedian( current, &out ) != APARTMENT_SERVICE_EMPTY ){
+			median_area += out;
+			out = 0;
+			servicePriceMedian( current, &out );
+			median_price += out;
+			out = 0;
+			apartments_count++;
+		}
+
+		current = NULL;
+		name = mapGetNext( agent->apartmentServices );
+		if( name != NULL)
+			current = mapGet( agent->apartmentServices, name );
+	}
+
+	median_price /= apartments_count;
+	median_area /= apartments_count;
+
+	return apartments_count ?
+		(1000000 * apartments_count + median_price + 100000 * median_area) : -1;
+}
 
 // returns true if id is a positive number
 static bool isTaxValid( int taxPercentage ){

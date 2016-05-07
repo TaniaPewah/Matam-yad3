@@ -26,7 +26,7 @@ typedef struct agentDetails_t *AgentDetails;
 * 	A new AgentDetails element or NULL if :email is NULL, companyName is null,
 * 	or if allocation failed.
 */
-AgentDetails agentDetailsCreate(Email email, char* companyName );
+AgentDetails agentDetailsCreate(Email email, char* companyName, int rank );
 
 /**
 * agentDetailsCopy: Allocates a new AgentDetails instance,

@@ -15,6 +15,7 @@
 struct agentDetails_t {
 	Email email;
 	char* companyName;
+	int rank;
 };
 
 /**
@@ -31,13 +32,14 @@ struct agentDetails_t {
 * 	A new AgentDetails element or NULL if :email is NULL, companyName is null,
 * 	or if allocation failed.
 */
-AgentDetails agentDetailsCreate(Email email, char* company_name ){
+AgentDetails agentDetailsCreate(Email email, char* company_name, int rank ){
 
 	if (email == NULL || company_name == NULL)
 		return NULL;
 	AgentDetails agent_details = malloc(sizeof(*agent_details));
 	if (agent_details == NULL)
 		return NULL;
+	agent_details->rank = rank;
 	agent_details->email = NULL;
 	emailCopy(email, &agent_details->email);
 	agent_details->companyName = duplicateString( company_name );
@@ -64,7 +66,8 @@ AgentDetails agentDetailsCreate(Email email, char* company_name ){
 AgentDetails agentDetailsCopy( AgentDetails agent_details){
 	if (agent_details == NULL) return NULL;
 		return agentDetailsCreate( agent_details->email,
-								   agent_details->companyName);
+								   agent_details->companyName,
+								   agent_details->rank);
 }
 
 /**
@@ -77,9 +80,9 @@ AgentDetails agentDetailsCopy( AgentDetails agent_details){
 */
 void agentDetailsDestroy( AgentDetails agent_details ){
 	if (agent_details != NULL) {
-			emailDestroy(agent_details->email);
-			free(agent_details->companyName);
-			free(agent_details);
-		}
+		emailDestroy(agent_details->email);
+		free(agent_details->companyName);
+		free(agent_details);
+	}
 }
 

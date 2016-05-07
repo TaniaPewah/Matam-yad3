@@ -15,8 +15,8 @@
 #include "agentDetails.h"
 #include "email.h"
 
-
 #define AT_SIGN '@'
+#define RANK_EMPTY -1
 
 typedef enum {
 	AGENT_OUT_OF_MEMORY = 0,
@@ -38,6 +38,15 @@ typedef struct Agent_t* Agent;
  * @return the agent's mail
  */
 Email agentGetMail(Agent agent);
+
+/**
+* agentGetCompany: gets the agents companyName
+*
+* @param  agent  - Target Agent
+*
+* @return the agent's companyName
+*/
+char* agentGetCompany( Agent agent );
 
 /**
 * Allocates a new agent.
@@ -199,5 +208,16 @@ AgentResult agentRemoveService(Agent agent, char* service_name);
 */
 AgentResult agentFindMatch(Agent agent, int min_rooms, int min_area,
 									int max_price, AgentDetails* details);
+
+/**
+* agentGetRank: calculates the rank of the agent according to a formula
+*
+* @param agent 	the requested agent
+*
+* @return
+*	the rank of the agent agent if agent has at least 1 apartment, and -1
+*	if has no apartments
+*/
+int agentGetRank( Agent agent );
 
 #endif /* SRC_AGENT_H_ */
