@@ -209,13 +209,13 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 }
 
 /** Function to be used for freeing data elements from list */
-void freeListElement(ListElement element) {
+static void freeListElement(ListElement element) {
 	if (element != NULL)
 		clientPurchaseBillDestroy((ClientPurchaseBill)element);
 }
 
 /** Function to be used for coping data elements from list */
-ListElement copyListElement(ListElement element) {
+static ListElement copyListElement(ListElement element) {
 	ClientPurchaseBill new_bill =
 			clientPurchaseBillCopy((ClientPurchaseBill)element);
 	return new_bill;
