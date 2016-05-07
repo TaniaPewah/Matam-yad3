@@ -10,6 +10,7 @@
 
 #include "agent.h"
 #include "email.h"
+#include "list.h"
 
 /**
 * This type defines end codes for the methods.
@@ -156,5 +157,24 @@ AgentsManagerResult agentsManagerRemoveApartmentFromService(
  * the managers collection; else if agent exists returns true.
  */
 bool agentsManagerAgentExists(AgentsManager manager, Email email);
+
+/**
+* agentFindMatch: finds a matching apartment in each of the agent's services
+*
+* @param manager   	the agent manager
+* @param min_rooms  the minimum amounts of rooms in the requested apartment
+* @param min_area   the minimum area in the requested apartment
+* @param max_price  the maximum price of the apartment
+* @param details out parameter AgentDetails array with the details of the
+* 				 agents who has the matching apartments
+*
+* @return
+*	AGENT_MANAGER_APARTMENT_NOT_EXISTS  if the matching apartment is not found
+*	AGENT_MANAGER_OUT_OF_MEMORY                 if any of the allocations failed
+*	AGENT_MANAER_SUCCESS                at least one match is found
+*/
+AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
+					 int min_area, int max_price, List* result_list );
+
 
 #endif /* SRC_AGENTSMANAGER_H_ */

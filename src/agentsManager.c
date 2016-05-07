@@ -10,7 +10,9 @@
 #include <string.h>
 #include "agentsManager.h"
 #include "agent.h"
+#include "agentDetails.h"
 #include "map.h"
+#include "list.h"
 
 struct agentsManager_t {
 
@@ -24,6 +26,8 @@ static MapKeyElement GetKeyCopy(constMapKeyElement key);
 static void FreeData(MapDataElement data);
 static void FreeKey(MapKeyElement key);
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
+static void freeListElement(ListElement element);
+static ListElement copyListElement(ListElement element);
 
 /**
 * Allocates a new AgentsManager.
@@ -293,6 +297,65 @@ AgentsManagerResult agentsManagerRemoveApartmentFromService(
 	return AGENT_MANAGER_SUCCESS;
 }
 
+/**
+* agentFindMatch: finds a matching apartment in each of the agent's services
+*
+* @param agent   	the requested agent
+* @param min_rooms  the minimum amounts of rooms in the requested apartment
+* @param min_area   the minimum area in the requested apartment
+* @param max_price  the maximum price of the apartment
+* @param details out parameter AgentDetails array with the details of the
+* 				 agents who has the matching apartments
+*
+* @return
+*	AGENT_MANAGER_APARTMENT_NOT_EXISTS  if the matching apartment is not found
+*	AGENT_OUT_OF_MEMORY                 if any of the allocations failed
+*	AGENT_MANAER_SUCCESS                at least one match is found
+*/
+AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
+					 int min_area, int max_price, List* result_list ){
+
+	if (manager == NULL || result_list == NULL)
+		return AGENT_MANAGER_INVALID_PARAMETERS;
+	AgentsManagerResult manager_result = AGENT_MANAGER_SUCCESS;
+	Agent current = mapGetFirst( manager->agentsMap );
+
+	if( current == NULL)
+		manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
+	AgentDetails curr_details;
+
+	List agents_list = listCreate(copyListElement, freeListElement);
+
+	if(agents_list == NULL ) return AGENT_MANAGER_OUT_OF_MEMORY;
+
+	while( current ){
+
+		AgentResult result = agentFindMatch( current, min_area,
+										min_rooms, max_price, &curr_details);
+		if( result == AGENT_OUT_OF_MEMORY ){
+			listDestroy(agents_list);
+			return AGENT_MANAGER_OUT_OF_MEMORY;
+		}
+
+		if( result == AGENT_SUCCESS &&
+			listInsertLast(agents_list, (ListElement)(curr_details)) ==
+															LIST_OUT_OF_MEMORY){
+				listDestroy(agents_list);
+				return AGENT_MANAGER_OUT_OF_MEMORY;
+			}
+
+		current = mapGetNext( manager->agentsMap );
+	}
+
+	if( listGetSize( agents_list ) > 0 ){
+		manager_result = AGENT_MANAGER_SUCCESS;
+	}
+
+	*result_list = agents_list;
+
+	return manager_result;
+}
+
 /* agentsManagerAgentExists: The function checks whether there is an agent
  * registered under the given e-mail
  *
@@ -340,3 +403,17 @@ static void FreeKey(MapKeyElement key) {
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
 	return emailComapre((Email)first, (Email)second);
 }
+
+/** Function to be used for freeing data elements from list */
+void freeListElement(ListElement element) {
+	if (element != NULL)
+		agentDetailsDestroy((AgentDetails)element);
+}
+
+/** Function to be used for coping data elements from list */
+ListElement copyListElement(ListElement element) {
+	AgentDetails agent_details =
+			agentDetailsCopy((AgentDetails)element);
+	return agent_details;
+}
+
