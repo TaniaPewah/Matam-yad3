@@ -123,10 +123,10 @@ static bool testClientPurchaseBillGeters() {
 	ASSERT_TEST(bill_2 != NULL);
 	ASSERT_TEST(clientPurchaseBillGetClientEmailAddress(NULL) == NULL);
 	char* address = clientPurchaseBillGetClientEmailAddress(bill_1);
-	ASSERT_TEST(areStringsEquel(address, good_mail_1) == true);
+	ASSERT_TEST(areStringsEqual(address, good_mail_1) == true);
 	ASSERT_TEST(clientPurchaseBillGetMoneyPaidString(NULL) == NULL);
 	char* paid = clientPurchaseBillGetMoneyPaidString(bill_2);
-	ASSERT_TEST(areStringsEquel(paid, "500") == true);
+	ASSERT_TEST(areStringsEqual(paid, "500") == true);
 	free(address);
 	free(paid);
 	clientPurchaseBillDestroy(bill_1);

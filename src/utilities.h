@@ -17,7 +17,7 @@
 char* duplicateString(const char *string);
 
 /*
- * areStringsEquel: checks if two strings are equal using the srtcmp method
+ * areStringsEqual: checks if two strings are equal using the srtcmp method
  *
  * * @param first first string.
  * * @param second second string.
@@ -25,7 +25,7 @@ char* duplicateString(const char *string);
 * @return
 * 	true if equals; else returns false
  */
-bool areStringsEquel(const char *first, const char *second);
+bool areStringsEqual(const char *first, const char *second);
 
 /*
 * IntToString: gets an intager and returns a string with the number
