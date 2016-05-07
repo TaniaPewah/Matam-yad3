@@ -197,7 +197,7 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 		return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
 	if (client_exists) return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
 	AgentsManagerResult agent_result = agentsManagerRemoveApartmentService
-			(service->clients, mail, service_name);
+			(manager, mail, service_name);
 	if (agent_result != CLIENT_MANAGER_SUCCESS) {
 		emailDestroy(mail);
 		return ConvertClientManagerResult(agent_result);
