@@ -461,28 +461,28 @@ AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
 }
 
 
-/* isValid: The function checks whether the given apartment numerical
- * 					param is valid
- *
- * @param  The param to check.
- *
- * * @return
- * false if invalid; else returns true.
- */
-static bool isValid( int param ){
-	return param > 0;
-}
-
-/* priceisValid: The function checks whether the price gane be divided by 10
- *
- * @price  The price to check.
- *
- * * @return
- * false if invalid; else returns true.
- */
-static bool isPriceValid( int price ){
-	return !(price%10);
-}
+///* isValid: The function checks whether the given apartment numerical
+// * 					param is valid
+// *
+// * @param  The param to check.
+// *
+// * * @return
+// * false if invalid; else returns true.
+// */
+//static bool isValid( int param ){
+//	return param > 0;
+//}
+//
+///* priceisValid: The function checks whether the price gane be divided by 10
+// *
+// * @price  The price to check.
+// *
+// * * @return
+// * false if invalid; else returns true.
+// */
+//static bool isPriceValid( int price ){
+//	return !(price%10);
+//}
 
 
 
