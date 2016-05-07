@@ -209,7 +209,7 @@ AgentsManagerResult agentManagerFindMatch(AgentsManager manager, int min_rooms,
  * AGENT_MANAGER_OUT_OF_MEMORY 		if an allocation problem occurred
  * AGENT_MANAGER_SUCCESS			otherwise
  */
-AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
-		List* significal_list );
+AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
+		int count, List* significal_list );
 
 #endif /* SRC_AGENTSMANAGER_H_ */

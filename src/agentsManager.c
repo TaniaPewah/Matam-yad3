@@ -411,8 +411,8 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
  * AGENT_MANAGER_OUT_OF_MEMORY 		if an allocation problem occurred
  * AGENT_MANAGER_SUCCESS			otherwise
  */
-AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
-		List* significant_list ){
+AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
+		int count, List* significant_list ){
 	if (isValid(count)){
 
 		Agent curr_agent = NULL;
