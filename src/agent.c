@@ -30,6 +30,7 @@ static AgentResult squresCreate(int width, int height, char* matrix,
 		SquareType*** result);
 static void squresDestroy(SquareType** squres, int length);
 static AgentResult ConvertServiceResult(ApartmentServiceResult result);
+static bool isTaxValid( int taxPercentage );
 
  /**
  * agentGetMail: gets the agents mail
@@ -474,7 +475,6 @@ int agentGetRank( Agent agent ){
 		(1000000 * apartments_count + median_price + 100000 * median_area) : -1;
 }
 
-// returns true if id is a positive number
 static bool isTaxValid( int taxPercentage ){
 
 	return ((taxPercentage >=1) && (taxPercentage <= 100));
