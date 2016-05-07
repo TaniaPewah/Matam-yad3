@@ -37,8 +37,8 @@ int RunAgentManagerTest() {
 	RUN_TEST(testAgentsManagerRemoveAgent);
 	RUN_TEST(testAgentsManagerAddService);
 	RUN_TEST(testAgentsManagerRemoveService);
-	RUN_TEST(testAgentsManagerAddApartmentToService);
-	RUN_TEST(testAgentsManagerRemoveApartmentFromService);
+	//RUN_TEST(testAgentsManagerAddApartmentToService);
+	//RUN_TEST(testAgentsManagerRemoveApartmentFromService);
 	RUN_TEST(testAgentManagerFindMatch);
 	return 0;
 }
