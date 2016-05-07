@@ -9,6 +9,7 @@ struct Email_t {
 	char* address;
 };
 
+static int countSign(char* adress, char sign);
 static char* duplicateString(const char *str);
 
 /**
@@ -32,7 +33,7 @@ static char* duplicateString(const char *str);
 */
 EmailResult emailCreate(char* address, Email* result) {
 	if (address == NULL || result == NULL) return EMAIL_NULL_PARAMETERS;
-	if (strchr(address, AT_SIGN) == NULL) return EMAIL_INVALID_PARAMETERS;
+	if (countSign(address, AT_SIGN) != 1) return EMAIL_INVALID_PARAMETERS;
 	char* adress_copy = duplicateString(address);
 	if (adress_copy == NULL) return EMAIL_OUT_OF_MEMORY;
 	Email mail = malloc(sizeof(*mail));
@@ -44,6 +45,19 @@ EmailResult emailCreate(char* address, Email* result) {
 		*result = mail;
 		return EMAIL_SUCCESS;
 	}
+}
+
+
+/*
+ * Method counts the amount of time sign appears on address
+ */
+static int countSign(char* address, char sign) {
+	int count = 0, index = 0;
+	while (address[index] != '\0') {
+		count += (address[index] == sign ? 1 : 0);
+		index++;
+	}
+	return count;
 }
 
 /**

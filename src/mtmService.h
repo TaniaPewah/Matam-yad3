@@ -262,4 +262,41 @@ MTMServiceResult mtmServiceAddClient(MTMService Service, char* email_adress,
 MTMServiceResult mtmServiceRemoveClient(MTMService service,
 	char* email_adress);
 
+/*
+ * mtmServiceClientPurchaseApartment: preforms an apartment prochase proccess
+ * 	by a client.
+*
+* @param service service to remove from.
+* @param client_email client email address.
+* @param agent_email agent email address.
+* @param service_name agent apartment service name.
+* @param id apartment id.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service, emails, or service_name is NULL,
+* 		or if email_adress is illegal, or if id is negative.
+*
+* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 		the given email address.
+*
+* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 		agent and not a client.
+*
+*	MTM_APARTMENT_SERVICE_DOES_NOT_EXIST if apartment service does not exist
+*
+*	MTM_APARTMENT_DOES_NOT_EXIST if apartment does not exist
+*
+*	MTM_PURCHASE_WRONG_PROPERTIES if client cant buy the  apartent, because it
+*		is too small for him or if it is too expansive.
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+* 	MTM_SERVICE_SUCCESS the client removed successfully
+*
+*/
+MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
+	char* client_email, char* agent_email, char* service_name,
+	int id);
+
 #endif /* SRC_MTMSERVICE_H_ */

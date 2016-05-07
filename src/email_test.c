@@ -30,6 +30,7 @@ static bool testEmailCreate() {
 	char* bad_mail_1  = "baba+ganosh";
 	char* bad_mail_2  = "";
 	char* bad_mail_3  = "lala lala";
+	char* bad_mail_4  = "baba@ga@nosh";
 	Email mail;
 	ASSERT_TEST(emailCreate(NULL, NULL) == EMAIL_NULL_PARAMETERS);
 	ASSERT_TEST(emailCreate(NULL, &mail) == EMAIL_NULL_PARAMETERS);
@@ -37,6 +38,7 @@ static bool testEmailCreate() {
 	ASSERT_TEST(emailCreate(bad_mail_1, &mail) == EMAIL_INVALID_PARAMETERS);
 	ASSERT_TEST(emailCreate(bad_mail_2, &mail) == EMAIL_INVALID_PARAMETERS);
 	ASSERT_TEST(emailCreate(bad_mail_3, &mail) == EMAIL_INVALID_PARAMETERS);
+	ASSERT_TEST(emailCreate(bad_mail_4, &mail) == EMAIL_INVALID_PARAMETERS);
 	ASSERT_TEST(emailCreate(good_mail, &mail) == EMAIL_SUCCESS);
 	ASSERT_TEST(mail != NULL);
 	emailDestroy(mail);

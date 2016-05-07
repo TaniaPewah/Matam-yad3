@@ -35,7 +35,9 @@ static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
 static MTMServiceResult CommitClientPurchaseApartment(MTMService service,
 	Email client, Email agent, char* service_name, int id, int finalPrice);
 
+
 /*
+ *
  * mtmServiceAddAgent: Adds new agent with the given parameters.
 *
 * @param service service to add to.
@@ -102,17 +104,9 @@ MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress){
 	if ((service == NULL) || (email_adress == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	EmailResult result = emailCreate(email_adress, &mail);
-	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
-	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
-	bool client_exists = clientsManagerClientExists(service->clients, mail);
-	if ((!agent_exists) && (!client_exists)) {
-		emailDestroy(mail);
-		return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
-	} else if (client_exists) {
-		emailDestroy(mail);
-		return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
-	}
+	MTMServiceResult result = CreateEmailAndSearchForAgent(service,
+			email_adress, &mail);
+	if (result != MTM_SERVICE_SUCCESS)	return result;
 	AgentsManagerResult agents_result =
 		agentsManagerRemove(service->agents, mail);
 	if (agents_result != AGENT_MANAGER_SUCCESS) {
@@ -158,17 +152,9 @@ MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
 	if ((service == NULL) || (email_adress == NULL)|| (service_name == NULL) ||
 			(max_apartments <= 0)) return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	EmailResult email_result = emailCreate(email_adress, &mail);
-	if (email_result != EMAIL_SUCCESS) return ConvertEmailResult(email_result);
-	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
-	bool client_exists = clientsManagerClientExists(service->clients, mail);
-	if ((!agent_exists) && (!client_exists)) {
-		emailDestroy(mail);
-		return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
-	} else if (client_exists) {
-		emailDestroy(mail);
-		return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
-	}
+	MTMServiceResult result = CreateEmailAndSearchForAgent(service,
+		email_adress, &mail);
+	if (result != MTM_SERVICE_SUCCESS) return result;
 	AgentsManagerResult agents_result = agentsManagerAddApartmentService
 			(service->agents, mail, service_name, max_apartments);
 	emailDestroy(mail);
@@ -202,13 +188,9 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 	if ((service == NULL) || (email_adress == NULL) || (service_name == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	EmailResult result = emailCreate(email_adress, &mail);
-	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
-	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
-	bool client_exists = clientsManagerClientExists(service->clients, mail);
-	if (!agent_exists && !client_exists)
-		return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
-	if (client_exists) return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
+	MTMServiceResult result = CreateEmailAndSearchForAgent(service,
+		email_adress, &mail);
+	if (result != MTM_SERVICE_SUCCESS) return result;
 	AgentsManagerResult agent_result = agentsManagerRemoveApartmentService
 			(service->agents, mail, service_name);
 	if (agent_result != AGENT_MANAGER_SUCCESS) {
@@ -432,17 +414,9 @@ MTMServiceResult mtmServiceRemoveClient(MTMService service,
 	if ((service == NULL) || (email_adress == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	EmailResult result = emailCreate(email_adress, &mail);
-	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
-	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
-	bool client_exists = clientsManagerClientExists(service->clients, mail);
-	if ((!agent_exists) && (!client_exists)) {
-		emailDestroy(mail);
-		return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
-	} else if (agent_exists) {
-		emailDestroy(mail);
-		return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
-	}
+	MTMServiceResult result = CreateEmailAndSearchForClient(service,
+		email_adress, &mail);
+	if (result != MTM_SERVICE_SUCCESS) return result;
 	ClientsManagerResult client_result =
 		clientsManagerRemove(service->clients, mail);
 	if (client_result != CLIENT_MANAGER_SUCCESS) {
