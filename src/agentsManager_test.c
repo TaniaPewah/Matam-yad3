@@ -26,6 +26,7 @@ static bool testAgentsManagerAddApartmentToService();
 static bool testAgentsManagerRemoveApartmentFromService();
 static bool testAgentManagerFindMatch();
 static bool testAgentManagerGetSignificantAgents();
+static bool testAgentsManagerGetApartmentDetails();
 static void freeListElement(ListElement element);
 static ListElement copyListElement(ListElement element);
 
@@ -45,6 +46,7 @@ int RunAgentManagerTest() {
 	RUN_TEST(testAgentsManagerRemoveApartmentFromService);
 	RUN_TEST(testAgentManagerFindMatch);
 	RUN_TEST(testAgentManagerGetSignificantAgents);
+	RUN_TEST(testAgentsManagerGetApartmentDetails);
 	return 0;
 }
 
@@ -272,15 +274,13 @@ static bool testAgentManagerGetSignificantAgents(){
 	AgentsManager manager = agentsManagerCreate();
 	agentsManagerAdd( manager, email, "tania" , TAX_PERCENT);
 	AgentsManagerResult result;
-	result = agentsManagerAddApartmentService( manager, email, "serveMee", 2 );
-	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
+	agentsManagerAddApartmentService( manager, email, "serveMee", 2 );
 
 	Email mail = NULL;
 	emailCreate( "baba@gansh", &mail );
 	agentsManagerAdd( manager, mail, "alon" , TAX_PERCENT);
 
-	result = agentsManagerAddApartmentService( manager, mail, "serveMe", 2 );
-	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
+	agentsManagerAddApartmentService( manager, mail, "serveMe", 2 );
 
 	agentsManagerAddApartmentToService( manager, email, "serveMee",
 				AP_ID, 200, 2, 2,	"weee" );
@@ -307,6 +307,72 @@ static bool testAgentManagerGetSignificantAgents(){
 	return true;
 }
 
+static bool testAgentsManagerGetApartmentDetails(){
+
+	Email email = NULL;
+	emailCreate( "baba@ganosh", &email );
+	Email mail = NULL;
+	emailCreate( "baba@gah", &mail );
+
+	AgentsManager manager = agentsManagerCreate();
+	agentsManagerAdd( manager, email, "tania" , TAX_PERCENT);
+	agentsManagerAddApartmentService( manager, email, "serveMe", 2 );
+	agentsManagerAddApartmentToService( manager, email, "serveMe",
+										AP_ID, 200, 2, 2,	"weee" );
+
+	int area;
+	int rooms_num;
+	int price;
+	int commition;
+
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, email, "serveMe",
+							AP_ID, &area, &rooms_num, &price, NULL ) ==
+									AGENT_MANAGER_INVALID_PARAMETERS);
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, email, "serveMe",
+							AP_ID, &area, &rooms_num, NULL, &commition ) ==
+									AGENT_MANAGER_INVALID_PARAMETERS);
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, email, "serveMe",
+							AP_ID, &area, NULL, &price, &commition ) ==
+									AGENT_MANAGER_INVALID_PARAMETERS);
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, email, "serveMe",
+							AP_ID, NULL, &rooms_num, &price, &commition ) ==
+									AGENT_MANAGER_INVALID_PARAMETERS);
+	ASSERT_TEST( agentsManagerGetApartmentDetails( NULL, email, "serveMe",
+							AP_ID, &area, &rooms_num, &price, &commition ) ==
+									AGENT_MANAGER_INVALID_PARAMETERS);
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, NULL, "serveMe",
+						AP_ID, &area, &rooms_num, &price, &commition ) ==
+								AGENT_MANAGER_INVALID_PARAMETERS);
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, NULL, "serveMe",
+							-2, &area, &rooms_num, &price, &commition ) ==
+									AGENT_MANAGER_INVALID_PARAMETERS);
+
+
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, mail, "serveMe",
+							AP_ID, &area, &rooms_num, &price, &commition ) ==
+									AGENT_MANAGER_AGENT_NOT_EXISTS);
+
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, email, "ser",
+							AP_ID, &area, &rooms_num, &price, &commition ) ==
+									AGENT_MANAGER_SERVICE_NOT_EXISTS);
+
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, email, "serveMe",
+							5, &area, &rooms_num, &price, &commition ) ==
+									AGENT_MANAGER_APARTMENT_NOT_EXISTS);
+
+	ASSERT_TEST( agentsManagerGetApartmentDetails( manager, email, "serveMe",
+							AP_ID, &area, &rooms_num, &price, &commition ) ==
+										AGENT_MANAGER_SUCCESS);
+	ASSERT_TEST( area == 3);
+	ASSERT_TEST( rooms_num == 1);
+	ASSERT_TEST( price == 200);
+	ASSERT_TEST( commition == TAX_PERCENT);
+
+	agentsManagerDestroy(manager);
+	emailDestroy(email);
+	emailDestroy(mail);
+	return true;
+}
 
 /** Function to be used for freeing data elements from list */
 void freeListElement(ListElement element) {

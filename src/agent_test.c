@@ -16,6 +16,7 @@ static bool testAgentRemoveService();
 static bool testAgentAddApartmentToService();
 static bool testAgentRemoveApartmentFromService();
 static bool testAgentFindMatch();
+static bool testAgentGetApartmentDetails();
 static bool testAgentCopy();
 
 int RunAgentTest() {
@@ -26,6 +27,7 @@ int RunAgentTest() {
 	RUN_TEST( testAgentAddApartmentToService);
 	RUN_TEST( testAgentRemoveApartmentFromService);
 	RUN_TEST( testAgentFindMatch );
+	RUN_TEST( testAgentGetApartmentDetails );
 	RUN_TEST( testAgentCopy );
 	return 0;
 }
@@ -250,5 +252,46 @@ static bool testAgentCopy(){
 	return true;
 }
 
+static bool testAgentGetApartmentDetails(){
 
+	Email email = NULL;
+	emailCreate("baba@ganosh", &email);
+	Agent agent = NULL;
+	agentCreate(email,"tania", 5, &agent);
+	agentAddService(agent,"serveMe", 2);
 
+	int area;
+	int rooms_num;
+	int price;
+	ASSERT_TEST( agentGetApartmentDetails( NULL, "serveMe", 1, &area,
+							&rooms_num, &price ) ==  AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", -3, &area,
+							&rooms_num, &price ) ==  AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, NULL,
+							&rooms_num, &price ) ==  AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
+							NULL, &price ) ==  AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
+							&rooms_num, NULL ) ==  AGENT_INVALID_PARAMETERS);
+
+	ASSERT_TEST( agentGetApartmentDetails( agent, "see", 1, &area,
+				&rooms_num, &price ) ==  AGENT_APARTMENT_SERVICE_NOT_EXISTS);
+
+	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
+						&rooms_num, &price ) ==  AGENT_APARTMENT_NOT_EXISTS);
+
+	agentAddApartmentToService( agent, "serveMe", 1 , 200 , 2, 2, "weee" );
+
+	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
+							&rooms_num, &price ) ==  AGENT_SUCCESS);
+
+	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 3, &area,
+						&rooms_num, &price ) ==  AGENT_APARTMENT_NOT_EXISTS);
+
+	ASSERT_TEST( area == 3);
+	ASSERT_TEST( rooms_num == 1);
+	ASSERT_TEST( price == 200);
+	agentDestroy(agent);
+	emailDestroy(email);
+	return true;
+}

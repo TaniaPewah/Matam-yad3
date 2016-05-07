@@ -234,7 +234,7 @@ AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
 * 	AGENT_MANAGER_AGENT_NOT_EXISTS if there is no agent registered under the
 * 		given email.
 *
-* 	AGENT_MANAGER_SERVICE_DOES_NOT_EXIST if agent has no service under the
+* 	AGENT_MANAGER_SERVICE_NOT_EXISTS if agent has no service under the
 * 		given service name.
 *
 *	AGENT_MANAGER_APARTMENT_NOT_EXISTS if the matching apartment is not found

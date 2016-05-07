@@ -566,9 +566,10 @@ AgentResult agentCopy(Agent agent, Agent* result_agent){
 AgentResult agentGetApartmentDetails(Agent agent, char* service_name,
 	int id, int *apartment_area, int *apartment_rooms, int *apartment_price) {
 	if ((agent == NULL) || (service_name == NULL) || (apartment_area == NULL)
-		||(apartment_area == NULL) || (apartment_rooms == NULL) ||
-		(apartment_price == NULL) || (id < 0)) return AGENT_INVALID_PARAMETERS;
+		|| (apartment_rooms == NULL) ||	(apartment_price == NULL) ||
+		!isValid(id) ) return AGENT_INVALID_PARAMETERS;
 	ApartmentService service = mapGet(agent->apartmentServices, service_name);
+
 	if (service == NULL) return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
 	Apartment apartment = NULL;
 	ApartmentServiceResult result = serviceGetById(service, id, &apartment);

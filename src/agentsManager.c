@@ -481,7 +481,7 @@ AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
 * 	AGENT_MANAGER_AGENT_NOT_EXISTS if there is no agent registered under the
 * 		given email.
 *
-* 	AGENT_MANAGER_SERVICE_DOES_NOT_EXIST if agent has no service under the
+* 	AGENT_MANAGER_SERVICE_NOT_EXISTS if agent has no service under the
 * 		given service name.
 *
 *	AGENT_MANAGER_APARTMENT_NOT_EXISTS if the matching apartment is not found
@@ -494,7 +494,7 @@ AgentsManagerResult agentsManagerGetApartmentDetails(AgentsManager manager,
 	Email agent_email, char* service_name, int id, int *apartment_area,
 	int *apartment_rooms, int *apartment_price, int *apartment_commission) {
 	if ((manager == NULL) || (agent_email == NULL) || (service_name == NULL)
-		|| (apartment_area == NULL) || (apartment_rooms == NULL) || (id < 0)
+		|| (apartment_area == NULL) || (apartment_rooms == NULL) || !isValid(id)
 		|| (apartment_price == NULL) || (apartment_commission == NULL))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 	Agent agent = (Agent)mapGet(manager->agentsMap,  agent_email);
