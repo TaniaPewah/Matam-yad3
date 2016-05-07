@@ -38,7 +38,6 @@ typedef struct agentsManager_t* AgentsManager;
 */
 AgentsManager agentsManagerCreate();
 
-bool idIsValid( int id );
 /**
 * agentsManagerDestroy: Deallocates an existing manager.
 * Clears the element by using the stored free function.
@@ -52,14 +51,19 @@ void agentsManagerDestroy(AgentsManager manager);
 * agentsManagerAddAgent: adds the new Agent to the collection.
 *
 * @param manager Target Agents Manager to add to.
-* @param Agent Target Agent to add.
+* @param Agent the new Agent email.
+* @param Agent the new Agent company name.
+* @param Agent the new Agent tax percentage.
 *
 * @return
-* 	Agent_MANAGER_INVALID_PARAMETERS - if Agent is NULL.
-* 	Agent_MANAGER_ALREADY_EXISTS - if Agent email already registered.
-* 	Agent_MANAGER_SUCCESS - in case of success.
+* 	AGENT_MANAGER_INVALID_PARAMETERS - if Agent or manager is NULL .
+* 	AGENT_MANAGER_ALREADY_EXISTS - if Agent email already registered.
+* 	AGENT_MANAGER_OUT_OF_MEMORY - if failed to add the agent because of
+* 									failed memory allocation
+* 	AGENT_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerResult agentsManagerAdd(AgentsManager manager, Agent Agent);
+AgentsManagerResult agentsManagerAdd(AgentsManager manager, Email email,
+		char* company_name, int tax_percentage);
 
 /**
 * agentsManagerRemove: removes the given Agent from the collection.
@@ -80,18 +84,28 @@ AgentsManagerResult agentsManagerRemove(AgentsManager manager, Email email);
 *
 * @param manager Target Agents Manager
 * @param email  email of the requested agent
-* @param appartmentService  a service to add to the agent
-* @param serviceName the name of the service
+* @param serviceName the new service name
+* @param max_apartments the maximum number of apartments allowed in service
+*
 * @return
 *
-* 	AGENT_MANAGER_OUT_OF_MEMORY 	if memory allocation failed
-*	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
-*	AGENT_MANAGER_ALREADY_EXISTS       if service with same name already exists
-*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist
-*	AGENT_MANAGER_SUCCESS              if service successfully added
+* 	AGENT_MANAGER_OUT_OF_MEMORY
+* 		if memory allocation failed
+*
+*	AGENT_MANAGER_INVALID_PARAMETERS
+*		if any of parameters are NULL or max_apartments
+*
+*	AGENT_MANAGER_ALREADY_EXISTS
+*		if service with same name already exists
+*
+*	AGENT_MANAGER_AGENT_NOT_EXISTS
+*	    if agent by this name does not exist
+*
+*	AGENT_MANAGER_SUCCESS
+*	    if service successfully added
 */
 AgentsManagerResult agentsManagerAddApartmentService(AgentsManager manager,
-			Email email, ApartmentService apartmentService, char* serviceName);
+		Email email, char* serviceName, int max_apartments) ;
 
 /**
 * agentManagerRemoveApartmentService: remove apartment service
@@ -126,7 +140,7 @@ AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 *	AGENT_MANAGER_SUCCESS              if apartment successfully added
 */
 AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
-				Email email, char* serviceName, Apartment apartment, int id );
+				Email email, char* serviceName, Apartment apartment, int id);
 
 /**
 * agentManagerAddApartmentToService: add apartment to apartment service
@@ -144,7 +158,7 @@ AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
 *	AGENT_MANAGER_SUCCESS              if apartment successfully removed
 */
 AgentsManagerResult agentsManagerRemoveApartmentFromService(
-	AgentsManager manager, Email email, char* serviceName, int apartmentId );
+	AgentsManager manager, Email email, char* serviceName, int apartmentId);
 
 /* agentsManagerAgentExists: The function checks whether there is an agent
  * registered under the given e-mail
@@ -173,8 +187,8 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email);
 *	AGENT_MANAGER_OUT_OF_MEMORY                 if any of the allocations failed
 *	AGENT_MANAER_SUCCESS                at least one match is found
 */
-AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
-					 int min_area, int max_price, List* result_list );
+AgentsManagerResult agentManagerFindMatch(AgentsManager manager, int min_rooms,
+					 int min_area, int max_price, List* result_list);
 
 
 #endif /* SRC_AGENTSMANAGER_H_ */

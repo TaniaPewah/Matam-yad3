@@ -121,13 +121,10 @@ int agentGetTax( Agent agent ){
  * 	NULL  if agent is NULL or the service by this name is not found
  *	apartment service otherwise
  */
-ApartmentService agentGetService( Agent agent, char* serviceName ){
-
+ApartmentService agentGetService(Agent agent, char* serviceName) {
 	ApartmentService service = NULL;
-
-	if( serviceName != NULL )
-		service = mapGet( agent->apartmentServices,
-						serviceName );
+	if (serviceName != NULL)
+		service = mapGet(agent->apartmentServices, serviceName);
 	return service;
 }
 
@@ -135,24 +132,28 @@ ApartmentService agentGetService( Agent agent, char* serviceName ){
  * agentAddService: adds the apartment service to the requested agent
  *
  * @param agent - target agent
- * @param service - the service to add
  * @param serviceName  the name of the requested service
+ * @param max_apartments the max number of apartments allowed in service
  *
  * @return
  *
  * 	AGENT_INVALID_PARAMETERS  if any of the parameters is NULL
+ *
  * 	AGENT_OUT_OF_MEMORY       if failed to add the service to serviceMap
+ *
  *	AGENT_SUCCESS    		  if succeeded
  */
-AgentResult agentAddService( Agent agent, ApartmentService service,
-						   char* serviceName ){
-	if( agent == NULL || service == NULL || serviceName == NULL)
-		return AGENT_INVALID_PARAMETERS;
-	if (mapPut( agent->apartmentServices, (constMapKeyElement)serviceName,
-			(constMapDataElement)service) != MAP_SUCCESS)
-		return AGENT_OUT_OF_MEMORY;
-	else
-		return AGENT_SUCCESS;
+AgentResult agentAddService(Agent agent, char* serviceName,
+		int max_apartments) {
+	if(agent == NULL || serviceName == NULL || max_apartments <= 0 ||
+		max_apartments > 100) return AGENT_INVALID_PARAMETERS;
+	ApartmentService service = serviceCreate(max_apartments);
+	if (service == NULL) return AGENT_OUT_OF_MEMORY;
+	MapResult result = mapPut(agent->apartmentServices,
+			(constMapKeyElement)serviceName, (constMapDataElement)service);
+	serviceDestroy(service);
+	if (result != MAP_SUCCESS) return AGENT_OUT_OF_MEMORY;
+	return AGENT_SUCCESS;
 }
 
 /**

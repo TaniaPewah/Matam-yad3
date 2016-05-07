@@ -20,6 +20,111 @@ static MTMServiceResult ConvertEmailResult(EmailResult value);
 static MTMServiceResult ConvertOffersManagerResult(OfferManagerResult value);
 
 /*
+ * mtmServiceAddAgent: Adds new agent with the given parameters.
+*
+* @param service service to add to.
+* @param email_adress client email address.
+* @param company_name the agent's company name. a non empty string.
+* @param tax_percentage the agent's tax percentage. A number between 1 to 100.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service, email_adress or company_name are
+* 		NULL, or if email_adress is illegal, or if tax_percentage is not
+* 		between 1 to 100.
+*
+* 	MTM_SERVICE_EMAIL_ALREADY_EXISTS if service already contains a client or an
+* 		agent under the given email address.
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+* 	MTM_SERVICE_SUCCESS a new client agent successfully
+*
+*/
+MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
+		char* company_name, int tax_percentage) {
+	if ((service == NULL) || (email_adress == NULL) || (company_name == NULL)
+		|| (tax_percentage < 1) || (tax_percentage > 100))
+		return MTM_SERVICE_INVALID_PARAMETERS;
+	Email mail = NULL;
+	EmailResult result = emailCreate(email_adress, &mail);
+	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
+	if (clientsManagerClientExists(service->clients, mail) ||
+		agentsManagerAgentExists(service->agents, mail)) {
+		emailDestroy(mail);
+		return MTM_SERVICE_EMAIL_ALREADY_EXISTS;
+	}
+	AgentsManagerResult agents_result = agentsManagerAdd
+				(service->agents, mail, company_name, tax_percentage);
+	emailDestroy(mail);
+	return ConvertAgentManagerResult(agents_result);
+}
+
+/*
+ * mtmServiceRemoveAgent: removes agent from service.
+*
+* @param service service to remove from.
+* @param email_adress agent email address.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or email_adress are NULL,
+* 		or if email_adress is illegal.
+*
+* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain an agent with
+* 		the given email address.
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+* 	MTM_SERVICE_SUCCESS the agent removed successfully
+*
+*/
+MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress){
+	if ((service == NULL) || (email_adress == NULL))
+		return MTM_SERVICE_INVALID_PARAMETERS;
+	Email mail = NULL;
+	EmailResult result = emailCreate(email_adress, &mail);
+	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
+	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
+	bool client_exists = clientsManagerClientExists(service->clients, mail);
+	if (!agent_exists && !client_exists)
+		return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
+	if (client_exists)
+		return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
+	AgentsManagerResult agents_result =
+		agentsManagerRemove(service->agents, mail);
+	if (agents_result != AGENT_MANAGER_SUCCESS) {
+		emailDestroy(mail);
+		return ConvertAgentManagerResult(agents_result);
+	}
+	OfferManagerResult offer_result =
+		offersMenagerRemoveAllEmailOffers(service->offers, mail);
+	emailDestroy(mail);
+	return ConvertOffersManagerResult(offer_result);
+}
+
+MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
+		char* email_adress, char* service_name, int max_apartments) {
+	if ((email_adress == NULL)|| (service_name == NULL) ||
+			(max_apartments <= 0)) return MTM_SERVICE_INVALID_PARAMETERS;
+	Email mail = NULL;
+	EmailResult email_result = emailCreate(email_adress, &mail);
+	if (email_result != EMAIL_SUCCESS) return ConvertEmailResult(email_result);
+	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
+	bool client_exists = clientsManagerClientExists(service->clients, mail);
+	if ((!agent_exists) && (!client_exists))
+		return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
+	if (client_exists) return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
+	AgentsManagerResult agents_result = agentsManagerAddApartmentService
+			(service->agents, mail, service_name, max_apartments);
+	emailDestroy(mail);
+	return ConvertAgentManagerResult(agents_result);
+}
+
+
+
+
+/*
  * mtmServiceAddClient: Adds new client with the given parameters.
 *
 * @param service service to add to.
@@ -30,7 +135,7 @@ static MTMServiceResult ConvertOffersManagerResult(OfferManagerResult value);
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or email_adress are NULL,
 * 		or if email_adress is illegal, or if min_area or min_rooms or max_price
 * 		are negative.
 *
@@ -87,6 +192,11 @@ MTMServiceResult mtmServiceRemoveClient(MTMService service,
 	Email mail = NULL;
 	EmailResult result = emailCreate(email_adress, &mail);
 	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
+	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
+	bool client_exists = clientsManagerClientExists(service->clients, mail);
+		if (!agent_exists && !client_exists)
+			return MTM_SERVICE_EMAIL_DOES_NOT_EXIST;
+		if (agent_exists) return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
 	ClientsManagerResult client_result =
 		clientsManagerRemove(service->clients, mail);
 	if (client_result != CLIENT_MANAGER_SUCCESS) {
@@ -98,6 +208,10 @@ MTMServiceResult mtmServiceRemoveClient(MTMService service,
 	emailDestroy(mail);
 	return ConvertOffersManagerResult(offer_result);
 }
+
+
+
+
 
 /**
 * ConvertClientManagerResult: Converts a ClientsManagerResult to

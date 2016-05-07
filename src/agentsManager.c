@@ -28,6 +28,7 @@ static void FreeKey(MapKeyElement key);
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
 static void freeListElement(ListElement element);
 static ListElement copyListElement(ListElement element);
+static bool idIsValid(int id);
 
 /**
 * Allocates a new AgentsManager.
@@ -37,11 +38,10 @@ static ListElement copyListElement(ListElement element);
 * 	A new AgentsManager in case of success.
 */
 AgentsManager agentsManagerCreate(){
-
 	Map agents = mapCreate(GetDataCopy, GetKeyCopy, FreeData, FreeKey,
-				CompareKeys);
+		CompareKeys);
 	if (agents == NULL) return NULL;
-	AgentsManager manager = malloc (sizeof(*manager));
+	AgentsManager manager = malloc(sizeof(*manager));
 	if (manager == NULL) {
 		free(agents);
 		return NULL;
@@ -70,7 +70,9 @@ void agentsManagerDestroy(AgentsManager manager){
 * agentsManagerAddAgent: adds the new Agent to the collection.
 *
 * @param manager Target Agents Manager to add to.
-* @param Agent Target Agent to add.
+* @param Agent the new Agent email.
+* @param Agent the new Agent company name.
+* @param Agent the new Agent tax percentage.
 *
 * @return
 * 	AGENT_MANAGER_INVALID_PARAMETERS - if Agent or manager is NULL .
@@ -79,17 +81,28 @@ void agentsManagerDestroy(AgentsManager manager){
 * 									failed memory allocation
 * 	AGENT_MANAGER_SUCCESS - in case of success.
 */
-AgentsManagerResult agentsManagerAdd(AgentsManager manager, Agent agent){
-	if(manager == NULL || agent == NULL)
+AgentsManagerResult agentsManagerAdd(AgentsManager manager, Email email,
+		char* company_name, int tax_percentage) {
+	if ((manager == NULL) || (email == NULL) || (company_name == NULL) ||
+		(tax_percentage < 1) || (tax_percentage > 100))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
-	if( agentsManagerGetAgent(manager, agentGetMail(agent)) != NULL )
-		return AGENT_MANAGER_ALREADY_EXISTS;
-	if ( mapPut(manager->agentsMap, agentGetMail(agent),
-			agent) != MAP_SUCCESS ) {
-		return AGENT_MANAGER_OUT_OF_MEMORY;
-	} else {
-		return AGENT_MANAGER_SUCCESS;
+	Agent agent = NULL;
+	AgentResult result = agentCreate(email, company_name, tax_percentage,
+		&agent);
+	if (result != AGENT_SUCCESS) {
+		if (result == AGENT_OUT_OF_MEMORY) {
+			return AGENT_MANAGER_OUT_OF_MEMORY;
+		}
+		else return AGENT_MANAGER_INVALID_PARAMETERS;
 	}
+	if (agentsManagerGetAgent(manager, email) != NULL) {
+		agentDestroy(agent);
+		return AGENT_MANAGER_ALREADY_EXISTS;
+	}
+	MapResult map_result = mapPut(manager->agentsMap, email, agent);
+	agentDestroy(agent);
+	if (map_result != MAP_SUCCESS) return AGENT_MANAGER_OUT_OF_MEMORY;
+	return AGENT_MANAGER_SUCCESS;
 }
 
 /**
@@ -138,28 +151,36 @@ static Agent agentsManagerGetAgent(AgentsManager manager, Email email){
 *
 * @param manager Target Agents Manager
 * @param email  email of the requested agent
-* @param appartmentService a pointer to a service to add to the agent
+* @param serviceName the new service name
+* @param max_apartments the maximum number of apartments allowed in service
 *
 * @return
 *
-* 	AGENT_MANAGER_OUT_OF_MEMORY 	   if memory allocation failed
-*	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
-*	AGENT_MANAGER_ALREADY_EXISTS       if service with same name already exists
-*	AGENT_MANAGER_AGENT_NOT_EXISTS           if agent by this name does not exist
-*	AGENT_MANAGER_SUCCESS              if service successfully added
+* 	AGENT_MANAGER_OUT_OF_MEMORY
+* 		if memory allocation failed
+*
+*	AGENT_MANAGER_INVALID_PARAMETERS
+*		if any of parameters are NULL or max_apartments
+*
+*	AGENT_MANAGER_ALREADY_EXISTS
+*		if service with same name already exists
+*
+*	AGENT_MANAGER_AGENT_NOT_EXISTS
+*	    if agent by this name does not exist
+*
+*	AGENT_MANAGER_SUCCESS
+*	    if service successfully added
 */
 AgentsManagerResult agentsManagerAddApartmentService(AgentsManager manager,
-		Email email, ApartmentService apartmentService, char* serviceName){
-
-	if( manager == NULL || email == NULL || apartmentService == NULL )
-		return AGENT_MANAGER_INVALID_PARAMETERS;
-	Agent agent = agentsManagerGetAgent( manager, email );
-	if( agent == NULL )
+		Email email, char* serviceName, int max_apartments) {
+	if((manager == NULL) || (email == NULL) || (serviceName == NULL) ||
+			(max_apartments <= 0)) return AGENT_MANAGER_INVALID_PARAMETERS;
+	Agent agent = agentsManagerGetAgent(manager, email);
+	if(agent == NULL)
 		return AGENT_MANAGER_AGENT_NOT_EXISTS;
-	if( agentGetService(agent, serviceName))
+	if(agentGetService(agent, serviceName))
 		return AGENT_MANAGER_ALREADY_EXISTS;
-	if (agentAddService( agent, apartmentService, serviceName ) !=
-																AGENT_SUCCESS)
+	if (agentAddService(agent, serviceName, max_apartments) != AGENT_SUCCESS)
 		return AGENT_MANAGER_OUT_OF_MEMORY;
 	else
 		return AGENT_MANAGER_SUCCESS;
@@ -371,7 +392,14 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
 	return mapContains(manager->agentsMap, email);
 }
 
-bool idIsValid( int id ){
+/* idIsValid: The function checks whether the given apartment id os valid
+ *
+ * @param id The id to check.
+ *
+ * * @return
+ * false if invalid; else returns true.
+ */
+static bool idIsValid(int id) {
 	return id > 0;
 }
 
