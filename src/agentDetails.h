@@ -44,6 +44,18 @@ AgentDetails agentDetailsCreate(Email email, char* companyName, int rank );
 AgentDetails agentDetailsCopy( AgentDetails agent_details);
 
 /**
+* agentDetailsRankCompare: compares two ranks, and returns the difference
+* 							between the first rank and the second
+*
+* @param first - first agent_details to compare
+* @param second - second agent_detail to compare
+*
+* return:
+* int -the difference between the first and the second
+*/
+int agentDetailsRankCompare( AgentDetails first, AgentDetails second);
+
+/**
 * agentDetailsDestroy: Deallocates the details instance.
 * Clears the element by using the stored free function.
 *

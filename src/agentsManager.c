@@ -27,9 +27,11 @@ static void FreeKey(MapKeyElement key);
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
 static void freeListElement(ListElement element);
 static ListElement copyListElement(ListElement element);
+static int compareListElements(ListElement first, ListElement second);
 static AgentsManagerResult convertAgentResult(AgentResult value);
 static bool isPriceValid( int price );
 static bool isValid( int param );
+static void reduceListToCount( List list, int count );
 
 /**
 * Allocates a new AgentsManager.
@@ -317,24 +319,7 @@ AgentsManagerResult agentsManagerRemoveApartmentFromService(
 
 	AgentResult result = agentRemoveApartmentFromService(
 											agent, apartmentId, serviceName );
-	switch( result ){
-		case AGENT_INVALID_PARAMETERS:{
-			return AGENT_MANAGER_INVALID_PARAMETERS;
-			break;
-		}
-		case AGENT_APARTMENT_NOT_EXISTS:{
-			return AGENT_MANAGER_APARTMENT_NOT_EXISTS;
-			break;
-		}
-		case AGENT_APARTMENT_SERVICE_NOT_EXISTS:{
-			return AGENT_MANAGER_SERVICE_NOT_EXISTS;
-			break;
-		}
-		default:{
-			break;
-		}
-	}
-	return AGENT_MANAGER_SUCCESS;
+	return convertAgentResult( result );
 }
 
 
@@ -414,18 +399,20 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
 	return mapContains(manager->agentsMap, email);
 }
 
-/* agentsManagerAgentExists: The function checks whether there is an agent
- * registered under the given e-mail
+/* getSignificantAgents: The function gets list with the mast significant agents
+ * 						 according to a formula
  *
- * @param manager Target agent Manager to search in.
- * @param email address to search agent by.
+ * @param manager 			Target agent Manager to search in.
+ * @param count   			the amount of the requested significants agents
+ * @param significant_list  the out list parameter- containing the details of
+ * 							the significant agents
  *
  * * @return
- * false if one of the parameters is NULL or if the agent does not exist in
- * the managers collection; else if agent exists returns true.
+ * AGENT_MANAGER_OUT_OF_MEMORY 		if an allocation problem occurred
+ * AGENT_MANAGER_SUCCESS			otherwise
  */
-AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
-		List* significant_list ){
+AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
+		int count, List* significant_list ){
 	if (isValid(count)){
 
 		Agent curr_agent = NULL;
@@ -446,10 +433,10 @@ AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
 
 				curr_details = agentDetailsCreate( curr_email,
 										agentGetCompany( curr_agent ), rank);
-				if(curr_details == NULL)
+				if(curr_details == NULL){
 					listDestroy( agents_list );
 					return AGENT_MANAGER_OUT_OF_MEMORY;
-
+				}
 				if ( listInsertLast(agents_list, curr_details) ==
 						LIST_OUT_OF_MEMORY){
 					listDestroy( agents_list );
@@ -458,19 +445,20 @@ AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
 			}
 
 			curr_agent = NULL;
-			curr_email = mapGetFirst(manager->agentsMap);
+			curr_email = mapGetNext(manager->agentsMap);
 			if( curr_email != NULL)
 				curr_agent = agentsManagerGetAgent( manager, curr_email);
 		}
 
+		listSort(agents_list, compareListElements);
+
+		reduceListToCount( agents_list, count );
 		*significant_list = agents_list;
 
 		return AGENT_MANAGER_SUCCESS;
 	}
 	return AGENT_MANAGER_INVALID_PARAMETERS;
 }
-
-
 
 /**
 * agentsManagerGetApartmentDetails: finds the apartment and retrieves its
@@ -538,9 +526,23 @@ static bool isValid( int param ){
  * false if invalid; else returns true.
  */
 static bool isPriceValid( int price ){
-	return !(price%10);
+	return !(price%100);
 }
 
+
+static void reduceListToCount( List list, int count ){
+
+	ListElement current = listGetFirst( list );
+	while( current ){
+
+		if( count == 0 )
+			listRemoveCurrent(list);
+		 else
+			count--;
+
+		current = listGetNext( list );
+	}
+}
 /** Function to be used for copying data elements into the map */
 static MapDataElement GetDataCopy(constMapDataElement data) {
 	Agent new_agent = NULL;
@@ -587,3 +589,8 @@ ListElement copyListElement(ListElement element) {
 	return agent_details;
 }
 
+/** Function to be used for comparing data elements in list */
+static int compareListElements(ListElement first, ListElement second){
+
+	return agentDetailsRankCompare((AgentDetails)first, (AgentDetails)second);
+}

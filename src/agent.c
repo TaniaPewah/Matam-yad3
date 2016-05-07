@@ -31,6 +31,7 @@ static AgentResult squresCreate(int width, int height, char* matrix,
 static void squresDestroy(SquareType** squres, int length);
 static AgentResult ConvertServiceResult(ApartmentServiceResult result);
 static bool isTaxValid( int taxPercentage );
+static bool isPriceValid( int price );
 
  /**
  * agentGetMail: gets the agents mail
@@ -225,7 +226,7 @@ AgentResult agentRemoveService( Agent agent, char* service_name ){
 AgentResult agentAddApartmentToService(Agent agent, char* service_name, int id,
 		int price, int width, int height, char* matrix) {
 	if ((agent == NULL) || (service_name == NULL) ||
-		(id < 0) || (price <= 0) || ((price % 100) != 0) ||
+		(id < 0) || (price <= 0) || !isPriceValid(price) ||
 		(width <= 0) || (height <= 0) || (matrix == NULL) ||
 		(strlen(matrix) != (width * height))) return AGENT_INVALID_PARAMETERS;
 	ApartmentService service = agentGetService(agent, service_name);
@@ -409,7 +410,9 @@ AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 		return AGENT_INVALID_PARAMETERS;
 
 	char* name = mapGetFirst( agent->apartmentServices );
-	ApartmentService current = mapGet( agent->apartmentServices, name );
+	ApartmentService current = NULL;
+	if	(name != NULL)
+		current = mapGet( agent->apartmentServices, name );
 	if( current == NULL)
 		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
 
@@ -470,7 +473,7 @@ int agentGetRank( Agent agent ){
 
 	while( current ){
 
-		if (serviceAreaMedian( current, &out ) != APARTMENT_SERVICE_EMPTY ){
+		if (serviceAreaMedian( current, &out ) == APARTMENT_SERVICE_SUCCESS ){
 			median_area += out;
 			out = 0;
 			servicePriceMedian( current, &out );
@@ -485,8 +488,10 @@ int agentGetRank( Agent agent ){
 			current = mapGet( agent->apartmentServices, name );
 	}
 
-	median_price /= apartments_count;
-	median_area /= apartments_count;
+	if( apartments_count ){
+		median_price /= apartments_count;
+		median_area /= apartments_count;
+	}
 
 	return apartments_count ?
 		(1000000 * apartments_count + median_price + 100000 * median_area) : -1;
@@ -599,5 +604,16 @@ static void FreeKey(MapKeyElement key) {
 /** Function to be used for comparing key elements in the map */
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
 	return strcmp( first, second);
+}
+
+/* priceisValid: The function checks whether the price gane be divided by 10
+ *
+ * @price  The price to check.
+ *
+ * * @return
+ * false if invalid; else returns true.
+ */
+static bool isPriceValid( int price ){
+	return !(price%100);
 }
 
