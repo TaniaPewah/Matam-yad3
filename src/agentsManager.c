@@ -31,7 +31,6 @@ static AgentsManagerResult convertAgentResult(AgentResult value);
 static bool isPriceValid( int price );
 static bool isValid( int param );
 
-
 /**
 * Allocates a new AgentsManager.
 *
