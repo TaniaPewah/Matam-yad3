@@ -126,21 +126,28 @@ AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 /**
 * agentManagerAddApartmentToService: add apartment to apartment service
 * 									  of requested agent
-* @param manager 	 Target Agents Manager
-* @param email   	 email of the requested agent
-* @param serviceName a name of the service to add the apartment to
-* @param apartment	 the apartment to add
+* @param manager 	  Target Agents Manager
+* @param email   	  email of the requested agent
+* @param service_name a name of the service to add the apartment to
+* @param id	          the apartment id to add
+* @param price	      the apartment price
+* @param width	      the apartment width
+* @param height	      the apartment height
+* @param matrix	      the apartment shape, represented by a string of 'e'
+* 					  and 'w'
 *
 * @return
 *	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
-*	AGENT_MANAGER_NOT_EXISTS           if agent by this name does not exist or
-*									service with the given name does not exist
-*	AGENT_MANAGER_ALREADY_EXISTS       if apartment with the given id
-*									already exist
-*	AGENT_MANAGER_SUCCESS              if apartment successfully added
+*	AGENT_MANAGER_AGENT_NOT_EXISTS    if agent by this name does not exist
+*	AGENT_MANAGER_OUT_OF_MEMORY		  if allocation failed
+*	AGENT_MANAGER_SERVICE_NOT_EXISTS service with the given name does not exist
+*	AGENT_MANAGER_ALREADY_EXISTS   if apartment with the given id already exist
+*	AGENT_MANAGER_SERVICE_FULL	   if apartment service is full
+*	AGENT_MANAGER_SUCCESS          if apartment successfully added
 */
 AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
-				Email email, char* serviceName, Apartment apartment, int id);
+	Email email, char* service_name, int id, int price, int width, int height,
+	char* matrix);
 
 /**
 * agentManagerAddApartmentToService: add apartment to apartment service

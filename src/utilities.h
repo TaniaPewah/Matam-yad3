@@ -38,4 +38,15 @@ bool areStringsEqual(const char *first, const char *second);
  */
 char* IntToString(int number);
 
+/*
+* countChar: counts the amount of time a given character appears in a string
+*
+* @param string the string.
+* @param value the character.
+*
+* @return
+* 	0 if string is NULL; else returns the count
+ */
+int countChar(char* string, char value);
+
 #endif /* SRC_UTILITIES_H_ */

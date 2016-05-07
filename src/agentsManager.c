@@ -19,7 +19,6 @@ struct agentsManager_t {
 	Map agentsMap;
 };
 
-AgentResult agentCopy(Agent agent, Agent* result);
 static Agent agentsManagerGetAgent(AgentsManager manager, Email email);
 static MapDataElement GetDataCopy(constMapDataElement data);
 static MapKeyElement GetKeyCopy(constMapKeyElement key);
@@ -28,7 +27,7 @@ static void FreeKey(MapKeyElement key);
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
 static void freeListElement(ListElement element);
 static ListElement copyListElement(ListElement element);
-static bool idIsValid(int id);
+static AgentsManagerResult convertAgentResult(AgentResult value);
 
 /**
 * Allocates a new AgentsManager.
@@ -219,13 +218,19 @@ AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 	return AGENT_MANAGER_SUCCESS;
 }
 
+
 /**
 * agentManagerAddApartmentToService: add apartment to apartment service
 * 									  of requested agent
-* @param manager 	 Target Agents Manager
-* @param email   	 email of the requested agent
-* @param serviceName a name of the service to add the apartment to
-* @param apartment	 the apartment to add
+* @param manager 	  Target Agents Manager
+* @param email   	  email of the requested agent
+* @param service_name a name of the service to add the apartment to
+* @param id	          the apartment id to add
+* @param price	      the apartment price
+* @param width	      the apartment width
+* @param height	      the apartment height
+* @param matrix	      the apartment shape, represented by a string of 'e'
+* 					  and 'w'
 *
 * @return
 *	AGENT_MANAGER_INVALID_PARAMETERS   if any of parameters are NULL
@@ -237,38 +242,50 @@ AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 *	AGENT_MANAGER_SUCCESS          if apartment successfully added
 */
 AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
-				Email email, char* serviceName, Apartment apartment, int id ){
+	Email email, char* service_name, int id, int price, int width, int height,
+	char* matrix) {
+	if ((manager == NULL) || (email == NULL)|| (service_name == NULL) ||
+		(id < 0)) return AGENT_MANAGER_INVALID_PARAMETERS;
+	Agent agent = agentsManagerGetAgent(manager, email);
+	if(agent == NULL) return AGENT_MANAGER_AGENT_NOT_EXISTS;
+	AgentResult result = agentAddApartmentToService(agent, service_name, id,
+			price, width, height, matrix);
+	return convertAgentResult(result);
+}
 
-	if( manager == NULL || email == NULL ||	apartment == NULL ||
-															!idIsValid( id ))
-		return AGENT_MANAGER_INVALID_PARAMETERS;
-	Agent agent = agentsManagerGetAgent( manager, email);
-	if( agent == NULL )
-		return AGENT_MANAGER_AGENT_NOT_EXISTS;
-
-	AgentResult result = agentAddApartmentToService( agent, apartment, id,
-													  serviceName );
-	switch( result ){
-		case AGENT_APARTMENT_SERVICE_NOT_EXISTS:{
-			return AGENT_MANAGER_SERVICE_NOT_EXISTS;
+static AgentsManagerResult convertAgentResult(AgentResult value) {
+	AgentsManagerResult result;
+	switch(value) {
+		case AGENT_INVALID_PARAMETERS : {
+			result = AGENT_MANAGER_INVALID_PARAMETERS;
+			break;
+		}
+		case AGENT_APARTMENT_SERVICE_NOT_EXISTS : {
+			result = AGENT_MANAGER_SERVICE_NOT_EXISTS;
 			break;
 		}
 		case AGENT_OUT_OF_MEMORY : {
-			return AGENT_MANAGER_OUT_OF_MEMORY;
+			result = AGENT_MANAGER_OUT_OF_MEMORY;
 			break;
 		}
 		case AGENT_APARTMENT_EXISTS: {
-			return AGENT_MANAGER_ALREADY_EXISTS;
+			result = AGENT_MANAGER_ALREADY_EXISTS;
+			break;
+		}
+		case AGENT_APARTMENT_NOT_EXISTS : {
+			result = AGENT_MANAGER_APARTMENT_NOT_EXISTS;
 			break;
 		}
 		case AGENT_APARTMENT_SERVICE_FULL: {
-			return AGENT_MANAGER_APARTMENT_SERVICE_FULL;
+			result = AGENT_MANAGER_APARTMENT_SERVICE_FULL;
 			break;
 		}
 		default:
-		return AGENT_MANAGER_SUCCESS;
+			result = AGENT_MANAGER_SUCCESS;
 	}
+	return result;
 }
+
 
 /**
 * agentManagerRmoveApartmentFromService: add apartment to apartment service
@@ -317,6 +334,7 @@ AgentsManagerResult agentsManagerRemoveApartmentFromService(
 	}
 	return AGENT_MANAGER_SUCCESS;
 }
+
 
 /**
 * agentFindMatch: finds a matching apartment in each of the agent's services
@@ -377,6 +395,7 @@ AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
 	return manager_result;
 }
 
+
 /* agentsManagerAgentExists: The function checks whether there is an agent
  * registered under the given e-mail
  *
@@ -392,16 +411,7 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
 	return mapContains(manager->agentsMap, email);
 }
 
-/* idIsValid: The function checks whether the given apartment id os valid
- *
- * @param id The id to check.
- *
- * * @return
- * false if invalid; else returns true.
- */
-static bool idIsValid(int id) {
-	return id > 0;
-}
+
 
 /** Function to be used for copying data elements into the map */
 static MapDataElement GetDataCopy(constMapDataElement data) {
@@ -410,6 +420,7 @@ static MapDataElement GetDataCopy(constMapDataElement data) {
 	return (MapDataElement)new_agent;
 }
 
+
 /** Function to be used for copying key elements into the map */
 static MapKeyElement GetKeyCopy(constMapKeyElement key) {
 	Email new_email = NULL;
@@ -417,26 +428,31 @@ static MapKeyElement GetKeyCopy(constMapKeyElement key) {
 	return new_email;
 }
 
+
 /** Function to be used for freeing data elements into the map */
 static void FreeData(MapDataElement data) {
 	if (data != NULL) agentDestroy((Agent)data);
 }
+
 
 /** Function to be used for freeing key elements into the map */
 static void FreeKey(MapKeyElement key) {
 	if (key != NULL) emailDestroy((Email)key);
 }
 
+
 /** Function to be used for comparing key elements in the map */
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
 	return emailComapre((Email)first, (Email)second);
 }
+
 
 /** Function to be used for freeing data elements from list */
 void freeListElement(ListElement element) {
 	if (element != NULL)
 		agentDetailsDestroy((AgentDetails)element);
 }
+
 
 /** Function to be used for coping data elements from list */
 ListElement copyListElement(ListElement element) {
