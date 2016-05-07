@@ -472,6 +472,7 @@ AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
 }
 
 
+
 /* isValid: The function checks whether the given apartment numerical
  * 					param is valid
  *
@@ -502,14 +503,12 @@ static MapDataElement GetDataCopy(constMapDataElement data) {
 	return (MapDataElement)new_agent;
 }
 
-
 /** Function to be used for copying key elements into the map */
 static MapKeyElement GetKeyCopy(constMapKeyElement key) {
 	Email new_email = NULL;
 	emailCopy((Email)key, &new_email);
 	return new_email;
 }
-
 
 /** Function to be used for freeing data elements into the map */
 static void FreeData(MapDataElement data) {

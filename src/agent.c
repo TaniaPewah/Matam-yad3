@@ -244,6 +244,23 @@ AgentResult agentAddApartmentToService(Agent agent, char* service_name, int id,
 	return ConvertServiceResult(result);
 }
 
+/**
+* squresCreate: creates a SquareType metrix in the given width and hight,
+* 	according to a given string built from 'e's and 'w's, e stands for empty
+* 	and w stands from wall
+*
+* @param width   	the matrix width
+* @param height  	the matrix height
+* @param matrix		matrix string
+* @param result 	pointer to result
+*
+* @return
+*	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
+*	AGENT_APARTMENT_NOT_EXISTS if apartment not found in the service
+* 	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
+*	AGENT_OUT_OF_MEMORY      if allocation failed
+*	AGENT_SUCCESS            if apartment successfully added
+*/
 static AgentResult squresCreate(int width, int height, char* matrix,
 	SquareType*** result) {
 	SquareType** squre = malloc (sizeof(*squre) * height);
@@ -474,6 +491,7 @@ int agentGetRank( Agent agent ){
 	return apartments_count ?
 		(1000000 * apartments_count + median_price + 100000 * median_area) : -1;
 }
+
 
 static bool isTaxValid( int taxPercentage ){
 
