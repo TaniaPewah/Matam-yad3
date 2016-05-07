@@ -3,7 +3,9 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <string.h>
+#include "utilities.h"
 #include "email.h"
+#include "offer.h"
 #include "test_utilities.h"
 
 static bool testOfferCreate();
@@ -14,8 +16,8 @@ static bool testOfferGeters();
 //int main() {
 int RunOfferTest() {
 	RUN_TEST(testOfferCreate);
-	RUN_TEST(testOfferCopy);
 	RUN_TEST(testOfferCompareAndEqals);
+	RUN_TEST(testOfferCopy);
 	RUN_TEST(testOfferGeters);
 	return 0;
 }
@@ -24,20 +26,27 @@ int RunOfferTest() {
  * Test create method
  */
 static bool testOfferCreate() {
-	char* good_mail = "baba@ganosh";
-	char* bad_mail_1  = "baba+ganosh";
-	char* bad_mail_2  = "";
-	char* bad_mail_3  = "lala lala";
-	Email mail;
-	ASSERT_TEST(emailCreate(NULL, NULL) == EMAIL_NULL_PARAMETERS);
-	ASSERT_TEST(emailCreate(NULL, &mail) == EMAIL_NULL_PARAMETERS);
-	ASSERT_TEST(emailCreate(good_mail, NULL) == EMAIL_NULL_PARAMETERS);
-	ASSERT_TEST(emailCreate(bad_mail_1, &mail) == EMAIL_INVALID_PARAMETERS);
-	ASSERT_TEST(emailCreate(bad_mail_2, &mail) == EMAIL_INVALID_PARAMETERS);
-	ASSERT_TEST(emailCreate(bad_mail_3, &mail) == EMAIL_INVALID_PARAMETERS);
-	ASSERT_TEST(emailCreate(good_mail, &mail) == EMAIL_SUCCESS);
-	ASSERT_TEST(mail != NULL);
-	emailDestroy(mail);
+	char* client_address = "client@mail.com";
+	char* agent_address = "agent@mail.com";
+	Email client, agent;
+	ASSERT_TEST(emailCreate(client_address, &client) == EMAIL_SUCCESS);
+	ASSERT_TEST(emailCreate(agent_address, &agent) == EMAIL_SUCCESS);
+	char* serivce_name = "my simple service";
+	Offer offer;
+	ASSERT_TEST(offerCreate(NULL, agent, serivce_name, 12, 5000, &offer) ==
+			OFFER_NULL_PARAMETERS);
+	ASSERT_TEST(offerCreate(client, NULL, serivce_name, 12, 5000, &offer) ==
+			OFFER_NULL_PARAMETERS);
+	ASSERT_TEST(offerCreate(agent, client, NULL, 12, 5000, &offer) ==
+			OFFER_NULL_PARAMETERS);
+	ASSERT_TEST(offerCreate(agent, client, serivce_name, 12, 5000, NULL) ==
+			OFFER_NULL_PARAMETERS);
+	ASSERT_TEST(offerCreate(agent, client, serivce_name, 12, 5000, &offer) ==
+			OFFER_SUCCESS);
+	ASSERT_TEST(offer != NULL);
+	offerDestroy(offer);
+	emailDestroy(client);
+	emailDestroy(agent);
 	return true;
 }
 
@@ -45,16 +54,31 @@ static bool testOfferCreate() {
  * Test copy method
  */
 static bool testOfferCopy() {
-	char* good_mail = "awsome@mail.com";
-	Email mail, copy = NULL;
-	emailCreate(good_mail, &mail);
-	ASSERT_TEST(emailCopy(NULL, NULL) == EMAIL_NULL_PARAMETERS);
-	ASSERT_TEST(emailCopy(mail, NULL) == EMAIL_NULL_PARAMETERS);
-	ASSERT_TEST(emailCopy(NULL, &copy) == EMAIL_NULL_PARAMETERS);
-	ASSERT_TEST(emailCopy(mail, &copy) == EMAIL_SUCCESS);
-	ASSERT_TEST(emailAreEqual(mail, copy));
-	emailDestroy(copy);
-	emailDestroy(mail);
+	char* client_address = "client@mail.com";
+		char* agent_address = "agent@mail.com";
+		Email client, agent;
+		ASSERT_TEST(emailCreate(client_address, &client) == EMAIL_SUCCESS);
+		ASSERT_TEST(emailCreate(agent_address, &agent) == EMAIL_SUCCESS);
+		char* serivce_name = "my simple service";
+		Offer offer, copy;
+		ASSERT_TEST(offerCreate(agent, client, serivce_name, 12, 5000, &offer)
+				== OFFER_SUCCESS);
+		ASSERT_TEST(offer != NULL);
+		ASSERT_TEST(offerCopy(NULL, NULL) == OFFER_NULL_PARAMETERS);
+		ASSERT_TEST(offerCopy(offer, NULL) == OFFER_NULL_PARAMETERS);
+		ASSERT_TEST(offerCopy(NULL, &copy) == OFFER_NULL_PARAMETERS);
+		ASSERT_TEST(offerCopy(offer, &copy) == OFFER_SUCCESS);
+		ASSERT_TEST(copy != NULL);
+		ASSERT_TEST(emailAreEqual(offerGetAgentEmail(copy),agent) == true);
+		ASSERT_TEST(emailAreEqual(offerGetClientEmail(copy),client) == true);
+		ASSERT_TEST(areStringsEquel(offerGetServiceName(copy),serivce_name)
+				== true);
+		ASSERT_TEST(offerGetApartmentId(copy) == 12);
+		ASSERT_TEST(offerGetPrice(copy) == 5000);
+		offerDestroy(copy);
+		offerDestroy(offer);
+		emailDestroy(client);
+		emailDestroy(agent);
 	return true;
 }
 
@@ -62,38 +86,21 @@ static bool testOfferCopy() {
  * Test Compare method and Equal method
  */
 static bool testOfferCompareAndEqals() {
-	char* address_1  = "aaa@gmail.com";
-	char* address_2  = "aaa@gmail.com";
-	char* address_3  = "bbb@gmail.com";
-	char* address_4  = "Bbb@gmail.com";
+	char* client_address = "client@mail.com";
+		char* agent_address = "agent@mail.com";
+		Email client, agent;
+		ASSERT_TEST(emailCreate(client_address, &client) == EMAIL_SUCCESS);
+		ASSERT_TEST(emailCreate(agent_address, &agent) == EMAIL_SUCCESS);
+		char* serivce_name = "my simple service";
+		Offer offer, copy;
+		ASSERT_TEST(offerCreate(agent, client, serivce_name, 12, 5000, &offer)
+				== OFFER_SUCCESS);
+		ASSERT_TEST(offer != NULL);
 
-	Email mail_1, mail_2, mail_3, mail_4;
-	ASSERT_TEST(emailCreate(address_1, &mail_1) == EMAIL_SUCCESS);
-	ASSERT_TEST(emailCreate(address_2, &mail_2) == EMAIL_SUCCESS);
-	ASSERT_TEST(emailCreate(address_3, &mail_3) == EMAIL_SUCCESS);
-	ASSERT_TEST(emailCreate(address_4, &mail_4) == EMAIL_SUCCESS);
-
-	ASSERT_TEST(emailAreEqual(NULL, NULL) == true);
-	ASSERT_TEST(emailAreEqual(mail_1, NULL) == false);
-	ASSERT_TEST(emailAreEqual(NULL, mail_1) == false);
-	ASSERT_TEST(emailAreEqual(mail_1, mail_2) == true);
-	ASSERT_TEST(emailAreEqual(mail_1, mail_1) == true);
-	ASSERT_TEST(emailAreEqual(mail_1, mail_3) == false);
-	ASSERT_TEST(emailAreEqual(mail_3, mail_1) == false);
-
-	ASSERT_TEST(emailComapre(NULL, NULL) == 0);
-	ASSERT_TEST(emailComapre(mail_3, NULL) > 0);
-	ASSERT_TEST(emailComapre(mail_3, mail_1) > 0);
-	ASSERT_TEST(emailComapre(NULL, mail_1) < 0);
-	ASSERT_TEST(emailComapre(mail_1, mail_2) == 0);
-	ASSERT_TEST(emailComapre(mail_2, mail_1) == 0);
-	ASSERT_TEST(emailComapre(mail_3, mail_4) > 0);
-	ASSERT_TEST(emailComapre(mail_4, mail_3) < 0);
-
-	emailDestroy(mail_1);
-	emailDestroy(mail_2);
-	emailDestroy(mail_3);
-	emailDestroy(mail_4);
+		offerDestroy(offer);
+		emailDestroy(client);
+		emailDestroy(agent);
+	return true;
 	return true;
 }
 

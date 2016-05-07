@@ -204,6 +204,7 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 		listDestroy(new_list);
 		return CLIENT_MANAGER_OUT_OF_MEMORY;
 	}
+	*list = new_list;
 	return CLIENT_MANAGER_SUCCESS;
 }
 

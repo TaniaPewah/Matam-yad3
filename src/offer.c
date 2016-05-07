@@ -176,3 +176,17 @@ OfferResult offerCopy(Offer offer, Offer* result) {
 	return offerCreate(offer->client, offer->agent, offer->service_name,
 			offer->apartment_id, offer->price, result);
 }
+
+/**
+* offerGetPrice: gets the offer suggested price.
+*
+* @param offer Target offer.
+*
+* @return
+* 	NO_OFFER_VAL - if offer is NULL
+* 	else returns the offer suggested price.
+*/
+int offerGetPrice(Offer offer) {
+	if (offer == NULL) return NO_OFFER_VAL;
+	return offer->price;
+}

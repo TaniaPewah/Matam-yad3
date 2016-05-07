@@ -106,6 +106,17 @@ char* offerGetServiceName(Offer offer);
 int offerGetApartmentId(Offer offer);
 
 /**
+* offerGetPrice: gets the offer suggested price.
+*
+* @param offer Target offer.
+*
+* @return
+* 	NO_OFFER_VAL - if offer is NULL
+* 	else returns the offer suggested price.
+*/
+int offerGetPrice(Offer offer);
+
+/**
 * Allocates a new offer, identical to the old offer
 *
 * Creates a new offer. This function receives an offer elemnet, and retrieves

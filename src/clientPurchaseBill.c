@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "clientPurchaseBill.h"
+#include "utilities.h"
 #include "email.h"
 
 struct clientPurchaseBill_t {
