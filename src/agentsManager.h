@@ -197,6 +197,18 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email);
 AgentsManagerResult agentManagerFindMatch(AgentsManager manager, int min_rooms,
 					 int min_area, int max_price, List* result_list);
 
+/* getSignificantAgents: The function gets list with the mast significant agents
+ * 						 according to a formula
+ *
+ * @param manager 			Target agent Manager to search in.
+ * @param count   			the amount of the requested significants agents
+ * @param significant_list  the out list parameter- containing the details of
+ * 							the significant agents
+ *
+ * * @return
+ * AGENT_MANAGER_OUT_OF_MEMORY 		if an allocation problem occurred
+ * AGENT_MANAGER_SUCCESS			otherwise
+ */
 AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
 		List* significal_list );
 
