@@ -4,8 +4,11 @@
 #include <string.h>
 #include <stdbool.h>
 #include "test_utilities.h"
+#include "utilities.h"
 #include "agentsManager.h"
 #include "agent.h"
+#include "list.h"
+#include "map.h"
 #include "apartment_service.h"
 
 static bool testAgentsManagerAddService();
@@ -15,16 +18,28 @@ static bool testAgentsManagerRemoveAgent();
 static bool testAgentsManagerCreate();
 static bool testAgentsManagerAddApartmentToService();
 static bool testAgentsManagerRemoveApartmentFromService();
+static bool testAgentManagerFindMatch();
+static void freeListElement(ListElement element);
+static ListElement copyListElement(ListElement element);
+
+static MapDataElement GetDataCopy(constMapDataElement data);
+static MapKeyElement GetKeyCopy(constMapKeyElement key);
+static void FreeData(MapDataElement data);
+static void FreeKey(MapKeyElement key);
+static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
+
+
 
 //int main() {
 int RunAgentManagerTest() {
-	RUN_TEST(testAgentsManagerCreate);
+	/*RUN_TEST(testAgentsManagerCreate);
 	RUN_TEST(testAgentsManagerAddAgent);
 	RUN_TEST(testAgentsManagerRemoveAgent);
 	RUN_TEST(testAgentsManagerAddService);
 	RUN_TEST(testAgentsManagerRemoveService);
 	RUN_TEST(testAgentsManagerAddApartmentToService);
-	RUN_TEST(testAgentsManagerRemoveApartmentFromService);
+	RUN_TEST(testAgentsManagerRemoveApartmentFromService);*/
+	RUN_TEST(testAgentManagerFindMatch);
 	return 0;
 }
 
@@ -273,6 +288,85 @@ static bool testAgentsManagerRemoveApartmentFromService(){
 	agentsManagerDestroy(manager);
 	agentDestroy(agent);
 	return true;
+}
+
+static bool testAgentManagerFindMatch(){
+
+	Email email = NULL;
+	emailCreate( "baba@ganosh", &email );
+	Agent agent = NULL;
+	agentCreate(email,"tania",5, &agent);
+
+	AgentsManager manager = agentsManagerCreate();
+	agentsManagerAdd( manager, agent );
+	ApartmentService service = serviceCreate( 2 );
+
+	agentsManagerAddApartmentService( manager, email, service, "serveMe");
+
+	SquareType square[2] = { WALL, EMPTY };
+	SquareType* squarePtr = square;
+	Apartment apartment = apartmentCreate(&squarePtr, 1, 2, 100);
+
+	AgentsManagerResult result;
+	agentsManagerAddApartmentToService(	manager, email, "serveMe", apartment, 1 );
+
+	/*Map mm = mapCreate(GetDataCopy, GetKeyCopy,
+	 			FreeData, FreeKey, CompareKeys);
+
+	mapPut(mm, "serve", service);
+	char* name = mapGetFirst(mm );*/
+	List agents_list = listCreate(copyListElement, freeListElement);
+	result = agentManagerFindMatch( manager, 1, 1 , 1000, &agents_list);
+	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
+
+	//result = agentManagerFindMatch( manager, 1, 1 , 10, &agents_list);
+	//ASSERT_TEST( result == AGENT_MANAGER_APARTMENT_NOT_EXISTS );
+	return true;
+}
+
+
+/** Function to be used for copying data elements into the map */
+static MapDataElement GetDataCopy(constMapDataElement data) {
+	ApartmentService new_service = NULL;
+	new_service = serviceCopy( (ApartmentService)data );
+	return (MapDataElement)new_service;
+}
+
+/** Function to be used for copying key elements into the map */
+static MapKeyElement GetKeyCopy(constMapKeyElement key) {
+	char* name = NULL;
+	name = duplicateString( key );
+	return name;
+}
+
+/** Function to be used for freeing data elements into the map */
+static void FreeData(MapDataElement data) {
+	if (data != NULL) serviceDestroy((ApartmentService)data);
+}
+
+/** Function to be used for freeing key elements into the map */
+static void FreeKey(MapKeyElement key) {
+	if (key != NULL) free(key);
+}
+
+/** Function to be used for comparing key elements in the map */
+static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
+	return strcmp( first, second);
+}
+
+
+
+/** Function to be used for freeing data elements from list */
+void freeListElement(ListElement element) {
+	if (element != NULL)
+		agentDetailsDestroy((AgentDetails)element);
+}
+
+/** Function to be used for coping data elements from list */
+ListElement copyListElement(ListElement element) {
+	AgentDetails agent_details =
+			agentDetailsCopy((AgentDetails)element);
+	return agent_details;
 }
 
 

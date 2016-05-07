@@ -218,8 +218,7 @@ AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
 				Email email, char* serviceName, Apartment apartment, int id ){
 
-	if( manager == NULL || email == NULL ||	apartment == NULL ||
-															!idIsValid( id ))
+	if( manager == NULL || email == NULL ||	apartment == NULL || !isValid( id ))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 	Agent agent = agentsManagerGetAgent( manager, email);
 	if( agent == NULL )
@@ -267,7 +266,7 @@ AgentsManagerResult agentsManagerAddApartmentToService(AgentsManager manager,
 AgentsManagerResult agentsManagerRemoveApartmentFromService(
 	AgentsManager manager, Email email, char* serviceName, int apartmentId ){
 	if( manager == NULL || email == NULL || serviceName == NULL ||
-												!idIsValid( apartmentId ) )
+													!isValid( apartmentId ) )
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 
 	Agent agent = agentsManagerGetAgent( manager, email);
@@ -315,12 +314,17 @@ AgentsManagerResult agentsManagerRemoveApartmentFromService(
 AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
 					 int min_area, int max_price, List* result_list ){
 
-	if (manager == NULL || result_list == NULL)
+	if ( manager == NULL || result_list == NULL || !isValid(min_area) ||
+			!isValid(min_rooms) || !isPriceValid(max_price))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
 	AgentsManagerResult manager_result = AGENT_MANAGER_SUCCESS;
-	Agent current = mapGetFirst( manager->agentsMap );
+	Email curr_email = mapGetFirst( manager->agentsMap );
 
-	if( current == NULL)
+	if( curr_email == NULL)
+		manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
+	Agent curr_agent = agentsManagerGetAgent( manager, curr_email);
+
+	if( curr_agent == NULL)
 		manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
 	AgentDetails curr_details;
 
@@ -328,9 +332,9 @@ AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
 
 	if(agents_list == NULL ) return AGENT_MANAGER_OUT_OF_MEMORY;
 
-	while( current ){
+	while( curr_agent ){
 
-		AgentResult result = agentFindMatch( current, min_area,
+		AgentResult result = agentFindMatch( curr_agent, min_area,
 										min_rooms, max_price, &curr_details);
 		if( result == AGENT_OUT_OF_MEMORY ){
 			listDestroy(agents_list);
@@ -344,7 +348,13 @@ AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
 				return AGENT_MANAGER_OUT_OF_MEMORY;
 			}
 
-		current = mapGetNext( manager->agentsMap );
+		curr_email = mapGetNext( manager->agentsMap );
+		if( curr_email == NULL)
+			manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
+		curr_agent = agentsManagerGetAgent( manager, curr_email);
+
+		if( curr_agent == NULL)
+			manager_result = AGENT_MANAGER_AGENT_NOT_EXISTS;
 	}
 
 	if( listGetSize( agents_list ) > 0 ){
@@ -371,8 +381,12 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
 	return mapContains(manager->agentsMap, email);
 }
 
-bool idIsValid( int id ){
+bool isValid( int id ){
 	return id > 0;
+}
+
+bool isPriceValid( int price ){
+	return !(price%10);
 }
 
 /** Function to be used for copying data elements into the map */
