@@ -91,6 +91,9 @@ void clientPurchaseBillDestroy(ClientPurchaseBill purchase_bill) {
 */
 int clientPurchaseBillComapre(ClientPurchaseBill first,
 							  ClientPurchaseBill second) {
+	if ((first == NULL) && (second == NULL)) return 0;
+	if (second == NULL) return -1;
+	if (first == NULL) return 1;
 	int diff = (first->total_money_paid - second->total_money_paid);
 	if (diff == 0) {
 		diff = emailComapre(first->email, second->email);
@@ -102,15 +105,15 @@ int clientPurchaseBillComapre(ClientPurchaseBill first,
 * clientPurchaseGetMoneyPaidString: gets a string representing the client
 * purchase bill, AKA the total sum of money usr spent on buying apartments.
 *
-* @param purchase_bill Target purchase bill.
+* @param bill Target purchase bill.
 *
 * @return
 * 	NULL - if purchase_bill is NULL or in case of memory allocation error,
 * 	else a string representing the client purchase bill.
 */
-char* clientPurchaseGetMoneyPaidString(ClientPurchaseBill purchase_bill) {
-	if (purchase_bill == NULL) return NULL;
-	char* result = IntToString(purchase_bill->total_money_paid);
+char* clientPurchaseBillGetMoneyPaidString(ClientPurchaseBill bill) {
+	if (bill == NULL) return NULL;
+	char* result = IntToString(bill->total_money_paid);
 	return result;
 }
 
@@ -118,14 +121,14 @@ char* clientPurchaseGetMoneyPaidString(ClientPurchaseBill purchase_bill) {
 * clientPurchaseGetClientEmailAddress: gets a string representing the client
 * email address.
 *
-* @param purchase_bill Target purchase bill.
+* @param bill Target purchase bill.
 *
 * @return
 * 	NULL - if purchase_bill is NULL or in case of memory allocation error,
 * 	else a string representing the client email address.
 */
-char* clientPurchaseGetClientEmailAddress(ClientPurchaseBill purchase_bill) {
-	if (purchase_bill == NULL) return NULL;
-	return emailToString(purchase_bill->email);
+char* clientPurchaseBillGetClientEmailAddress(ClientPurchaseBill bill) {
+	if (bill == NULL) return NULL;
+	return emailToString(bill->email);
 }
 

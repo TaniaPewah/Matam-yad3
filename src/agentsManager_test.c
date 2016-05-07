@@ -10,7 +10,6 @@
 
 static bool testAgentsManagerAddService();
 static bool testAgentsManagerRemoveService();
-static bool testAgentCreate();
 static bool testAgentsManagerAddAgent();
 static bool testAgentsManagerRemoveAgent();
 static bool testAgentsManagerCreate();
@@ -19,30 +18,14 @@ static bool testAgentsManagerRemoveApartmentFromService();
 
 //int main() {
 int RunAgentManagerTest() {
-
-	RUN_TEST( testAgentsManagerCreate );
-	RUN_TEST( testAgentCreate );
-	RUN_TEST( testAgentsManagerAddAgent);
-	RUN_TEST( testAgentsManagerRemoveAgent );
-	RUN_TEST( testAgentsManagerAddService );
-	RUN_TEST( testAgentsManagerRemoveService );
-	RUN_TEST( testAgentsManagerAddApartmentToService );
-	RUN_TEST( testAgentsManagerRemoveApartmentFromService );
+	RUN_TEST(testAgentsManagerCreate);
+	RUN_TEST(testAgentsManagerAddAgent);
+	RUN_TEST(testAgentsManagerRemoveAgent);
+	RUN_TEST(testAgentsManagerAddService);
+	RUN_TEST(testAgentsManagerRemoveService);
+	RUN_TEST(testAgentsManagerAddApartmentToService);
+	RUN_TEST(testAgentsManagerRemoveApartmentFromService);
 	return 0;
-}
-
-static bool testAgentCreate(){
-
-	Email email = NULL;
-	emailCreate( "baba@ganosh", &email );
-	ASSERT_TEST( email != NULL);
-
-	Agent agent = NULL;
-	agentCreate(email,"tania", 5, &agent);
-	ASSERT_TEST(agent != NULL);
-
-	agentDestroy(agent);
-	return true;
 }
 
 /**
