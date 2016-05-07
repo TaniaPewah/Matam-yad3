@@ -102,11 +102,11 @@ int agentGetTax(Agent agent);
 *
 * @return
 *
-* 	EMAIL_NULL_PARAMETERS - if agent or pointer are NULL.
+* 	AGENT_INVALID_PARAMETERS - if agent or pointer -are NULL.
 *
-* 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+* 	AGENT_OUT_OF_MEMORY - if allocations failed.
 *
-* 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
+* 	AGENT_SUCCESS - in case of success. A new agent is saved in the result.
 */
 AgentResult agentCopy(Agent agent, Agent* result);
 
@@ -121,7 +121,7 @@ AgentResult agentCopy(Agent agent, Agent* result);
 *	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
 *	AGENT_APARTMENT_SERVICE_FULL       if service is full
 *	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
-*	AGENT_ALREADY_EXISTS     if apartment with the given id already exist
+*	AGENT_APARTMENT_EXISTS     if apartment with the given id already exist
 *	AGENT_OUT_OF_MEMORY      if allocation failed
 *	AGENT_SUCCESS            if apartment successfully added
 */
@@ -202,6 +202,7 @@ AgentResult agentRemoveService(Agent agent, char* service_name);
 * 				 of the apartment services that the
 *
 * @return
+* *   AGENT_INVALID_PARAMETERS			if any of the parameters are NULL
 *	AGENT_APARTMENT_NOT_EXISTS          if the matching apartment is not found
 *	AGENT_APARTMENT_SERVICE_NOT_EXISTS  if the current agent has no apartment
 *										services
@@ -220,6 +221,6 @@ AgentResult agentFindMatch(Agent agent, int min_rooms, int min_area,
 *	the rank of the agent agent if agent has at least 1 apartment, and -1
 *	if has no apartments
 */
-int agentGetRank( Agent agent );
+double agentGetRank( Agent agent );
 
 #endif /* SRC_AGENT_H_ */

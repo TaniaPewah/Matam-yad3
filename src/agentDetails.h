@@ -26,7 +26,7 @@ typedef struct agentDetails_t *AgentDetails;
 * 	A new AgentDetails element or NULL if :email is NULL, companyName is null,
 * 	or if allocation failed.
 */
-AgentDetails agentDetailsCreate(Email email, char* companyName, int rank );
+AgentDetails agentDetailsCreate(Email email, char* companyName, double rank );
 
 /**
 * agentDetailsCopy: Allocates a new AgentDetails instance,
@@ -51,9 +51,9 @@ AgentDetails agentDetailsCopy( AgentDetails agent_details);
 * @param second - second agent_detail to compare
 *
 * return:
-* int -the difference between the first and the second
+* double -the difference between the first and the second
 */
-int agentDetailsRankCompare( AgentDetails first, AgentDetails second);
+double agentDetailsRankCompare( AgentDetails first, AgentDetails second);
 
 /**
 * agentDetailsDestroy: Deallocates the details instance.
@@ -64,6 +64,27 @@ int agentDetailsRankCompare( AgentDetails first, AgentDetails second);
 * If purchase_bill is NULL nothing will be done
 */
 void agentDetailsDestroy( AgentDetails agent_details );
+
+/* agentDetailsGetEmail : gets the email of the agent
+*
+* returns NULL if a NUll details param recieved
+* else the email of this agent details
+*/
+Email agentDetailsGetEmail( AgentDetails details );
+
+/* agentDetailsGetEmail : gets the companyName of the agent
+*
+* returns NULL if a NUll details param recieved
+* else the companyName of this agent details
+*/
+char* agentDetailsGetCompanyName( AgentDetails details );
+
+/* agentDetailsGetEmail : gets the rank of the agent
+*
+* returns NULL if a NUll details param recieved
+* else the rank of this agent details
+*/
+double agentDetailsGetRank( AgentDetails details);
 
 
 #endif /* SRC_AGENTDETAILS_H_ */

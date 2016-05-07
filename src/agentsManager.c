@@ -425,7 +425,7 @@ AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
 		if(agents_list == NULL)
 			return AGENT_MANAGER_OUT_OF_MEMORY;
 
-		int rank;
+		double rank;
 		while( curr_agent ){
 
 			rank = agentGetRank( curr_agent );

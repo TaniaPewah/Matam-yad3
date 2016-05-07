@@ -33,6 +33,18 @@ static AgentResult ConvertServiceResult(ApartmentServiceResult result);
 static bool isTaxValid( int taxPercentage );
 static bool isPriceValid( int price );
 
+/* isValid: The function checks whether the given apartment numerical
+ * 					param is valid
+ *
+ * @param  The param to check.
+ *
+ * * @return
+ * false if invalid; else returns true.
+ */
+static bool isValid( int param ){
+	return param > 0;
+}
+
  /**
  * agentGetMail: gets the agents mail
  *
@@ -49,10 +61,11 @@ Email agentGetMail( Agent agent ){
 *
 * @param  agent  - Target Agent
 *
-* @return the agent's companyName
+* @return NULL if agent is NULL  else
+* 				the agent's companyName
 */
 char* agentGetCompany( Agent agent ){
-	 return(agent->companyName);
+	 return agent ? agent->companyName : NULL;
 }
 
 /**
@@ -60,10 +73,11 @@ char* agentGetCompany( Agent agent ){
  *
  * @param  agent  - Target Agent
  *
- * @return the agent's  tax percentage
+ * @return -1 if the agent is NLL else
+ * 			the agent's  tax percentage
  */
 int agentGetTax( Agent agent ){
-	return( agent->taxPercentge );
+	return agent ? agent->taxPercentge : -1;
 }
 
  /**
@@ -219,7 +233,7 @@ AgentResult agentRemoveService( Agent agent, char* service_name ){
 *	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
 *	AGENT_APARTMENT_SERVICE_FULL       if service is full
 *	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
-*	AGENT_ALREADY_EXISTS     if apartment with the given id already exist
+*	AGENT_APARTMENT_EXISTS     if apartment with the given id already exist
 *	AGENT_OUT_OF_MEMORY      if allocation failed
 *	AGENT_SUCCESS            if apartment successfully added
 */
@@ -350,40 +364,25 @@ static AgentResult ConvertServiceResult(ApartmentServiceResult value) {
 */
 AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 											char* serviceName ){
+	if( agent == NULL || !isValid( apartmentId) || serviceName == NULL)
+		return AGENT_INVALID_PARAMETERS;
 	ApartmentService service = agentGetService( agent, serviceName );
-		if ( service == NULL )
-			return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+	if ( service == NULL )
+		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
 
-		Apartment apartment = NULL;
-		ApartmentServiceResult getResult = serviceGetById( service,
-												 apartmentId, &apartment );
-		if( getResult == APARTMENT_SERVICE_NULL_ARG )
-			return AGENT_INVALID_PARAMETERS;
+	Apartment apartment = NULL;
+	ApartmentServiceResult getResult = serviceGetById( service,
+											 apartmentId, &apartment );
+	if( getResult == APARTMENT_SERVICE_NULL_ARG )
+		return AGENT_INVALID_PARAMETERS;
 
-		if( getResult != APARTMENT_SERVICE_SUCCESS )
-			return AGENT_APARTMENT_NOT_EXISTS;
+	if( getResult != APARTMENT_SERVICE_SUCCESS )
+		return AGENT_APARTMENT_NOT_EXISTS;
 
-		ApartmentServiceResult deleteResult =
-								serviceDeleteApartment( service, apartment );
+	ApartmentServiceResult deleteResult =
+							serviceDeleteApartment( service, apartment );
 
-		switch ( deleteResult ){
-			case APARTMENT_SERVICE_EMPTY:{
-				return AGENT_APARTMENT_NOT_EXISTS;
-				break;
-			}
-			case APARTMENT_SERVICE_NULL_ARG:{
-				return AGENT_INVALID_PARAMETERS;
-				break;
-			}
-			case APARTMENT_SUCCESS:{
-				return AGENT_SUCCESS;
-				break;
-			}
-			default:
-				break;
-		}
-
-		return AGENT_SUCCESS;
+	return ConvertServiceResult( deleteResult );
 }
 
 /**
@@ -398,6 +397,7 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 * 				 of the apartment services that the
 *
 * @return
+*   AGENT_INVALID_PARAMETERS			if any of the parameters are NULL
 *	AGENT_APARTMENT_NOT_EXISTS          if the matching apartment is not found
 *	AGENT_APARTMENT_SERVICE_NOT_EXISTS  if the current agent has no apartment
 *										services
@@ -456,7 +456,7 @@ AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 *	the rank of the agent agent if agent has at least 1 apartment, and -1
 *	if has no apartments
 */
-int agentGetRank( Agent agent ){
+double agentGetRank( Agent agent ){
 
 	if( agent == NULL )
 			return AGENT_INVALID_PARAMETERS;
@@ -497,7 +497,13 @@ int agentGetRank( Agent agent ){
 		(1000000 * apartments_count + median_price + 100000 * median_area) : -1;
 }
 
-
+/* isTaxValid: The function checks whether the tax is between 1 and 100
+ *
+ * @taxPercentage  The tax to check.
+ *
+ * @return
+ * false if invalid; else returns true.
+ */
 static bool isTaxValid( int taxPercentage ){
 
 	return ((taxPercentage >=1) && (taxPercentage <= 100));
@@ -514,11 +520,11 @@ static bool isTaxValid( int taxPercentage ){
 *
 * @return
 *
-* 	EMAIL_NULL_PARAMETERS - if agent or pointer -are NULL.
+* 	AGENT_INVALID_PARAMETERS - if agent or pointer -are NULL.
 *
-* 	EMAIL_OUT_OF_MEMORY - if allocations failed.
+* 	AGENT_OUT_OF_MEMORY - if allocations failed.
 *
-* 	EMAIL_SUCCESS - in case of success. A new agent is saved in the result.
+* 	AGENT_SUCCESS - in case of success. A new agent is saved in the result.
 */
 AgentResult agentCopy(Agent agent, Agent* result_agent){
 	if (agent == NULL || result_agent == NULL) return AGENT_INVALID_PARAMETERS;
@@ -565,7 +571,7 @@ static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
 	return strcmp( first, second);
 }
 
-/* priceisValid: The function checks whether the price gane be divided by 10
+/* priceisValid: The function checks whether the price can be divided by 100
  *
  * @price  The price to check.
  *

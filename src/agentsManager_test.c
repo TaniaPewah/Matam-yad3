@@ -296,8 +296,8 @@ static bool testAgentManagerGetSignificantAgents(){
 	result = agentManagerGetSignificantAgents( manager, 1, &agents_list );
 	ASSERT_TEST( listGetSize( agents_list ) == 1);
 	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
-	//ASSERT_TEST( (AgentDetails)(listGetFirst(agents_list) )
-
+	ASSERT_TEST( strcmp(agentDetailsGetCompanyName(
+			(AgentDetails)(listGetFirst(agents_list))), "tania") );
 
 	agentsManagerDestroy(manager);
 	listDestroy( agents_list);
@@ -306,37 +306,6 @@ static bool testAgentManagerGetSignificantAgents(){
 
 	return true;
 }
-
-
-///** Function to be used for copying data elements into the map */
-//static MapDataElement GetDataCopy(constMapDataElement data) {
-//	ApartmentService new_service = NULL;
-//	new_service = serviceCopy( (ApartmentService)data );
-//	return (MapDataElement)new_service;
-//}
-//
-///** Function to be used for copying key elements into the map */
-//static MapKeyElement GetKeyCopy(constMapKeyElement key) {
-//	char* name = NULL;
-//	name = duplicateString( key );
-//	return name;
-//}
-//
-///** Function to be used for freeing data elements into the map */
-//static void FreeData(MapDataElement data) {
-//	if (data != NULL) serviceDestroy((ApartmentService)data);
-//}
-//
-///** Function to be used for freeing key elements into the map */
-//static void FreeKey(MapKeyElement key) {
-//	if (key != NULL) free(key);
-//}
-//
-///** Function to be used for comparing key elements in the map */
-//static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
-//	return strcmp( first, second);
-//}
-
 
 
 /** Function to be used for freeing data elements from list */
