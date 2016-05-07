@@ -224,7 +224,7 @@ AgentResult agentRemoveService( Agent agent, char* service_name ){
 AgentResult agentAddApartmentToService(Agent agent, char* service_name, int id,
 		int price, int width, int height, char* matrix) {
 	if ((agent == NULL) || (service_name == NULL) ||
-		(id < 0) || (price <= 0) || ((price % 100) == 0) ||
+		(id < 0) || (price <= 0) || ((price % 100) != 0) ||
 		(width <= 0) || (height <= 0) || (matrix == NULL) ||
 		(strlen(matrix) != (width * height))) return AGENT_INVALID_PARAMETERS;
 	ApartmentService service = agentGetService(agent, service_name);
