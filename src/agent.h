@@ -17,6 +17,8 @@
 
 #define AT_SIGN '@'
 #define RANK_EMPTY -1
+#define WALL_CHAR 'w'
+#define EMPTY_CHAR 'e'
 
 typedef enum {
 	AGENT_OUT_OF_MEMORY = 0,
@@ -119,12 +121,12 @@ AgentResult agentCopy(Agent agent, Agent* result);
 *	AGENT_INVALID_PARAMETERS   if any of parameters are NULL
 *	AGENT_APARTMENT_SERVICE_FULL       if service is full
 *	AGENT_APARTMENT_SERVICE_NOT_EXISTS service with the given name doesn't exist
-*	AGENT_ALREADY_EXISTS   if apartment with the given id already exist
+*	AGENT_ALREADY_EXISTS     if apartment with the given id already exist
 *	AGENT_OUT_OF_MEMORY      if allocation failed
 *	AGENT_SUCCESS            if apartment successfully added
 */
-AgentResult agentAddApartmentToService(Agent agent, Apartment apartment,
-	int id, char* serviceName);
+AgentResult agentAddApartmentToService(Agent agent, char* service_name, int id,
+		int price, int width, int height, char* matrix);
 
 /**
 * agentRemoveApartmentFromService: remove apartment from apartment service

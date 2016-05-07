@@ -79,3 +79,22 @@ static int getDigitsCount(int number) {
 	return count;
 }
 
+/*
+* countChar: counts the amount of time a given character appears in a string
+*
+* @param string the string.
+* @param value the character.
+*
+* @return
+* 	0 if string is NULL; else returns the count
+ */
+int countChar(char* string, char value) {
+	if (string == NULL) return 0;
+	int count = 0, curr_index = 0;
+	while (string[curr_index] != '\0') {
+		count += string[curr_index] == value ? 1 : 0;
+		curr_index++;
+	}
+	return count;
+}
+

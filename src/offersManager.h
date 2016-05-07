@@ -44,6 +44,25 @@ OfferManagerResult offersMenagerRemoveAllEmailOffers(OffersManager manager,
 	Email mail);
 
 /*
+* offersMenagerRemoveAllServiceOffers: Removes all the offers that are under
+* the given apartment service name and agent.
+*
+* @param manager OffersManager to remove from add to.
+* @param mail agent email.
+* @param service_name the apartment service name.
+*
+* @return
+*
+* 	OFFERS_MANAGER_NULL_PARAMETERS if manager, mail or service_name are NULL
+*
+* 	OFFERS_MANAGER_OUT_OF_MEMORY in case of memory allocation error
+*
+* 	OFFERS_MANAGER_SUCCESS the offers removed successfully
+*/
+OfferManagerResult offersMenagerRemoveAllServiceOffers(OffersManager manager,
+	Email mail, char* service_name);
+
+/*
 * offersMenagerRemoveAllApartmentOffers: Removes all the offers that are on
 * the given apartment id.
 *

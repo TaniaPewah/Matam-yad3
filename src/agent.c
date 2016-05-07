@@ -13,19 +13,23 @@
 #include "utilities.h"
 #include "map.h"
 
-struct Agent_t{
+struct Agent_t {
 	Email email;
 	char* companyName;
 	int taxPercentge;
 	Map apartmentServices;
 };
 
-static bool isTaxValid( int taxPercentage );
 static MapDataElement GetDataCopy(constMapDataElement data);
 static MapKeyElement GetKeyCopy(constMapKeyElement key);
 static void FreeData(MapDataElement data);
 static void FreeKey(MapKeyElement key);
 static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
+
+static AgentResult squresCreate(int width, int height, char* matrix,
+		SquareType*** result);
+static void squresDestroy(SquareType** squres, int length);
+static AgentResult ConvertServiceResult(ApartmentServiceResult result);
 
  /**
  * agentGetMail: gets the agents mail
@@ -189,7 +193,7 @@ AgentResult agentAddService(Agent agent, char* serviceName,
  */
 AgentResult agentRemoveService( Agent agent, char* service_name ){
 
-	if( agent == NULL || service_name == NULL )
+	if((agent == NULL) || (service_name == NULL))
 		return AGENT_INVALID_PARAMETERS;
 
 	MapResult result =
@@ -217,42 +221,98 @@ AgentResult agentRemoveService( Agent agent, char* service_name ){
 *	AGENT_OUT_OF_MEMORY      if allocation failed
 *	AGENT_SUCCESS            if apartment successfully added
 */
-AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
-										 int id, char* serviceName){
+AgentResult agentAddApartmentToService(Agent agent, char* service_name, int id,
+		int price, int width, int height, char* matrix) {
+	if ((agent == NULL) || (service_name == NULL) ||(matrix == NULL) ||
+		(id < 0) || (price <= 0) || ((price % 100) == 0) ||
+		(width <= 0) || (height <= 0) || (matrix == NULL) ||
+		(strlen(matrix) != (width * height))) return AGENT_INVALID_PARAMETERS;
+	ApartmentService service = agentGetService(agent, service_name);
+	if (service == NULL) return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+	SquareType** squares = NULL;
+	AgentResult squre_result = squresCreate(width, height, matrix, &squares);
+	if (squre_result != AGENT_SUCCESS) return squre_result;
+	Apartment apartment = apartmentCreate(squares, height, width, price);
+	if (apartment == NULL) {
+		squresDestroy(squares, height);
+		return AGENT_OUT_OF_MEMORY;
+	}
+	ApartmentServiceResult result = serviceAddApartment(service, apartment, id);
+	apartmentDestroy(apartment);
+	squresDestroy(squares, height);
+	return ConvertServiceResult(result);
+}
 
-	ApartmentService service = agentGetService( agent, serviceName );
-	if ( service == NULL )
-		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
-
-	ApartmentServiceResult result =
-								serviceAddApartment( service, apartment, id );
-
-	switch (result){
-		case APARTMENT_SERVICE_OUT_OF_MEM : {
+static AgentResult squresCreate(int width, int height, char* matrix,
+	SquareType*** result) {
+	SquareType** squre = malloc (sizeof(*squre) * height);
+	if (squre == NULL) return AGENT_OUT_OF_MEMORY;
+	for (int row = 0; row < height; row++) {
+		squre[row] = NULL;
+	}
+	for (int row = 0; row < height; row++) {
+		squre[row] = malloc (sizeof(squre) * width);
+		if (squre[row] == NULL) {
+			squresDestroy(squre, height);
 			return AGENT_OUT_OF_MEMORY;
+		} else {
+			for (int col = 0; col < width; col++) {
+				if (matrix[(row * width) + col] == WALL_CHAR) {
+					squre[row][col] = WALL;
+				} else if (matrix[(row * width) + col] == EMPTY_CHAR) {
+					squre[row][col] = EMPTY;
+				} else {
+					squresDestroy(squre, height);
+					return AGENT_INVALID_PARAMETERS;
+				}
+			}
+		}
+	}
+	*result = squre;
+	return AGENT_SUCCESS;
+}
+
+static void squresDestroy(SquareType** squres, int length) {
+	if (squres != NULL) {
+		for (int i = 0; i < length; i++) {
+			free(squres[i]);
+		}
+		free(squres);
+	}
+}
+
+static AgentResult ConvertServiceResult(ApartmentServiceResult value) {
+	AgentResult result;
+	switch (value){
+		case APARTMENT_SERVICE_OUT_OF_MEM : {
+			result = AGENT_OUT_OF_MEMORY;
 			break;
 		}
 		case APARTMENT_SERVICE_ALREADY_EXISTS:{
-			return AGENT_APARTMENT_EXISTS;
+			result = AGENT_APARTMENT_EXISTS;
 			break;
 		}
 		case APARTMENT_SERVICE_FULL:{
-			return AGENT_APARTMENT_SERVICE_FULL;
+			result = AGENT_APARTMENT_SERVICE_FULL;
 			break;
 		}
-		case APARTMENT_SERVICE_NULL_ARG:{
-			return AGENT_INVALID_PARAMETERS;
+		case APARTMENT_SERVICE_NULL_ARG: {
+			result = AGENT_INVALID_PARAMETERS;
 			break;
 		}
-		case APARTMENT_SUCCESS:{
-			return AGENT_SUCCESS;
+		case APARTMENT_SERVICE_EMPTY:
+		case APARTMENT_SERVICE_NO_FIT:
+		{
+			result = AGENT_APARTMENT_NOT_EXISTS;
 			break;
 		}
-		default:
+		case APARTMENT_SUCCESS:
+		default: {
+			result = AGENT_SUCCESS;
 			break;
+		}
 	}
-
-	return AGENT_SUCCESS;
+	return result;
 }
 
 /**

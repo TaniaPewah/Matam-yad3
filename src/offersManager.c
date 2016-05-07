@@ -26,6 +26,8 @@ static OfferManagerResult filteredRemoveOffers(OffersManager manager,
 	checkOffer function, checkOfferParam param);
 static CompareResult isEmailConnectedToOffer(Offer offer,
 	checkOfferParam parameter);
+static CompareResult isServiceConnectedToOffer(Offer offer,
+	checkOfferParam parameter);
 static CompareResult isApartmentConnectedToOffer(Offer offer,
 	checkOfferParam parameter);
 
@@ -97,6 +99,36 @@ void offersManagerDestroy(OffersManager offer) {
 OfferManagerResult offersMenagerRemoveAllEmailOffers(OffersManager manager,
 	Email mail) {
 	return filteredRemoveOffers(manager, isEmailConnectedToOffer, mail);
+}
+
+/*
+* offersMenagerRemoveAllServiceOffers: Removes all the offers that are under
+* the given apartment service name and agent.
+*
+* @param manager OffersManager to remove from add to.
+* @param mail agent email.
+* @param service_name the apartment service name.
+*
+* @return
+*
+* 	OFFERS_MANAGER_NULL_PARAMETERS if manager, mail or service_name are NULL
+*
+* 	OFFERS_MANAGER_OUT_OF_MEMORY in case of memory allocation error
+*
+* 	OFFERS_MANAGER_SUCCESS the offers removed successfully
+*/
+OfferManagerResult offersMenagerRemoveAllServiceOffers(OffersManager manager,
+	Email mail, char* service_name) {
+	if ((manager == NULL) || (mail == NULL) || (service_name == NULL))
+		return OFFERS_MANAGER_NULL_PARAMETERS;
+	void** parameters = malloc (2 * sizeof(void*));
+	if (parameters == NULL) return OFFERS_MANAGER_OUT_OF_MEMORY;
+	parameters[0] = mail;
+	parameters[1] = service_name;
+	OfferManagerResult result = filteredRemoveOffers(manager,
+			isServiceConnectedToOffer, parameters);
+	free (parameters);
+	return result;
 }
 
 /*
@@ -211,6 +243,33 @@ static CompareResult isEmailConnectedToOffer(Offer offer,
 }
 
 /*
+* isServiceConnectedToOffer: checks if the offers is associated with the
+* given apartment service.
+*
+* @param offer Offer to check.
+* @param parameter a pointer to a two cells array. first cell contains the
+* 	agent Email, the second contains the service name.
+*
+* @return
+*
+* 	COMPARE_UNFIT if manager or parameter NULL, or if the email address is
+* 		invalid, or if the apartment service is not associated with the offer.
+*
+* 	COMPARE_FIT apartment service is associated with the offer.
+*
+* 	COMPARE_OUT_OF_MEMORY method had a memory allocation error.
+*/
+static CompareResult isServiceConnectedToOffer(Offer offer,
+		checkOfferParam parameter) {
+	if ((offer == NULL) || (parameter == NULL)) return COMPARE_UNFIT;
+	return ((emailAreEqual(offerGetAgentEmail(offer),
+				(Email)(((void**)parameter)[0]))) &&
+			(areStringsEqual(offerGetServiceName(offer),
+			    (char*)(((void**)parameter)[1])))) ?
+			COMPARE_FIT : COMPARE_UNFIT;
+}
+
+/*
 * isApartmentConnectedToOffer: checks if the offers is associated with the
 * given apartment identifier.
 *
@@ -222,9 +281,9 @@ static CompareResult isEmailConnectedToOffer(Offer offer,
 * @return
 *
 * 	COMPARE_UNFIT if manager or parameter NULL, or if the email address is
-* 		invalid, or if the email is not associated with the offer.
+* 		invalid, or if the apartment is not associated with the offer.
 *
-* 	COMPARE_FIT email is associated with the offer.
+* 	COMPARE_FIT apartment is associated with the offer.
 *
 * 	COMPARE_OUT_OF_MEMORY method had a memory allocation error.
 */
