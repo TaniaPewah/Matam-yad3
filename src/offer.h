@@ -67,7 +67,7 @@ bool offerAreOverlapping(Offer first, Offer second);
 * @param offer Target offer.
 *
 * @return
-* 	NULL - if client is NULL
+* 	NULL - if offer is NULL
 * 	else returns the offer client email.
 */
 Email offerGetClientEmail(Offer offer);
@@ -78,7 +78,7 @@ Email offerGetClientEmail(Offer offer);
 * @param offer Target offer.
 *
 * @return
-* 	NULL - if agent is NULL
+* 	NULL - if offer is NULL
 * 	else returns the offer agent email.
 */
 Email offerGetAgentEmail(Offer offer);
@@ -89,7 +89,7 @@ Email offerGetAgentEmail(Offer offer);
 * @param offer Target offer.
 *
 * @return
-* 	NULL - if client is NULL
+* 	NULL - if offer is NULL
 * 	else returns the offer service name.
 */
 char* offerGetServiceName(Offer offer);
@@ -100,7 +100,7 @@ char* offerGetServiceName(Offer offer);
 * @param offer Target offer.
 *
 * @return
-* 	NO_OFFER_VAL - if client is NULL
+* 	NO_OFFER_VAL - if offer is NULL
 * 	else returns the offer apartment id.
 */
 int offerGetApartmentId(Offer offer);

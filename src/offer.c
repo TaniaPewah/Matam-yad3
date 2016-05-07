@@ -90,12 +90,12 @@ void offerDestroy(Offer offer) {
 * 	true if both are NULL or overlapping, else returns false.
 */
 bool offerAreOverlapping(Offer first, Offer second) {
-	if ((first == NULL) && (first == NULL)) return true;
-	if ((first == NULL) || (first == NULL)) return false;
-	return ((emailComapre(first->agent, second->agent)) &&
-			(emailComapre(first->client, second->client)) &&
-			(first->apartment_id == first->apartment_id) &&
-			(strcmp(first->service_name, first->service_name) == 0));
+	if ((first == NULL) && (second == NULL)) return true;
+	if ((first == NULL) || (second == NULL)) return false;
+	return ((emailAreEqual(first->agent, second->agent)) &&
+			(emailAreEqual(first->client, second->client)) &&
+			(first->apartment_id == second->apartment_id) &&
+			(areStringsEqual(first->service_name, second->service_name)));
 }
 
 /**
@@ -104,7 +104,7 @@ bool offerAreOverlapping(Offer first, Offer second) {
 * @param offer Target offer.
 *
 * @return
-* 	NULL - if client is NULL
+* 	NULL - if offer is NULL
 * 	else returns the offer client email.
 */
 Email offerGetClientEmail(Offer offer) {
@@ -118,7 +118,7 @@ Email offerGetClientEmail(Offer offer) {
 * @param offer Target offer.
 *
 * @return
-* 	NULL - if agent is NULL
+* 	NULL - if offer is NULL
 * 	else returns the offer agent email.
 */
 Email offerGetAgentEmail(Offer offer) {
@@ -132,7 +132,7 @@ Email offerGetAgentEmail(Offer offer) {
 * @param offer Target offer.
 *
 * @return
-* 	NULL - if client is NULL
+* 	NULL - if offer is NULL
 * 	else returns the offer service name.
 */
 char* offerGetServiceName(Offer offer) {
@@ -146,7 +146,7 @@ char* offerGetServiceName(Offer offer) {
 * @param offer Target offer.
 *
 * @return
-* 	NO_OFFER_VAL - if client is NULL
+* 	NO_OFFER_VAL - if offer is NULL
 * 	else returns the offer apartment id.
 */
 int offerGetApartmentId(Offer offer) {
