@@ -8,6 +8,9 @@
 #include "offer.h"
 #include "clientPurchaseBill.h"
 
+#define WALL_CHAR 'w'
+#define EMPTY_CHAR 'e'
+
 struct mtmService_t {
 	ClientsManager clients;
 	AgentsManager agents;
@@ -205,7 +208,6 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 	return ConvertOffersManagerResult(offer_result);
 }
 
-
 /*
  * mtmServiceAddApartmentToAgent: adds a new apartment to an agent's apartment
  * service.
@@ -238,9 +240,10 @@ MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
 		char* email_adress, char* service_name, int id, int price,
 		int width, int height, char* matrix) {
 	if ((service == NULL) || (email_adress == NULL)|| (service_name == NULL) ||
-		(id < 0) || (price <= 0) || ((price % 100) != 0) ||
-		(width <= 0) || (height <= 0) || (matrix == NULL) ||
-		((countChar(matrix, 'e') + countChar(matrix, 'w')) !=  height * width))
+		(id < 0) || (price <= 0) || ((price % 100) != 0) || (width <= 0) ||
+		(height <= 0) || (matrix == NULL) || (strlen(matrix) != height * width)
+		|| ((countChar(matrix, EMPTY_CHAR) + countChar(matrix, WALL_CHAR))
+				!=  height * width))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
 	EmailResult email_result = emailCreate(email_adress, &mail);
