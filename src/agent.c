@@ -531,6 +531,47 @@ AgentResult agentCopy(Agent agent, Agent* result_agent){
 	return AGENT_SUCCESS;
 }
 
+/**
+* agentGetApartmentDetails: finds the apartment and retrieves its details
+*
+* @param agent			 the agent
+* @param service_name	 the apartment's service name
+* @param id				 the apartment's id
+* @param apartment_area	 pointer to save the apartment's area
+* @param apartment_rooms pointer to save the apartment's room count
+* @param apartment_price pointer to save the apartment's price
+*
+* @return
+* 	AGENT_INVALID_PARAMETERS if agent, service_name,
+* 		apartment_area, apartment_rooms or apartment_price are NULL.
+*
+* 	AGENT_APARTMENT_SERVICE_NOT_EXISTS if agent has no service under the
+* 		given service name.
+*
+*	AGENT_APARTMENT_NOT_EXISTS if the matching apartment is not found
+*
+*	AGENT_SUCCESS apartment found.
+*/
+AgentResult agentGetApartmentDetails(Agent agent, char* service_name,
+	int id, int *apartment_area, int *apartment_rooms, int *apartment_price) {
+	if ((agent == NULL) || (service_name == NULL) || (apartment_area == NULL)
+		||(apartment_area == NULL) || (apartment_rooms == NULL) ||
+		(apartment_price == NULL) || (id < 0)) return AGENT_INVALID_PARAMETERS;
+	ApartmentService service = mapGet(agent->apartmentServices, service_name);
+	if (service == NULL) return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+	Apartment apartment = NULL;
+	ApartmentServiceResult result = serviceGetById(service, id, &apartment);
+	if (result != APARTMENT_SUCCESS) {
+		if (result == APARTMENT_SERVICE_NO_FIT || APARTMENT_SERVICE_EMPTY) {
+			return AGENT_APARTMENT_NOT_EXISTS;
+		} else return AGENT_OUT_OF_MEMORY;
+	}
+	*apartment_area = apartmentTotalArea(apartment);
+	*apartment_rooms = apartmentNumOfRooms(apartment);
+	*apartment_price  = apartmentGetPrice(apartment);
+	return AGENT_SUCCESS;
+}
+
 /** Function to be used for copying data elements into the map */
 static MapDataElement GetDataCopy(constMapDataElement data) {
 	ApartmentService new_service = NULL;

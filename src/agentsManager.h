@@ -200,4 +200,39 @@ AgentsManagerResult agentManagerFindMatch(AgentsManager manager, int min_rooms,
 AgentsManagerResult getSignificantAgents( AgentsManager manager, int count ,
 		List* significal_list );
 
+/**
+* agentsManagerGetApartmentDetails: finds the apartment and retrieves its
+* 	details
+*
+* @param manager   			 the agent manager
+* @param agent_email		 the agents email
+* @param service_name		 the apartment's service name
+* @param id					 the apartment's id
+* @param apartment_area		 pointer to save the apartment's area
+* @param apartment_rooms	 pointer to save the apartment's room count
+* @param apartment_price	 pointer to save the apartment's price
+* @param apartment_commition pointer to save the apartment's agent commission
+*
+*
+* @return
+* 	AGENT_MANAGER_INVALID_PARAMETERS if manager, agent_email, service_name,
+* 		apartment_area, apartment_rooms, apartment_price or
+* 		apartment_commission are NULL.
+*
+* 	AGENT_MANAGER_AGENT_NOT_EXISTS if there is no agent registered under the
+* 		given email.
+*
+* 	AGENT_MANAGER_SERVICE_DOES_NOT_EXIST if agent has no service under the
+* 		given service name.
+*
+*	AGENT_MANAGER_APARTMENT_NOT_EXISTS if the matching apartment is not found
+*
+*	AGENT_MANAGER_OUT_OF_MEMORY in case of memory allocations failure
+*
+*	AGENT_MANAER_SUCCESS apartment found.
+*/
+AgentsManagerResult agentsManagerGetApartmentDetails(AgentsManager manager,
+	Email agent_email, char* service_name, int id, int *apartment_area,
+	int *apartment_rooms, int *apartment_price, int *apartment_commission);
+
 #endif /* SRC_AGENTSMANAGER_H_ */

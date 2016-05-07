@@ -222,4 +222,28 @@ AgentResult agentFindMatch(Agent agent, int min_rooms, int min_area,
 */
 int agentGetRank( Agent agent );
 
+/**
+* agentGetApartmentDetails: finds the apartment and retrieves its details
+*
+* @param agent			 the agent
+* @param service_name	 the apartment's service name
+* @param id				 the apartment's id
+* @param apartment_area	 pointer to save the apartment's area
+* @param apartment_rooms pointer to save the apartment's room count
+* @param apartment_price pointer to save the apartment's price
+*
+* @return
+* 	AGENT_INVALID_PARAMETERS if agent, service_name,
+* 		apartment_area, apartment_rooms or apartment_price are NULL.
+*
+* 	AGENT_SERVICE_DOES_NOT_EXIST if agent has no service under the
+* 		given service name.
+*
+*	AGENT_APARTMENT_NOT_EXISTS if the matching apartment is not found
+*
+*	AGENT_SUCCESS apartment found.
+*/
+AgentResult agentGetApartmentDetails(Agent agent, char* service_name,
+	int id, int *apartment_area, int *apartment_rooms, int *apartment_price);
+
 #endif /* SRC_AGENT_H_ */
