@@ -260,3 +260,28 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 	*apartment_max_price = clientGetMaxPrice(client);
 	return CLIENT_MANAGER_SUCCESS;
 }
+
+/**
+* clientsManagerExecurePurchase: commits an apartment purchase for a given
+* client.
+*
+* @param manager Target clients Manager.
+* @param email clients email to find to.
+* @param finalPrice the apartment final price, for the client to pay
+*
+* @return
+* 	CLIENT_MANAGER_NULL_PARAMETERS - if manager or email are NULL.
+*
+* 	CLIENT_MANAGER_NOT_EXISTS - if client email is not registered.
+*
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
+*/
+ClientsManagerResult clientsManagerExecurePurchase(ClientsManager manager,
+		Email mail, int finalPrice) {
+	if (manager == NULL || mail == NULL)
+		return CLIENT_MANAGER_INVALID_PARAMETERS;
+	Client client = mapGet(manager->clientsMap, mail);
+	if (client == NULL) return CLIENT_MANAGER_NOT_EXISTS;
+	clientAddPayment(client, finalPrice);
+	return CLIENT_MANAGER_SUCCESS;
+}

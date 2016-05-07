@@ -460,6 +460,52 @@ AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
 	return AGENT_MANAGER_INVALID_PARAMETERS;
 }
 
+/**
+* agentsManagerGetApartmentDetails: finds the apartment and retrieves its
+* 	details
+*
+* @param manager   			 the agent manager
+* @param agent_email		 the agents email
+* @param service_name		 the apartment's service name
+* @param id					 the apartment's id
+* @param apartment_area		 pointer to save the apartment's area
+* @param apartment_rooms	 pointer to save the apartment's room count
+* @param apartment_price	 pointer to save the apartment's price
+* @param apartment_commition pointer to save the apartment's agent commission
+*
+* @return
+* 	AGENT_MANAGER_INVALID_PARAMETERS if manager, agent_email, service_name,
+* 		apartment_area, apartment_rooms, apartment_price or
+* 		apartment_commission are NULL, or id is negative.
+*
+* 	AGENT_MANAGER_AGENT_NOT_EXISTS if there is no agent registered under the
+* 		given email.
+*
+* 	AGENT_MANAGER_SERVICE_DOES_NOT_EXIST if agent has no service under the
+* 		given service name.
+*
+*	AGENT_MANAGER_APARTMENT_NOT_EXISTS if the matching apartment is not found
+*
+*	AGENT_MANAGER_OUT_OF_MEMORY in case of memory allocations failure
+*
+*	AGENT_MANAER_SUCCESS apartment found.
+*/
+AgentsManagerResult agentsManagerGetApartmentDetails(AgentsManager manager,
+	Email agent_email, char* service_name, int id, int *apartment_area,
+	int *apartment_rooms, int *apartment_price, int *apartment_commission) {
+	if ((manager == NULL) || (agent_email == NULL) || (service_name == NULL)
+		|| (apartment_area == NULL) || (apartment_rooms == NULL) || (id < 0)
+		|| (apartment_price == NULL) || (apartment_commission == NULL))
+		return AGENT_MANAGER_INVALID_PARAMETERS;
+	Agent agent = (Agent)mapGet(manager->agentsMap,  agent_email);
+	if (agent == NULL) return AGENT_MANAGER_AGENT_NOT_EXISTS;
+	AgentResult result = agentGetApartmentDetails(agent, service_name, id,
+		apartment_area, apartment_rooms, apartment_price);
+	if (result != AGENT_SUCCESS) return convertAgentResult(result);
+	*apartment_commission = agentGetTax(agent);
+	return AGENT_MANAGER_SUCCESS;
+}
+
 /* isValid: The function checks whether the given apartment numerical
  * 					param is valid
  *
@@ -479,24 +525,23 @@ static bool isValid( int param ){
  * * @return
  * false if invalid; else returns true.
  */
-static bool isPriceValid( int price ){
+static bool isPriceValid(int price) {
 	return !(price%100);
 }
 
 
-static void reduceListToCount( List list, int count ){
-
+static void reduceListToCount(List list, int count) {
 	ListElement current = listGetFirst( list );
-	while( current ){
-
-		if( count == 0 )
+	while( current ) {
+		if( count == 0 ) {
 			listRemoveCurrent(list);
-		 else
+		} else {
 			count--;
-
+		}
 		current = listGetNext( list );
 	}
 }
+
 /** Function to be used for copying data elements into the map */
 static MapDataElement GetDataCopy(constMapDataElement data) {
 	Agent new_agent = NULL;

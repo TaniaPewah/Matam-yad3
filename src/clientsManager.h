@@ -111,4 +111,22 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 		Email email, int* apartment_min_area, int* apartment_min_rooms,
 		int* apartment_max_price);
 
+/**
+* clientsManagerExecurePurchase: commits an apartment purchase for a given
+* client.
+*
+* @param manager Target clients Manager.
+* @param email clients email to find to.
+* @param finalPrice the apartment final price, for the client to pay
+*
+* @return
+* 	CLIENT_MANAGER_NULL_PARAMETERS - if manager or email are NULL.
+*
+* 	CLIENT_MANAGER_NOT_EXISTS - if client email is not registered.
+*
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
+*/
+ClientsManagerResult clientsManagerExecurePurchase(ClientsManager manager,
+		Email mail, int finalPrice);
+
 #endif /* SRC_CLIENTSMANAGER_H_ */
