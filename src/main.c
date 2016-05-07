@@ -1,7 +1,5 @@
-#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 #include "apartment_service.h"
 #include "aux_macros.h"
 
@@ -10,12 +8,14 @@ int RunAgentTest();
 int	RunAgentManagerTest();
 int RunClientTest();
 int RunClientPurchaseBillTest();
+int RunOfferTest();
 
 int main(){
 	RunEmailTest();
-	RunClientTest();
-	RunClientPurchaseBillTest();
 	RunAgentTest();
 	RunAgentManagerTest();
+	RunClientTest();
+	RunClientPurchaseBillTest();
+	RunOfferTest();
 	return 0;
 }
