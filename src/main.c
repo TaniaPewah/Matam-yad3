@@ -6,6 +6,7 @@
 #include "aux_macros.h"
 
 int RunEmailTest();
+int RunAgentTest();
 int	RunAgentManagerTest();
 int RunClientTest();
 int RunClientPurchaseBillTest();
@@ -14,6 +15,7 @@ int main(){
 	RunEmailTest();
 	RunClientTest();
 	RunClientPurchaseBillTest();
+	RunAgentTest();
 	RunAgentManagerTest();
 	return 0;
 }

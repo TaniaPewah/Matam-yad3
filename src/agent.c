@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
-#include <string.h>
 #include "agent.h"
 #include "utilities.h"
 #include "map.h"
@@ -62,26 +61,26 @@ int agentGetTax( Agent agent ){
  *
  * @return
  *
- * 	AGENT_INVALID_PARAMETERS - if one email is NULL or
- * 	email does not contain the character AT_SIGN, or result is NULL.
+ * 	AGENT_INVALID_PARAMETERS - if email, companyName or result are NULL or
+ * 	taxPercentge is not a valid tax percentage.
  * 	AGENT_OUT_OF_MEMORY - if allocations failed
  * 	AGENT_SUCCESS - in case of success.  A new agent is saved in the result
  * 	parameter.
  */
- AgentResult agentCreate( Email email, char* companyName,
-		 int taxPercentge, Agent* result) {
- 	if ( result == NULL || email == NULL || !isTaxValid(taxPercentge))
+ AgentResult agentCreate(Email email, char* companyName, int taxPercentge,
+		 Agent* result) {
+ 	if ((companyName == NULL) || (result == NULL) || (email == NULL) ||
+ 			!isTaxValid(taxPercentge))
  		return AGENT_INVALID_PARAMETERS;
  	Agent agent = malloc (sizeof(*agent));
  	if (agent == NULL)
  		return AGENT_OUT_OF_MEMORY;
  	EmailResult eResult = emailCopy( email, &(agent->email));
-
  	if( eResult == EMAIL_OUT_OF_MEMORY ){
  		free(agent);
  		return AGENT_OUT_OF_MEMORY;
  	}
- 	agent->companyName = companyName ? duplicateString(companyName) : NULL;
+ 	agent->companyName = duplicateString(companyName);
  	if ( agent->companyName == NULL ) {
  		emailDestroy(agent->email);
  		free(agent);

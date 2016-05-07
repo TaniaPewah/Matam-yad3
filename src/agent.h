@@ -37,7 +37,7 @@ typedef struct Agent_t* Agent;
  *
  * @return the agent's mail
  */
-Email agentGetMail( Agent agent );
+Email agentGetMail(Agent agent);
 
 /**
 * Allocates a new agent.
@@ -53,14 +53,14 @@ Email agentGetMail( Agent agent );
 *
 * @return
 *
-* 	AGENT_INVALID_PARAMETERS - if one email is NULL or
-* 	email does not contain the character AT_SIGN, or result is NULL.
+* 	AGENT_INVALID_PARAMETERS - if email, companyName or result are NULL or
+* 	taxPercentge is not a valid tax percentage.
 * 	AGENT_OUT_OF_MEMORY - if allocations failed
 * 	AGENT_SUCCESS - in case of success.  A new agent is saved in the result
 * 	parameter.
 */
-AgentResult agentCreate( Email email, char* companyName,
-		 int taxPercentge, Agent* result);
+AgentResult agentCreate(Email email, char* companyName, int taxPercentge,
+		 Agent* result);
 
 /**
 * AgentDestroy: Deallocates an existing agent.
@@ -78,7 +78,7 @@ void agentDestroy(Agent agent);
  *
  * @return the agent's  tax percentage
  */
-int agentGetTax( Agent agent );
+int agentGetTax(Agent agent);
 
 /**
 * agentCopy: Allocates a new agent, identical to the old agent
@@ -114,8 +114,8 @@ AgentResult agentCopy(Agent agent, Agent* result);
 *	AGENT_OUT_OF_MEMORY      if allocation failed
 *	AGENT_SUCCESS            if apartment successfully added
 */
-AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
-									int id, char* serviceName );
+AgentResult agentAddApartmentToService(Agent agent, Apartment apartment,
+	int id, char* serviceName);
 
 /**
 * agentRemoveApartmentFromService: remove apartment from apartment service
@@ -131,8 +131,8 @@ AgentResult agentAddApartmentToService( Agent agent, Apartment apartment,
 *	AGENT_OUT_OF_MEMORY      if allocation failed
 *	AGENT_SUCCESS            if apartment successfully added
 */
-AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
-											char* serviceName );
+AgentResult agentRemoveApartmentFromService(Agent agent, int apartmentId,
+	char* serviceName);
 
 /**
 * agentGetService: gets the apartment service according to name
@@ -145,7 +145,7 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 * 	NULL  if agent is NULL or the service by this name is not found
 *	apartment service otherwise
 */
-ApartmentService agentGetService( Agent agent, char* serviceName );
+ApartmentService agentGetService(Agent agent, char* serviceName);
 
 /**
  * agentAddService: adds the apartment service to the requested agent
@@ -160,8 +160,8 @@ ApartmentService agentGetService( Agent agent, char* serviceName );
  * 	AGENT_OUT_OF_MEMORY       if failed to add the service to serviceMap
  *	AGENT_SUCCESS    		  if succeeded
  */
-AgentResult agentAddService( Agent agent, ApartmentService service,
-						   char* serviceName );
+AgentResult agentAddService(Agent agent, ApartmentService service,
+						   char* serviceName);
 
 /**
  * agentAddService: removes the apartment service from the requested agent
@@ -175,7 +175,7 @@ AgentResult agentAddService( Agent agent, ApartmentService service,
  * 	AGENT_APARTMENT_SERVICE_NOT_EXISTS 	if the service does not exist
  *	AGENT_SUCCESS    		  			if succeeded
  */
-AgentResult agentRemoveService( Agent agent, char* service_name );
+AgentResult agentRemoveService(Agent agent, char* service_name);
 
 /**
 * agentFindMatch: finds a matching apartment in each of the agent's services
@@ -195,7 +195,7 @@ AgentResult agentRemoveService( Agent agent, char* service_name );
 *	AGENT_OUT_OF_MEMORY                 if any of the allocations failed
 *	AGENT_SUCCESS                       a match is found
 */
-AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
-									int max_price, AgentDetails* details );
+AgentResult agentFindMatch(Agent agent, int min_rooms, int min_area,
+									int max_price, AgentDetails* details);
 
 #endif /* SRC_AGENT_H_ */
