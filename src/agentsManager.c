@@ -433,10 +433,10 @@ AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
 
 				curr_details = agentDetailsCreate( curr_email,
 										agentGetCompany( curr_agent ), rank);
-				if(curr_details == NULL)
+				if(curr_details == NULL){
 					listDestroy( agents_list );
 					return AGENT_MANAGER_OUT_OF_MEMORY;
-
+				}
 				if ( listInsertLast(agents_list, curr_details) ==
 						LIST_OUT_OF_MEMORY){
 					listDestroy( agents_list );
@@ -445,7 +445,7 @@ AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
 			}
 
 			curr_agent = NULL;
-			curr_email = mapGetFirst(manager->agentsMap);
+			curr_email = mapGetNext(manager->agentsMap);
 			if( curr_email != NULL)
 				curr_agent = agentsManagerGetAgent( manager, curr_email);
 		}
@@ -480,7 +480,7 @@ static bool isValid( int param ){
  * false if invalid; else returns true.
  */
 static bool isPriceValid( int price ){
-	return !(price%10);
+	return !(price%100);
 }
 
 

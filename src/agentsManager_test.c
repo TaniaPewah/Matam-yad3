@@ -44,7 +44,7 @@ int RunAgentManagerTest() {
 	RUN_TEST(testAgentsManagerAddApartmentToService);
 	RUN_TEST(testAgentsManagerRemoveApartmentFromService);
 	RUN_TEST(testAgentManagerFindMatch);
-	//RUN_TEST(testAgentManagerGetSignificantAgents);
+	RUN_TEST(testAgentManagerGetSignificantAgents);
 	return 0;
 }
 
@@ -207,7 +207,10 @@ static bool testAgentsManagerRemoveApartmentFromService(){
 	result = agentsManagerRemoveApartmentFromService(manager, email,
 		"serveMe", 1);
 	ASSERT_TEST(result == AGENT_MANAGER_SUCCESS);
+
 	agentsManagerDestroy(manager);
+	emailDestroy(email);
+	emailDestroy(mail);
 	return true;
 }
 
@@ -229,9 +232,9 @@ static bool testAgentManagerFindMatch(){
 
 	AgentsManagerResult result;
 	agentsManagerAddApartmentToService(	manager, email, "serveMe",
-			AP_ID, 200, 1, 2,	"we" );
+				AP_ID,300, 1, 2, "we" );
 	agentsManagerAddApartmentToService(	manager, mail, "serveMe",
-				2, 100, 2, 2, "wewe" );
+				2, 100, 2, 2, "weew" );
 
 	List agents_list = listCreate(copyListElement, freeListElement);
 
@@ -249,7 +252,7 @@ static bool testAgentManagerFindMatch(){
 	ASSERT_TEST( listGetSize(agents_list) == 1);
 
 	listClear(agents_list);
-	result = agentManagerFindMatch( manager, 1, 1 , 10, &agents_list);
+	result = agentManagerFindMatch( manager, 1, 1 , 0, &agents_list);
 	ASSERT_TEST( result == AGENT_MANAGER_APARTMENT_NOT_EXISTS );
 
 	ASSERT_TEST( listGetSize(agents_list) == 0);
@@ -268,24 +271,38 @@ static bool testAgentManagerGetSignificantAgents(){
 
 	AgentsManager manager = agentsManagerCreate();
 	agentsManagerAdd( manager, email, "tania" , TAX_PERCENT);
-
-	agentsManagerAddApartmentService( manager, email, "serveMe", 2 );
+	AgentsManagerResult result;
+	result = agentsManagerAddApartmentService( manager, email, "serveMee", 2 );
+	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
 
 	Email mail = NULL;
 	emailCreate( "baba@gansh", &mail );
 	agentsManagerAdd( manager, mail, "alon" , TAX_PERCENT);
 
-	agentsManagerAddApartmentService( manager, mail, "serveMe", 2 );
+	result = agentsManagerAddApartmentService( manager, mail, "serveMe", 2 );
+	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
 
-	AgentsManagerResult result;
-	agentsManagerAddApartmentToService(	manager, email, "serveMe",
-			AP_ID, 200, 1, 2,	"we" );
+	agentsManagerAddApartmentToService( manager, email, "serveMee",
+				AP_ID, 200, 2, 2,	"weee" );
+	agentsManagerAddApartmentToService(	manager, mail, "serveMe",
+				AP_ID, 200, 1, 2,	"we" );
 
 	List agents_list = listCreate(copyListElement, freeListElement);
 
 	result = agentManagerGetSignificantAgents( manager, 2, &agents_list );
 	ASSERT_TEST( listGetSize( agents_list ) == 2);
 	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
+
+	result = agentManagerGetSignificantAgents( manager, 1, &agents_list );
+	ASSERT_TEST( listGetSize( agents_list ) == 1);
+	ASSERT_TEST( result == AGENT_MANAGER_SUCCESS );
+	//ASSERT_TEST( (AgentDetails)(listGetFirst(agents_list) )
+
+
+	agentsManagerDestroy(manager);
+	listDestroy( agents_list);
+	emailDestroy(email);
+	emailDestroy(mail);
 
 	return true;
 }
