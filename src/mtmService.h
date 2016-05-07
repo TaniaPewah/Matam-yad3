@@ -32,6 +32,31 @@ typedef enum {
 } MTMServiceResult;
 
 /*
+ * mtmServiceAddAgent: Adds new agent with the given parameters.
+*
+* @param service service to add to.
+* @param email_adress client email address.
+* @param company_name the agent's company name. a non empty string.
+* @param tax_percentage the agent's tax percentage. A number between 1 to 100.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service, email_adress or company_name
+* 		NULL, or if email_adress is illegal, or if tax_percentage is not
+* 		between 1 to 100.
+*
+* 	MTM_SERVICE_EMAIL_ALREADY_EXISTS if service already contains a client or an
+* 		agent under the given email address.
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+* 	MTM_SERVICE_SUCCESS a new client agent successfully
+*
+*/
+MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
+		char* company_name, int tax_percentage);
+
+/*
  * mtmServiceAddClient: Adds new client with the given parameters.
 *
 * @param service service to add to.
@@ -42,7 +67,7 @@ typedef enum {
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or email_adress are NULL,
 * 		or if email_adress is illegal, or if min_area or min_rooms or max_price
 * 		are negative.
 *

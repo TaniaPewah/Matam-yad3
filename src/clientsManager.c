@@ -209,13 +209,13 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 }
 
 /** Function to be used for freeing data elements from list */
-void freeListElement(ListElement element) {
+static void freeListElement(ListElement element) {
 	if (element != NULL)
 		clientPurchaseBillDestroy((ClientPurchaseBill)element);
 }
 
 /** Function to be used for coping data elements from list */
-ListElement copyListElement(ListElement element) {
+static ListElement copyListElement(ListElement element) {
 	ClientPurchaseBill new_bill =
 			clientPurchaseBillCopy((ClientPurchaseBill)element);
 	return new_bill;
@@ -225,4 +225,38 @@ ListElement copyListElement(ListElement element) {
 static int compareListElements(ListElement first, ListElement second) {
 	return clientPurchaseBillComapre((ClientPurchaseBill)first,
 			(ClientPurchaseBill)second);
+}
+
+/**
+* clientsManagerGetRestriction: finds the clients restriction for apartments.
+*
+* @param manager Target clients Manager.
+* @param email clients email to find to.
+* @param apartment_min_area pointer to store minimal area for the clients
+* 	wanted apartments
+* @param apartment_min_rooms pointer to store minimal room count in clients
+* 	wanted apartments
+* @param apartment_max_price pointer to store maximum price for the clients
+* 	wanted apartments
+*
+* @return
+* 	CLIENT_MANAGER_NULL_PARAMETERS - if manager, email or one of the pointers
+* 		are NULL.
+*
+* 	CLIENT_MANAGER_NOT_EXISTS - if client email is not registered.
+*
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
+*/
+ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
+		Email email, int* apartment_min_area, int* apartment_min_rooms,
+		int* apartment_max_price) {
+	if ((manager == NULL) || (email == NULL) || (apartment_min_area ==  NULL)
+		||  (apartment_min_rooms ==  NULL) ||  (apartment_max_price ==  NULL))
+		return CLIENT_MANAGER_NULL_PARAMETERS;
+	Client client = mapGet(manager->clientsMap, email);
+	if (client == NULL) return CLIENT_MANAGER_NOT_EXISTS;
+	*apartment_min_area = clientGetMinArea(client);
+	*apartment_min_rooms = clientGetMinRooms(client);
+	*apartment_max_price = clientGetMaxPrice(client);
+	return CLIENT_MANAGER_SUCCESS;
 }

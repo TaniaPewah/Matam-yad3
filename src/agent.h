@@ -151,17 +151,19 @@ ApartmentService agentGetService(Agent agent, char* serviceName);
  * agentAddService: adds the apartment service to the requested agent
  *
  * @param agent - target agent
- * @param service - the service to add
  * @param serviceName  the name of the requested service
+ * @param max_apartments the max number of apartments allowed in service
  *
  * @return
  *
  * 	AGENT_INVALID_PARAMETERS  if any of the parameters is NULL
+ *
  * 	AGENT_OUT_OF_MEMORY       if failed to add the service to serviceMap
+ *
  *	AGENT_SUCCESS    		  if succeeded
  */
-AgentResult agentAddService(Agent agent, ApartmentService service,
-						   char* serviceName);
+AgentResult agentAddService(Agent agent, char* serviceName,
+		int max_apartments);
 
 /**
  * agentAddService: removes the apartment service from the requested agent
