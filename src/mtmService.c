@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
 #include "mtmService.h"
 #include "email.h"
 #include "clientsManager.h"
 #include "agentsManager.h"
 #include "offersManager.h"
-#include "offer.h"
 #include "clientPurchaseBill.h"
 
 #define WALL_CHAR 'w'
@@ -198,7 +198,7 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 	if (client_exists) return MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE;
 	AgentsManagerResult agent_result = agentsManagerRemoveApartmentService
 			(service->agents, mail, service_name);
-	if (agent_result != CLIENT_MANAGER_SUCCESS) {
+	if (agent_result != AGENT_MANAGER_SUCCESS) {
 		emailDestroy(mail);
 		return ConvertClientManagerResult(agent_result);
 	}
