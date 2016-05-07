@@ -31,7 +31,7 @@ char* duplicateString(const char *string)
 * @return
 * 	true if equals; else returns false
  */
-bool areStringsEquel(const char *first, const char *second) {
+bool areStringsEqual(const char *first, const char *second) {
 	return (strcmp(first, second) == 0);
 }
 

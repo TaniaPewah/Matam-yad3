@@ -233,7 +233,7 @@ static CompareResult isApartmentConnectedToOffer(Offer offer,
 	if ((offer == NULL) || (parameter == NULL)) return COMPARE_UNFIT;
 	return ((emailAreEqual(offerGetAgentEmail(offer),
 				(Email)(((void**)parameter)[0]))) &&
-			(areStringsEquel(offerGetServiceName(offer),
+			(areStringsEqual(offerGetServiceName(offer),
 			    (char*)(((void**)parameter)[1]))) &&
 			(offerGetApartmentId(offer) == *(int*)(((void**)parameter)[2]))) ?
 			COMPARE_FIT : COMPARE_UNFIT;

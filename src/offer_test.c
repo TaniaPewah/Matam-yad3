@@ -71,7 +71,7 @@ static bool testOfferCopy() {
 		ASSERT_TEST(copy != NULL);
 		ASSERT_TEST(emailAreEqual(offerGetAgentEmail(copy),agent) == true);
 		ASSERT_TEST(emailAreEqual(offerGetClientEmail(copy),client) == true);
-		ASSERT_TEST(areStringsEquel(offerGetServiceName(copy),serivce_name)
+		ASSERT_TEST(areStringsEqual(offerGetServiceName(copy),serivce_name)
 				== true);
 		ASSERT_TEST(offerGetApartmentId(copy) == 12);
 		ASSERT_TEST(offerGetPrice(copy) == 5000);
