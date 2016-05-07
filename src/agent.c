@@ -87,12 +87,15 @@ int agentGetTax( Agent agent ){
  	}
  	agent->companyName = duplicateString(companyName);
  	if ( agent->companyName == NULL ) {
- 		emailDestroy(agent->email);
- 		free(agent);
+ 		agentDestroy(agent);
  		return AGENT_OUT_OF_MEMORY;
  	}
  	agent->apartmentServices = mapCreate(GetDataCopy, GetKeyCopy,
  			FreeData, FreeKey, CompareKeys);
+ 	if( agent->apartmentServices == NULL){
+ 		agentDestroy(agent);
+ 		return AGENT_OUT_OF_MEMORY;
+ 	}
 	agent->taxPercentge = taxPercentge;
 	*result = agent;
 	return AGENT_SUCCESS;
@@ -109,7 +112,10 @@ int agentGetTax( Agent agent ){
  	if (agent != NULL) {
  		emailDestroy( agent->email );
  		free(agent->companyName);
- 		mapDestroy( agent->apartmentServices );
+ 		if(agent->apartmentServices != NULL){
+ 			mapDestroy( agent->apartmentServices );
+ 			agent->apartmentServices = NULL;
+ 		}
  		free(agent);
  	}
  }
@@ -125,10 +131,13 @@ int agentGetTax( Agent agent ){
  * 	NULL  if agent is NULL or the service by this name is not found
  *	apartment service otherwise
  */
-ApartmentService agentGetService(Agent agent, char* serviceName) {
+ApartmentService agentGetService( Agent agent, char* serviceName ){
+
 	ApartmentService service = NULL;
-	if (serviceName != NULL)
-		service = mapGet(agent->apartmentServices, serviceName);
+
+	if( serviceName != NULL )
+		service = mapGet( agent->apartmentServices,
+						serviceName );
 	return service;
 }
 
@@ -142,9 +151,7 @@ ApartmentService agentGetService(Agent agent, char* serviceName) {
  * @return
  *
  * 	AGENT_INVALID_PARAMETERS  if any of the parameters is NULL
- *
  * 	AGENT_OUT_OF_MEMORY       if failed to add the service to serviceMap
- *
  *	AGENT_SUCCESS    		  if succeeded
  */
 AgentResult agentAddService(Agent agent, char* serviceName,
@@ -187,7 +194,6 @@ AgentResult agentRemoveService( Agent agent, char* service_name ){
 	return AGENT_SUCCESS;
 }
 
-
 /**
 * agentAddApartmentToService: add apartment to apartment service
 * 									  of requested agent
@@ -206,7 +212,7 @@ AgentResult agentRemoveService( Agent agent, char* service_name ){
 AgentResult agentAddApartmentToService(Agent agent, char* service_name, int id,
 		int price, int width, int height, char* matrix) {
 	if ((agent == NULL) || (service_name == NULL) ||(matrix == NULL) ||
-		(id < 0) || (price <=0)|| ((price % 100) = 0) ||
+		(id < 0) || (price <= 0) || ((price % 100) == 0) ||
 		(width <= 0) || (height <= 0) || (matrix == NULL) ||
 		(strlen(matrix) != (width * height))) return AGENT_INVALID_PARAMETERS;
 	ApartmentService service = agentGetService(agent, service_name);
@@ -263,37 +269,38 @@ static void squresDestroy(SquareType** squres, int length) {
 	}
 }
 
-static AgentResult ConvertServiceResult(ApartmentServiceResult result) {
-	AgentResult out_result;
-	switch (result){
+static AgentResult ConvertServiceResult(ApartmentServiceResult value) {
+	AgentResult result;
+	switch (value){
 		case APARTMENT_SERVICE_OUT_OF_MEM : {
-			out_result = AGENT_OUT_OF_MEMORY;
+			result = AGENT_OUT_OF_MEMORY;
 			break;
 		}
 		case APARTMENT_SERVICE_ALREADY_EXISTS:{
-			out_result = AGENT_APARTMENT_EXISTS;
+			result = AGENT_APARTMENT_EXISTS;
 			break;
 		}
 		case APARTMENT_SERVICE_FULL:{
-			out_result = AGENT_APARTMENT_SERVICE_FULL;
+			result = AGENT_APARTMENT_SERVICE_FULL;
 			break;
 		}
 		case APARTMENT_SERVICE_NULL_ARG: {
-			out_result = AGENT_INVALID_PARAMETERS;
+			result = AGENT_INVALID_PARAMETERS;
 			break;
 		}
 		case APARTMENT_SERVICE_EMPTY:
 		case APARTMENT_SERVICE_NO_FIT:
 		{
-			out_result = AGENT_APARTMENT_NOT_EXISTS;
+			result = AGENT_APARTMENT_NOT_EXISTS;
 			break;
 		}
 		case APARTMENT_SUCCESS:
 		default: {
-			out_result = AGENT_SUCCESS;
+			result = AGENT_SUCCESS;
 			break;
 		}
 	}
+	return result;
 }
 
 /**
@@ -368,8 +375,11 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 */
 AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 									int max_price, AgentDetails* details ){
+	if( agent == NULL )
+		return AGENT_INVALID_PARAMETERS;
 
-	ApartmentService current = mapGetFirst( agent->apartmentServices );
+	char* name = mapGetFirst( agent->apartmentServices );
+	ApartmentService current = mapGet( agent->apartmentServices, name );
 	if( current == NULL)
 		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
 
@@ -394,7 +404,10 @@ AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 			return AGENT_SUCCESS;
 		}
 
-		current = mapGetNext( agent->apartmentServices );
+		current = NULL;
+		name = mapGetNext( agent->apartmentServices );
+		if( name != NULL)
+			current = mapGet( agent->apartmentServices, name );
 	}
 
 	return AGENT_APARTMENT_NOT_EXISTS;
@@ -420,11 +433,17 @@ AgentResult agentFindMatch( Agent agent, int min_rooms, int min_area,
 */
 AgentResult agentCopy(Agent agent, Agent* result_agent){
 	if (agent == NULL || result_agent == NULL) return AGENT_INVALID_PARAMETERS;
-	Agent new_agent = NULL;
+	Agent copy_agent = NULL;
 	AgentResult result_state = agentCreate( agent->email,
-				agent->companyName, agent->taxPercentge, &new_agent);
+				agent->companyName, agent->taxPercentge, &copy_agent);
 	if (result_state != AGENT_SUCCESS) return  AGENT_OUT_OF_MEMORY;
-	*result_agent = new_agent;
+
+	copy_agent->apartmentServices = mapCopy(agent->apartmentServices);
+ 	if( copy_agent->apartmentServices == NULL){
+ 		agentDestroy(copy_agent);
+ 		return AGENT_OUT_OF_MEMORY;
+ 	}
+ 	*result_agent = copy_agent;
 	return AGENT_SUCCESS;
 }
 
