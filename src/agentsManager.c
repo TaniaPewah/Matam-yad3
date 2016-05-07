@@ -28,6 +28,8 @@ static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
 static void freeListElement(ListElement element);
 static ListElement copyListElement(ListElement element);
 static AgentsManagerResult convertAgentResult(AgentResult value);
+static bool isPriceValid( int price );
+static bool isValid( int param );
 
 
 /**
