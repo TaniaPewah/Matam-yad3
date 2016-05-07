@@ -525,24 +525,23 @@ static bool isValid( int param ){
  * * @return
  * false if invalid; else returns true.
  */
-static bool isPriceValid( int price ){
+static bool isPriceValid(int price) {
 	return !(price%100);
 }
 
 
-static void reduceListToCount( List list, int count ){
-
+static void reduceListToCount(List list, int count) {
 	ListElement current = listGetFirst( list );
-	while( current ){
-
-		if( count == 0 )
+	while( current ) {
+		if( count == 0 ) {
 			listRemoveCurrent(list);
-		 else
+		} else {
 			count--;
-
+		}
 		current = listGetNext( list );
 	}
 }
+
 /** Function to be used for copying data elements into the map */
 static MapDataElement GetDataCopy(constMapDataElement data) {
 	Agent new_agent = NULL;
