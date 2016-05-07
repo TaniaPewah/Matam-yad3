@@ -3,6 +3,7 @@
 #include <string.h>
 #include "mtmService.h"
 #include "email.h"
+#include "utilities.h"
 #include "clientsManager.h"
 #include "agentsManager.h"
 #include "offersManager.h"
