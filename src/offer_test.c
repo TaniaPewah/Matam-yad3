@@ -87,19 +87,24 @@ static bool testOfferCopy() {
  */
 static bool testOfferCompareAndEqals() {
 	char* client_address = "client@mail.com";
-		char* agent_address = "agent@mail.com";
-		Email client, agent;
-		ASSERT_TEST(emailCreate(client_address, &client) == EMAIL_SUCCESS);
-		ASSERT_TEST(emailCreate(agent_address, &agent) == EMAIL_SUCCESS);
-		char* serivce_name = "my simple service";
-		Offer offer, copy;
-		ASSERT_TEST(offerCreate(agent, client, serivce_name, 12, 5000, &offer)
-				== OFFER_SUCCESS);
-		ASSERT_TEST(offer != NULL);
+	char* agent_address = "agent@mail.com";
+	Email client, agent;
+	ASSERT_TEST(emailCreate(client_address, &client) == EMAIL_SUCCESS);
+	ASSERT_TEST(emailCreate(agent_address, &agent) == EMAIL_SUCCESS);
+	char* serivce_name = "my simple service";
+	Offer offer;
+	ASSERT_TEST(offerCreate(agent, client, serivce_name, 12, 5000, &offer)
+			== OFFER_SUCCESS);
+	ASSERT_TEST(offer != NULL);
 
-		offerDestroy(offer);
-		emailDestroy(client);
-		emailDestroy(agent);
+	ASSERT_TEST(offerGetApartmentId(NULL) == NO_OFFER_VAL);
+	ASSERT_TEST(offerGetApartmentId(NULL) == NO_OFFER_VAL);
+
+	ASSERT_TEST(offerGetPrice(NULL) == NO_OFFER_VAL);
+
+	offerDestroy(offer);
+	emailDestroy(client);
+	emailDestroy(agent);
 	return true;
 	return true;
 }
