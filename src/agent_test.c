@@ -60,30 +60,22 @@ static bool testAgentCreate(){
 	return true;
 }
 
-static bool testAgentGetters(){
-
+static bool testAgentGetters() {
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
-
-	ASSERT_TEST( agentGetCompany( agent ) == NULL );
-
+	ASSERT_TEST(agentGetCompany(agent) == NULL);
 	agentCreate(email,"tania", 5, &agent);
-	ASSERT_TEST( areStringsEqual(  agentGetCompany( agent ), "tania"));
-
-	ASSERT_TEST( emailAreEqual( agentGetMail( agent ), email ));
-
-	ASSERT_TEST( agentGetRank( agent ) == -1 );
+	ASSERT_TEST(areStringsEqual(agentGetCompany(agent), "tania"));
+	ASSERT_TEST(emailAreEqual(agentGetMail(agent), email));
+	ASSERT_TEST(agentGetRank(agent) == -1);
 	agentAddService(agent,"serveMe", 2);
-	agentAddApartmentToService( agent, "serveMe", 1 , 100 , 1, 2, "we" );
-	double rank = agentGetRank( agent );
-	ASSERT_TEST( rank == 1100100 );
-
-	ASSERT_TEST( agentGetService( agent, "servee" ) == NULL );
-	ASSERT_TEST( agentGetService( agent, "serveMe" ) != NULL );
-
-	ASSERT_TEST( agentGetTax( agent ) == 5 );
-
+	agentAddApartmentToService(agent, "serveMe", 1, 100, 1, 2, "we");
+	double rank = agentGetRank(agent);
+	ASSERT_TEST(rank == 1100100);
+	ASSERT_TEST(agentGetService(agent, "servee") == NULL);
+	ASSERT_TEST(agentGetService(agent, "serveMe") != NULL);
+	ASSERT_TEST(agentGetTax(agent) == 5);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;

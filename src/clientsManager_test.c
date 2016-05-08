@@ -142,46 +142,100 @@ static bool testClientsManagerGetSortedPayments(){
 
 	Email email = NULL;
 	emailCreate("gaba@ganosh", &email);
-	Email mail = NULL;
-	emailCreate("baba@gash", &mail);
+	Email mail1 = NULL;
+	emailCreate("baba@gash", &mail1);
+	Email mail2 = NULL;
+	emailCreate("baba@gash2", &mail2);
+	Email mail3 = NULL;
+	emailCreate("baaa@gash", &mail3);
 
 	ClientsManager manager = clientsManagerCreate();
 	clientsManagerAdd( manager, email, 1, 1, 200);
-	clientsManagerAdd( manager, mail, 1, 2, 1000);
+	clientsManagerAdd( manager, mail1, 1, 2, 1000);
+	clientsManagerAdd( manager, mail2, 1, 2, 1000);
+	clientsManagerAdd( manager, mail3, 1, 2, 1000);
 
 	List clients_list = listCreate( copyListElement, freeListElement);
-
 	ASSERT_TEST( clientsManagerGetSortedPayments(NULL, &clients_list) ==
 			CLIENT_MANAGER_INVALID_PARAMETERS);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager,NULL) ==
 			CLIENT_MANAGER_INVALID_PARAMETERS);
-
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 				CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 0);
+	listDestroy(clients_list);
 
 	clientsManagerExecurePurchase( manager, email, 330);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 				CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 1);
-
-	clientsManagerExecurePurchase( manager, mail, 900);
+	listDestroy(clients_list);
+	clientsManagerExecurePurchase( manager, mail1, 900);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 			CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 2);
-
-
-	// TODO: should return mail first, then email
 	ClientPurchaseBill top_bill = listGetFirst(clients_list);
 	ASSERT_TEST( emailAreEqual(
-			clientPurchaseBillGetClientEmail(top_bill), mail));
-
+			clientPurchaseBillGetClientEmail(top_bill), mail1));
 	ClientPurchaseBill second_bill = listGetNext(clients_list);
 	ASSERT_TEST( emailAreEqual(
 		clientPurchaseBillGetClientEmail(second_bill), email));
+	listDestroy(clients_list);
+
+	clientsManagerExecurePurchase( manager, mail2, 900);
+	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
+			CLIENT_MANAGER_SUCCESS);
+	ASSERT_TEST( listGetSize(clients_list) == 3);
+	top_bill = listGetFirst(clients_list);
+	ASSERT_TEST( emailAreEqual(
+			clientPurchaseBillGetClientEmail(top_bill), mail1));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), mail2));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), email));
+	listDestroy(clients_list);
+
+	clientsManagerExecurePurchase( manager, mail3, 900);
+	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
+			CLIENT_MANAGER_SUCCESS);
+	ASSERT_TEST( listGetSize(clients_list) == 4);
+	top_bill = listGetFirst(clients_list);
+	ASSERT_TEST( emailAreEqual(
+			clientPurchaseBillGetClientEmail(top_bill), mail3));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), mail1));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), mail2));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), email));
+	listDestroy(clients_list);
+
+	clientsManagerExecurePurchase(manager, email, 900);
+	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
+			CLIENT_MANAGER_SUCCESS);
+	ASSERT_TEST( listGetSize(clients_list) == 4);
+	top_bill = listGetFirst(clients_list);
+	ASSERT_TEST( emailAreEqual(
+			clientPurchaseBillGetClientEmail(top_bill), email));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), mail3));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), mail1));
+	second_bill = listGetNext(clients_list);
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), mail2));
+	listDestroy(clients_list);
 
 	emailDestroy(email);
-	emailDestroy(mail);
+	emailDestroy(mail1);
+	emailDestroy(mail2);
 	clientsManagerDestroy(manager);
 	return true;
 }
