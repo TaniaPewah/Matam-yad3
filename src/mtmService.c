@@ -280,7 +280,7 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 * 	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST if there is no service under
 * 		that name to the given agent.
 *
-*	MTM_APARTMENT_SERVICE_FULL The apartment service is full and it is
+*	MTM_SERVICE_APARTMENT_SERVICE_FULL The apartment service is full and it is
 *		impossible to add a new apartment.
 *
 * 	MTM_SERVICE_APARTMENT_ALREADY_EXISTS if there is already an apartment under
@@ -841,6 +841,10 @@ static MTMServiceResult convertAgentManagerResult(AgentsManagerResult value) {
 			case AGENT_MANAGER_ALREADY_EXISTS: {
 				result = MTM_SERVICE_APARTMENT_SERVICE_ALREADY_EXISTS;
 				break;
+			}
+			case AGENT_MANAGER_APARTMENT_ALREADY_EXISTS: {
+					result = MTM_SERVICE_APARTMENT_ALREADY_EXISTS;
+					break;
 			}
 			case AGENT_MANAGER_AGENT_NOT_EXISTS: {
 				result = MTM_SERVICE_EMAIL_DOES_NOT_EXIST;

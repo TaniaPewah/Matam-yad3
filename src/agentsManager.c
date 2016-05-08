@@ -273,7 +273,7 @@ static AgentsManagerResult convertAgentResult(AgentResult value) {
 			break;
 		}
 		case AGENT_APARTMENT_EXISTS: {
-			result = AGENT_MANAGER_ALREADY_EXISTS;
+			result = AGENT_MANAGER_APARTMENT_ALREADY_EXISTS;
 			break;
 		}
 		case AGENT_APARTMENT_NOT_EXISTS : {
