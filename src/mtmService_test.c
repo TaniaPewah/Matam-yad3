@@ -168,8 +168,9 @@ static bool testMtmServiceRemoveServiceFromAgent() {
 static bool testMtmServiceAddApartmentToAgent(){
 
 	MTMService service = mtmServiceCreate();
-	mtmServiceAddAgent( service, "baba@ganosh", "tania", 5 );
-	mtmServiceAddServiceToAgent( service, "baba@ganosh", "serveMe", 20 );
+	mtmServiceAddAgent( service, "baba@ganosh", "tania", 1 );
+	mtmServiceAddServiceToAgent( service, "baba@ganosh", "serveMe", 2 );
+	mtmServiceAddClient(service, "ba@ganosh", 1, 1, 22);
 
 	ASSERT_TEST( mtmServiceAddApartmentToAgent(NULL, "baba@ganosh",
 			"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
@@ -193,14 +194,67 @@ static bool testMtmServiceAddApartmentToAgent(){
 			"serveMe", 1, 100, 1, 2, "weee") == MTM_SERVICE_INVALID_PARAMETERS);
 
 
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "b@ganosh",
+		"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_EMAIL_DOES_NOT_EXIST);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "ba@ganosh",
+		"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+				"seeMe", 1, 100, 1, 2, "we") ==
+						MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST);
+
 	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
 			"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_SUCCESS);
+	MTMServiceResult r = mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+	"serveMe", 1, 100, 2, 2, "weee");
+	ASSERT_TEST( r == MTM_SERVICE_APARTMENT_ALREADY_EXISTS);
+
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+				"serveMe", 2, 100, 1, 2, "we") == MTM_SERVICE_SUCCESS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+		"serveMe", 3, 100, 1, 2, "we") == MTM_SERVICE_APARTMENT_SERVICE_FULL);
 
 	mtmServiceDestroy( service );
 	return true;
 }
 
 static bool testMtmServiceRemoveApartmentFromAgent() {
+
+	MTMService service = mtmServiceCreate();
+	mtmServiceAddAgent( service, "baba@ganosh", "tania", 1 );
+	mtmServiceAddServiceToAgent( service, "baba@ganosh", "serveMe", 2 );
+	mtmServiceAddClient(service, "ba@ganosh", 1, 1, 22);
+	mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+					"serveMe", 2, 100, 1, 2, "we");
+
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(NULL, "baba@ganosh",
+						"serveMe", 2) == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, NULL,
+						"serveMe", 2) == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "babaganosh",
+						"serveMe", 2) == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "baba@ganosh",
+						NULL, 2) == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "baba@ganosh",
+						"serveMe", -1) == MTM_SERVICE_INVALID_PARAMETERS);
+
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "bxxa@ganosh",
+						"serveMe", 2) == MTM_SERVICE_EMAIL_DOES_NOT_EXIST);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "ba@ganosh",
+						"serveMe", 2) == MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "baba@ganosh",
+				"serve", 2) == MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST);
+
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "baba@ganosh",
+						"serveMe", 3) == MTM_SERVICE_APARTMENT_DOES_NOT_EXIST);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "baba@ganosh",
+						"serveMe", 2) == MTM_SERVICE_SUCCESS);
+	ASSERT_TEST( mtmServiceRemoveApartmentFromAgent(service, "baba@ganosh",
+					"serveMe", 2) == MTM_SERVICE_APARTMENT_DOES_NOT_EXIST);
+
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+						"serveMe", 2, 100, 1, 2, "we") == MTM_SERVICE_SUCCESS);
+
+	mtmServiceDestroy( service );
 	return true;
 }
 static bool testMtmServiceAddClient() {

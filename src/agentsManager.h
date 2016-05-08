@@ -19,11 +19,12 @@ typedef enum {
 	AGENT_MANAGER_OUT_OF_MEMORY = 0,
 	AGENT_MANAGER_INVALID_PARAMETERS = 1,
 	AGENT_MANAGER_ALREADY_EXISTS = 2,
-	AGENT_MANAGER_AGENT_NOT_EXISTS = 3,
-	AGENT_MANAGER_APARTMENT_NOT_EXISTS = 4,
-	AGENT_MANAGER_SERVICE_NOT_EXISTS = 5,
-	AGENT_MANAGER_APARTMENT_SERVICE_FULL = 6,
-	AGENT_MANAGER_SUCCESS = 7
+	AGENT_MANAGER_APARTMENT_ALREADY_EXISTS = 3,
+	AGENT_MANAGER_AGENT_NOT_EXISTS = 4,
+	AGENT_MANAGER_APARTMENT_NOT_EXISTS = 5,
+	AGENT_MANAGER_SERVICE_NOT_EXISTS = 6,
+	AGENT_MANAGER_APARTMENT_SERVICE_FULL = 7,
+	AGENT_MANAGER_SUCCESS = 8
 
 } AgentsManagerResult;
 
@@ -141,7 +142,8 @@ AgentsManagerResult agentsManagerRemoveApartmentService(AgentsManager manager,
 *	AGENT_MANAGER_AGENT_NOT_EXISTS    if agent by this name does not exist
 *	AGENT_MANAGER_OUT_OF_MEMORY		  if allocation failed
 *	AGENT_MANAGER_SERVICE_NOT_EXISTS service with the given name does not exist
-*	AGENT_MANAGER_ALREADY_EXISTS   if apartment with the given id already exist
+*	AGENT_MANAGER_APARTMENT_ALREADY_EXISTS if apartment with the given
+*											id already exist
 *	AGENT_MANAGER_SERVICE_FULL	   if apartment service is full
 *	AGENT_MANAGER_SUCCESS          if apartment successfully added
 */

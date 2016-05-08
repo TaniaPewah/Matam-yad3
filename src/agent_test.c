@@ -10,7 +10,7 @@
 #include "apartment_service.h"
 
 static bool testAgentCreate();
-static bool testAgentGetters();
+//static bool testAgentGetters();
 static bool testAgentAddService();
 static bool testAgentRemoveService();
 static bool testAgentAddApartmentToService();
@@ -21,7 +21,7 @@ static bool testAgentCopy();
 
 int RunAgentTest() {
 	RUN_TEST(testAgentCreate);
-	RUN_TEST(testAgentGetters);
+	//RUN_TEST(testAgentGetters);
 	RUN_TEST(testAgentAddService);
 	RUN_TEST(testAgentRemoveService);
 	RUN_TEST(testAgentAddApartmentToService);
@@ -60,7 +60,7 @@ static bool testAgentCreate(){
 	return true;
 }
 
-static bool testAgentGetters() {
+/*static bool testAgentGetters() {
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
@@ -79,7 +79,7 @@ static bool testAgentGetters() {
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
-}
+}*/
 
 static bool testAgentAddService(){
 	Email email = NULL;

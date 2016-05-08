@@ -161,7 +161,7 @@ static bool testAgentsManagerAddApartmentToService(){
 
 	result = agentsManagerAddApartmentToService(manager, email, "serveMe",
 													AP_ID ,PRICE, 2, 1, "we" );
-	ASSERT_TEST(result == AGENT_MANAGER_ALREADY_EXISTS);
+	ASSERT_TEST(result == AGENT_MANAGER_APARTMENT_ALREADY_EXISTS);
 
 	result = agentsManagerAddApartmentToService(manager, email, "serveMe",
 												-1 ,PRICE, 2, 1, "we" );
