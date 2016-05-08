@@ -31,6 +31,24 @@ typedef enum {
 	MTM_SERVICE_SUCCESS
 } MTMServiceResult;
 
+/**
+* Allocates a new MTMService.
+*
+* @return
+* 	NULL - if allocations failed.
+* 	A new service in case of success.
+*/
+MTMService mtmServiceCreate();
+
+/**
+* mtmServiceDestroy: Deallocates an existing service.
+* Clears the elements by using the stored free function.
+*
+* @param service Target service to be deallocated.
+* If service is NULL nothing will be done
+*/
+void mtmServiceDestroy(MTMService service);
+
 /*
  * mtmServiceAddAgent: Adds new agent with the given parameters.
 *
