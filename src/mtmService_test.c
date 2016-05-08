@@ -175,7 +175,30 @@ static bool testMtmServiceAddApartmentToAgent(){
 	mtmServiceAddAgent( service, "baba@ganosh", "tania", 5 );
 	mtmServiceAddServiceToAgent( service, "baba@ganosh", "serveMe", 20 );
 
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(NULL, "baba@ganosh",
+			"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, NULL,
+			"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			NULL, 1, 100, 1, 2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "babaganosh",
+			"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			"serveMe", -1, 100, 1, 2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			"serveMe", 1, -3, 1, 2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			"serveMe", 1, 100, 1, -2, "we") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			"serveMe", 1, 100, 1, 2, NULL) == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			"serveMe", 1, 100, 1, 2, "wd") == MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			"serveMe", 1, 100, 1, 2, "weee") == MTM_SERVICE_INVALID_PARAMETERS);
 
+
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+			"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_SUCCESS);
 
 	mtmServiceDestroy( service );
 	return true;
