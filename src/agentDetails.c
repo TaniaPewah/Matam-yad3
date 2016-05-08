@@ -12,6 +12,8 @@
 #include "utilities.h"
 #include "email.h"
 
+#define NO_RANK -1
+
 struct agentDetails_t {
 	Email email;
 	char* companyName;
@@ -124,9 +126,9 @@ char* agentDetailsGetCompanyName( AgentDetails details ){
 
 /* agentDetailsGetEmail : gets the rank of the agent
 *
-* returns -1 if a NUll details param recieved
+* returns NO_RANK if NULL details recieved
 * else the rank of this agent details
 */
 double agentDetailsGetRank( AgentDetails details){
-	return details ? details->rank : -1;
+	return details ? details->rank : NO_RANK;
 }
