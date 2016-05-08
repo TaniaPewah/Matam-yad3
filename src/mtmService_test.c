@@ -170,6 +170,14 @@ static bool testMtmServiceRemoveServiceFromAgent(){
 	return true;
 }
 static bool testMtmServiceAddApartmentToAgent(){
+
+	MTMService service = mtmServiceCreate();
+	mtmServiceAddAgent( service, "baba@ganosh", "tania", 5 );
+	mtmServiceAddServiceToAgent( service, "baba@ganosh", "serveMe", 20 );
+
+
+
+	mtmServiceDestroy( service );
 	return true;
 }
 static bool testMtmServiceRemoveApartmentFromAgent(){
