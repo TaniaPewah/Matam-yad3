@@ -839,7 +839,7 @@ static MTMServiceResult ConvertAgentManagerResult(AgentsManagerResult value) {
 				break;
 			}
 			case AGENT_MANAGER_ALREADY_EXISTS: {
-				result = MTM_SERVICE_EMAIL_ALREADY_EXISTS;
+				result = MTM_SERVICE_APARTMENT_SERVICE_ALREADY_EXISTS;
 				break;
 			}
 			case AGENT_MANAGER_AGENT_NOT_EXISTS: {
