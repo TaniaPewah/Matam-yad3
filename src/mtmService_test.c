@@ -158,10 +158,6 @@ static bool testMtmServiceRemoveServiceFromAgent() {
 	ASSERT_TEST(mtmServiceRemoveServiceFromAgent(service, "baba@ganosh",
 				"serveMe") == MTM_SERVICE_SUCCESS);
 
-
-	ASSERT_TEST(mtmServiceRemoveServiceFromAgent(service, "baba@ganosh",
-			"serveMe") == MTM_SERVICE_SUCCESS);
-
 	ASSERT_TEST(mtmServiceRemoveServiceFromAgent(service, "baba@ganosh",
 			"serveMe") == MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST);
 

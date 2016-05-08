@@ -4,7 +4,7 @@
 #include "aux_macros.h"
 
 int RunEmailTest();
-//int RunAgentTest();
+int RunAgentTest();
 int	RunAgentManagerTest();
 int RunClientTest();
 int RunClientManagerTest();
@@ -15,7 +15,7 @@ int RunMtmServiceTest();
 
 int main(){
 	RunEmailTest();
-	//RunAgentTest();
+	RunAgentTest();
 	RunAgentDetailsTest();
 	RunAgentManagerTest();
 	RunClientTest();
