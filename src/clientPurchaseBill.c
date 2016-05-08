@@ -83,9 +83,9 @@ void clientPurchaseBillDestroy(ClientPurchaseBill purchase_bill) {
 *
 * 	zero if both are equal or both are NULL.
 *
-* 	negative value if first paid less than second or first is NULL.
+* 	negative value if first paid more than second or first is NULL.
 *
-* 	positive value if first paid more than second or second is NULL.
+* 	positive value if first paid less than second or second is NULL.
 *
 * 	if both paid the same, retrieves a compare result of the clients emails.
 *
@@ -93,13 +93,13 @@ void clientPurchaseBillDestroy(ClientPurchaseBill purchase_bill) {
 int clientPurchaseBillComapre(ClientPurchaseBill first,
 							  ClientPurchaseBill second) {
 	if ((first == NULL) && (second == NULL)) return 0;
-	if (second == NULL) return -1;
-	if (first == NULL) return 1;
-	int diff = (first->total_money_paid - second->total_money_paid);
+	if (second == NULL) return 1;
+	if (first == NULL) return -1;
+	int diff = (second->total_money_paid - first->total_money_paid);
 	if (diff == 0) {
 		diff = emailComapre(first->email, second->email);
 	}
-	return diff;
+	return (diff < 0 ? -1 : (diff > 0 ? 1 : 0));
 }
 
 /**
