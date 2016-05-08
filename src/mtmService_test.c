@@ -204,9 +204,9 @@ static bool testMtmServiceAddApartmentToAgent(){
 
 	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
 			"serveMe", 1, 100, 1, 2, "we") == MTM_SERVICE_SUCCESS);
-	MTMServiceResult r = mtmServiceAddApartmentToAgent(service, "baba@ganosh",
-	"serveMe", 1, 100, 2, 2, "weee");
-	ASSERT_TEST( r == MTM_SERVICE_APARTMENT_ALREADY_EXISTS);
+
+	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+	"serveMe", 1, 100, 2, 2, "weee") == MTM_SERVICE_APARTMENT_ALREADY_EXISTS);
 
 	ASSERT_TEST( mtmServiceAddApartmentToAgent(service, "baba@ganosh",
 				"serveMe", 2, 100, 1, 2, "we") == MTM_SERVICE_SUCCESS);
@@ -258,11 +258,120 @@ static bool testMtmServiceRemoveApartmentFromAgent() {
 	return true;
 }
 static bool testMtmServiceAddClient() {
+	MTMService service = mtmServiceCreate();
+
+	ASSERT_TEST( mtmServiceAddClient( NULL, "ba@ganosh", 1, 1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, NULL, 1, 1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", -1, 1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, -1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, 1, -22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "baganosh", 1, 1, -22 ) ==
+				MTM_SERVICE_INVALID_PARAMETERS );
+
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, 1, 22 ) ==
+					MTM_SERVICE_SUCCESS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, 1, 22 ) ==
+			MTM_SERVICE_EMAIL_ALREADY_EXISTS );
+
+	mtmServiceDestroy( service );
 	return true;
 }
 static bool testMtmServiceRemoveClient() {
+	MTMService service = mtmServiceCreate();
+	mtmServiceAddAgent( service, "baba@ganosh", "tania", 1 );
+	mtmServiceAddClient(service, "ba@ganosh", 1, 1, 22);
+
+	ASSERT_TEST( mtmServiceRemoveClient( NULL, "ba@ganosh") ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceRemoveClient( service, "baganosh") ==
+			MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveClient( service, NULL) ==
+			MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveClient( service, "baga@nosh") ==
+			MTM_SERVICE_EMAIL_DOES_NOT_EXIST);
+
+
+	ASSERT_TEST( mtmServiceRemoveClient( service, "baba@ganosh") ==
+			MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE);
+
+	ASSERT_TEST( mtmServiceRemoveClient( service, "ba@ganosh") ==
+			MTM_SERVICE_SUCCESS );
+
+	ASSERT_TEST( mtmServiceRemoveClient( service, "ba@ganosh") ==
+			MTM_SERVICE_EMAIL_DOES_NOT_EXIST );
+
+	mtmServiceDestroy( service );
 	return true;
 }
 static bool testMtmServiceClientPurchaseApartment() {
+
+	MTMService service = mtmServiceCreate();
+	mtmServiceAddAgent( service, "baba@ganosh", "tania", 1 );
+	mtmServiceAddClient(service, "ba@ganosh", 2, 2, 1000);
+	mtmServiceAddServiceToAgent( service, "baba@ganosh", "serveMe", 3 );
+
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+	"ba@ganosh","baba@ganosh","serveMe", 1) == MTM_SERVICE_APARTMENT_DOES_NOT_EXIST );
+
+	mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+						"serveMe", 1, 100, 1, 2, "we");
+
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(NULL,
+				"ba@ganosh","baba@ganosh","serveMe", 1) ==
+					MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+				NULL,"baba@ganosh","serveMe", 1) ==
+					MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+				"ba@ganosh",NULL,"serveMe", 1) ==
+						MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+				"ba@ganosh","baba@ganosh",NULL, 1) ==
+						MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+				"baganosh","baba@ganosh","serveMe", 1) ==
+							MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+				"ba@ganosh","babaganosh","serveMe", 1) ==
+							MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+				"ba@ganosh","baba@ganosh","serveMe", -1) ==
+								MTM_SERVICE_INVALID_PARAMETERS );
+
+
+
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+			"b@ganosh","baba@ganosh","serveMe", 1) ==
+					MTM_SERVICE_EMAIL_DOES_NOT_EXIST);
+
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+				"baba@ganosh","nba@ganosh","serveMe", 1) ==
+						MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE);
+
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+			"ba@ganosh","baba@ganosh","serveggMe", 1) ==
+					MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST );
+
+
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+			"ba@ganosh","baba@ganosh","serveMe", 7) ==
+					MTM_SERVICE_APARTMENT_DOES_NOT_EXIST );
+
+	ASSERT_TEST(mtmServiceClientPurchaseApartment(service,
+			"ba@ganosh","baba@ganosh","serveMe", 1) ==
+					MTM_SERVICE_PURCHASE_WRONG_PROPERTIES );
+
+	mtmServiceAddApartmentToAgent(service, "baba@ganosh",
+					"serveMe", 3, 100, 3, 3, "ewwwewwwe");
+
+	ASSERT_TEST( mtmServiceClientPurchaseApartment(service,
+			"ba@ganosh","baba@ganosh","serveMe", 3) == MTM_SERVICE_SUCCESS);
+
+	mtmServiceDestroy( service );
 	return true;
 }
