@@ -171,14 +171,14 @@ static bool testClientsManagerGetSortedPayments(){
 	ASSERT_TEST( listGetSize(clients_list) == 2);
 
 
-	// TODO: test does not pass
+	// TODO: should return mail first, then email
 	ClientPurchaseBill top_bill = listGetFirst(clients_list);
-	//ASSERT_TEST( emailAreEqual(
-		//	clientPurchaseBillGetClientEmail(top_bill), mail));
+	ASSERT_TEST( emailAreEqual(
+			clientPurchaseBillGetClientEmail(top_bill), mail));
 
 	ClientPurchaseBill second_bill = listGetNext(clients_list);
-	//ASSERT_TEST( emailAreEqual(
-		//		clientPurchaseBillGetClientEmail(second_bill), email));
+	ASSERT_TEST( emailAreEqual(
+		clientPurchaseBillGetClientEmail(second_bill), email));
 
 	emailDestroy(email);
 	emailDestroy(mail);
