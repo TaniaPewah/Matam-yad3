@@ -20,15 +20,15 @@ static bool testAgentGetApartmentDetails();
 static bool testAgentCopy();
 
 int RunAgentTest() {
-	RUN_TEST( testAgentCreate );
-	RUN_TEST( testAgentGetters);
-	RUN_TEST( testAgentAddService);
-	RUN_TEST( testAgentRemoveService);
-	RUN_TEST( testAgentAddApartmentToService);
-	RUN_TEST( testAgentRemoveApartmentFromService);
-	RUN_TEST( testAgentFindMatch );
-	RUN_TEST( testAgentGetApartmentDetails );
-	RUN_TEST( testAgentCopy );
+	RUN_TEST(testAgentCreate);
+	RUN_TEST(testAgentGetters);
+	RUN_TEST(testAgentAddService);
+	RUN_TEST(testAgentRemoveService);
+	RUN_TEST(testAgentAddApartmentToService);
+	RUN_TEST(testAgentRemoveApartmentFromService);
+	RUN_TEST(testAgentFindMatch);
+	RUN_TEST(testAgentGetApartmentDetails);
+	RUN_TEST(testAgentCopy);
 	return 0;
 }
 
@@ -80,79 +80,61 @@ static bool testAgentGetters() {
 	emailDestroy(email);
 	return true;
 }
-static bool testAgentAddService(){
 
+static bool testAgentAddService(){
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
 	agentCreate(email,"tania", 5, &agent);
-
-	ASSERT_TEST( agentAddService(agent,"serveMe", -1) ==
-									AGENT_INVALID_PARAMETERS);
-
-	ASSERT_TEST( agentAddService(NULL,"serveMe", 1) ==
-									AGENT_INVALID_PARAMETERS );
-
-	ASSERT_TEST( agentAddService(agent,"serveMe", 1) ==
-										AGENT_SUCCESS );
-
-	ASSERT_TEST( agentAddService(agent,"serve2", 1) ==
-											AGENT_SUCCESS );
-
+	ASSERT_TEST(agentAddService(agent,"serveMe", -1) ==
+		AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentAddService(NULL,"serveMe", 1) ==
+		AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentAddService(agent,"serveMe", 1) == AGENT_SUCCESS);
+	ASSERT_TEST(agentAddService(agent,"serve2", 1) == AGENT_SUCCESS);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
 }
+
 static bool testAgentRemoveService(){
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
 	agentCreate(email,"tania", 5, &agent);
-
 	agentAddService(agent,"serveMe", 1);
-
-	ASSERT_TEST( agentRemoveService(agent,"e") ==
+	ASSERT_TEST(agentRemoveService(agent,"e") ==
 			AGENT_APARTMENT_SERVICE_NOT_EXISTS);
-	ASSERT_TEST( agentRemoveService(NULL,"serveMe") ==
-				AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentRemoveService(agent,"serveMe") ==
-					AGENT_SUCCESS);
-
+	ASSERT_TEST(agentRemoveService(NULL,"serveMe") ==
+			AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentRemoveService(agent,"serveMe") == AGENT_SUCCESS);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
 }
+
 static bool testAgentAddApartmentToService(){
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
 	agentCreate(email,"tania", 5, &agent);
-
 	agentAddService(agent,"serveMe", 2);
-	ASSERT_TEST( agentAddApartmentToService(
-					NULL, "serveMe", 1 , 100 , 1, 2, "we" ) ==
-							AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 1 , 100 , 1, 0, "we" ) ==
-							AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 1 , 10 , 1, 2, "we" ) ==
-							AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "sere", 1 , 100 , 1, 2, "we" ) ==
-							AGENT_APARTMENT_SERVICE_NOT_EXISTS);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 1 , 100 , 1, 2, "we" ) ==
-							AGENT_SUCCESS);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 1 , 100 , 2, 2, "weew" ) ==
-							AGENT_APARTMENT_EXISTS);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 2 , 100 , 2, 2, "weew" ) ==
-							AGENT_SUCCESS);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 3 , 100 , 2, 2, "weew" ) ==
-							AGENT_APARTMENT_SERVICE_FULL);
+	ASSERT_TEST(agentAddApartmentToService(NULL, "serveMe", 1, 100, 1, 2, "we")
+		== AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 1, 100, 1, 0,
+			"we") == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentAddApartmentToService( agent, "serveMe", 1, 10, 1, 2,
+			"we") == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentAddApartmentToService( agent, "sere", 1, 100, 1, 2,
+			"we") == AGENT_APARTMENT_SERVICE_NOT_EXISTS);
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 1, 100, 1, 2,
+		"we") == AGENT_SUCCESS);
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 1, 100, 2, 2,
+		"weew") == AGENT_APARTMENT_EXISTS);
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 2, 100, 2, 2,
+		"weew") == AGENT_SUCCESS);
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 3, 100, 2, 2,
+		"weew") == AGENT_APARTMENT_SERVICE_FULL);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
@@ -162,127 +144,98 @@ static bool testAgentRemoveApartmentFromService(){
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
 	agentCreate(email,"tania", 5, &agent);
-
 	agentAddService(agent,"serveMe", 2);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 2 , 100 , 2, 2, "weew" ) ==
-							AGENT_SUCCESS);
-
-	ASSERT_TEST( agentRemoveApartmentFromService( agent, -1, "serveMe") ==
-			AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentRemoveApartmentFromService( NULL, 2, "serveMe") ==
-			AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentRemoveApartmentFromService( agent, 2, "se") ==
-				AGENT_APARTMENT_SERVICE_NOT_EXISTS);
-	ASSERT_TEST( agentRemoveApartmentFromService( agent, 4, "serveMe") ==
-				AGENT_APARTMENT_NOT_EXISTS);
-	ASSERT_TEST( agentRemoveApartmentFromService( agent, 2, "serveMe") ==
-				AGENT_SUCCESS);
-
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 2, 100, 2, 2,
+		"weew") == AGENT_SUCCESS);
+	ASSERT_TEST(agentRemoveApartmentFromService(agent, -1, "serveMe") ==
+		AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentRemoveApartmentFromService(NULL, 2, "serveMe") ==
+		AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentRemoveApartmentFromService(agent, 2, "se") ==
+		AGENT_APARTMENT_SERVICE_NOT_EXISTS);
+	ASSERT_TEST(agentRemoveApartmentFromService(agent, 4, "serveMe") ==
+		AGENT_APARTMENT_NOT_EXISTS);
+	ASSERT_TEST(agentRemoveApartmentFromService(agent, 2, "serveMe") ==
+		AGENT_SUCCESS);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
 }
 static bool testAgentFindMatch(){
-
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
 	agentCreate(email,"tania", 5, &agent);
 	AgentDetails details = NULL;
-	ASSERT_TEST( agentFindMatch(agent, 1,1, 1000, &details ) ==
+	ASSERT_TEST(agentFindMatch(agent, 1,1, 1000, &details) ==
 			AGENT_APARTMENT_SERVICE_NOT_EXISTS);
-
 	agentAddService(agent,"serveMe", 2);
-	ASSERT_TEST( agentAddApartmentToService(
-					agent, "serveMe", 1 , 200 , 1, 2, "we" ) ==
-							AGENT_SUCCESS);
-
-	ASSERT_TEST( agentFindMatch(NULL, 1,1, 1000, &details ) ==
-				AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentFindMatch(agent, 1,1, 100, &details ) ==
-			AGENT_APARTMENT_NOT_EXISTS);
-	ASSERT_TEST( agentFindMatch(agent, 1,3, 300, &details ) ==
-			AGENT_APARTMENT_NOT_EXISTS);
-	ASSERT_TEST( agentFindMatch(agent, 4,7, 1000, &details ) ==
-			AGENT_APARTMENT_NOT_EXISTS);
-
-	ASSERT_TEST( agentAddApartmentToService(
-						agent, "serveMe", 2 , 2000 , 2, 2, "wewe" ) ==
-								AGENT_SUCCESS);
-
-	ASSERT_TEST( agentFindMatch(agent, 1,1, 1000, &details ) ==
-			AGENT_SUCCESS);
-
-	ASSERT_TEST( areStringsEqual( agentDetailsGetCompanyName(details),
-									"tania"));
-
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 1, 200, 1, 2,
+			"we") == AGENT_SUCCESS);
+	ASSERT_TEST(agentFindMatch(NULL, 1,1, 1000, &details) ==
+		AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentFindMatch(agent, 1,1, 100, &details) ==
+		AGENT_APARTMENT_NOT_EXISTS);
+	ASSERT_TEST(agentFindMatch(agent, 1,3, 300, &details) ==
+		AGENT_APARTMENT_NOT_EXISTS);
+	ASSERT_TEST(agentFindMatch(agent, 4,7, 1000, &details) ==
+		AGENT_APARTMENT_NOT_EXISTS);
+	ASSERT_TEST(agentAddApartmentToService(agent, "serveMe", 2, 2000, 2, 2,
+		"wewe") == AGENT_SUCCESS);
+	ASSERT_TEST(agentFindMatch(agent, 1,1, 1000, &details) == AGENT_SUCCESS);
+	ASSERT_TEST(areStringsEqual(agentDetailsGetCompanyName(details), "tania"));
 	agentDetailsDestroy(details);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
 }
-static bool testAgentCopy(){
 
+static bool testAgentCopy() {
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
 	agentCreate(email,"tania", 5, &agent);
-
 	agentAddService(agent,"serveMe", 2);
-
 	Agent copy = NULL;
-	ASSERT_TEST( agentCopy(agent, NULL) == AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentCopy(NULL, &copy) == AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentCopy(agent, &copy) == AGENT_SUCCESS);
-
-	ASSERT_TEST( emailAreEqual(agentGetMail(agent) , agentGetMail(copy)));
-
+	ASSERT_TEST(agentCopy(agent, NULL) == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentCopy(NULL, &copy) == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentCopy(agent, &copy) == AGENT_SUCCESS);
+	ASSERT_TEST(emailAreEqual(agentGetMail(agent), agentGetMail(copy)));
 	agentDestroy(agent);
 	agentDestroy(copy);
 	emailDestroy(email);
 	return true;
 }
 
-static bool testAgentGetApartmentDetails(){
-
+static bool testAgentGetApartmentDetails() {
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	Agent agent = NULL;
 	agentCreate(email,"tania", 5, &agent);
 	agentAddService(agent,"serveMe", 2);
-
-	int area;
-	int rooms_num;
-	int price;
-	ASSERT_TEST( agentGetApartmentDetails( NULL, "serveMe", 1, &area,
-							&rooms_num, &price ) ==  AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", -3, &area,
-							&rooms_num, &price ) ==  AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, NULL,
-							&rooms_num, &price ) ==  AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
-							NULL, &price ) ==  AGENT_INVALID_PARAMETERS);
-	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
-							&rooms_num, NULL ) ==  AGENT_INVALID_PARAMETERS);
-
-	ASSERT_TEST( agentGetApartmentDetails( agent, "see", 1, &area,
-				&rooms_num, &price ) ==  AGENT_APARTMENT_SERVICE_NOT_EXISTS);
-
-	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
-						&rooms_num, &price ) ==  AGENT_APARTMENT_NOT_EXISTS);
-
-	agentAddApartmentToService( agent, "serveMe", 1 , 200 , 2, 2, "weee" );
-
-	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 1, &area,
-							&rooms_num, &price ) ==  AGENT_SUCCESS);
-
-	ASSERT_TEST( agentGetApartmentDetails( agent, "serveMe", 3, &area,
-						&rooms_num, &price ) ==  AGENT_APARTMENT_NOT_EXISTS);
-
-	ASSERT_TEST( area == 3);
-	ASSERT_TEST( rooms_num == 1);
-	ASSERT_TEST( price == 200);
+	int area, rooms_num, price;
+	ASSERT_TEST(agentGetApartmentDetails(NULL, "serveMe", 1, &area,
+		&rooms_num, &price) == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentGetApartmentDetails(agent, "serveMe", -3, &area,
+		&rooms_num, &price) == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentGetApartmentDetails(agent, "serveMe", 1, NULL,
+		&rooms_num, &price) == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentGetApartmentDetails(agent, "serveMe", 1, &area,
+		NULL, &price) == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentGetApartmentDetails(agent, "serveMe", 1, &area,
+		&rooms_num, NULL) == AGENT_INVALID_PARAMETERS);
+	ASSERT_TEST(agentGetApartmentDetails(agent, "see", 1, &area,
+		&rooms_num, &price) == AGENT_APARTMENT_SERVICE_NOT_EXISTS);
+	ASSERT_TEST(agentGetApartmentDetails(agent, "serveMe", 1, &area,
+		&rooms_num, &price) == AGENT_APARTMENT_NOT_EXISTS);
+	agentAddApartmentToService(agent, "serveMe", 1, 200, 2, 2, "weee");
+	ASSERT_TEST(agentGetApartmentDetails(agent, "serveMe", 1, &area,
+		&rooms_num, &price) == AGENT_SUCCESS);
+	ASSERT_TEST(agentGetApartmentDetails(agent, "serveMe", 3, &area,
+		&rooms_num, &price) == AGENT_APARTMENT_NOT_EXISTS);
+	ASSERT_TEST(area == 3);
+	ASSERT_TEST(rooms_num == 1);
+	ASSERT_TEST(price == 200);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
