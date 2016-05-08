@@ -92,10 +92,10 @@ static bool testClientPurchaseBillCompare() {
 	ASSERT_TEST(clientPurchaseBillComapre(bill_1, NULL) < 0);
 	ASSERT_TEST(clientPurchaseBillComapre(NULL, bill_1) > 0);
 
-	ASSERT_TEST(clientPurchaseBillComapre(bill_1, bill_3) < 0);
-	ASSERT_TEST(clientPurchaseBillComapre(bill_2, bill_3) < 0);
-	ASSERT_TEST(clientPurchaseBillComapre(bill_3, bill_1) > 0);
-	ASSERT_TEST(clientPurchaseBillComapre(bill_3, bill_2) > 0);
+	ASSERT_TEST(clientPurchaseBillComapre(bill_1, bill_3) > 0);
+	ASSERT_TEST(clientPurchaseBillComapre(bill_2, bill_3) > 0);
+	ASSERT_TEST(clientPurchaseBillComapre(bill_3, bill_1) < 0);
+	ASSERT_TEST(clientPurchaseBillComapre(bill_3, bill_2) < 0);
 
 	clientPurchaseBillDestroy(bill_1);
 	clientPurchaseBillDestroy(bill_2);
