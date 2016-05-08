@@ -19,13 +19,13 @@ struct mtmService_t {
 };
 
 static MTMServiceResult RemoveApartmentFromAgent(MTMService service, Email mail,
-		char* service_name, int id);
+	char* service_name, int id);
 static MTMServiceResult CreateEmailAndSearchForClient(MTMService service,
-		char* email_adress, Email *out_email);
+	char* email_adress, Email *out_email);
 static MTMServiceResult CreateEmailAndSearchForAgent(MTMService service,
-		char* email_adress, Email *out_email);
+	char* email_adress, Email *out_email);
 static MTMServiceResult CreateEmailAndSearch(MTMService service,
-		char* email_adress, Email *out_email, bool search_for_client);
+	char* email_adress, Email *out_email, bool search_for_client);
 static MTMServiceResult convertClientManagerResult(ClientsManagerResult value);
 static MTMServiceResult ConvertAgentManagerResult(AgentsManagerResult value);
 static MTMServiceResult convertEmailResult(EmailResult value);
@@ -790,7 +790,7 @@ static MTMServiceResult CreateEmailAndSearch(MTMService service,
 *
 * @return the matching MTMServiceResult
 */
-static MTMServiceResult convertClientManagerResult(ClientsManagerResult value) {
+static MTMServiceResult convertClientManagerResult(ClientsManagerResult value){
 	MTMServiceResult result;
 	switch (value){
 	case CLIENT_MANAGER_OUT_OF_MEMORY: {

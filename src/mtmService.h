@@ -3,6 +3,9 @@
 
 typedef struct mtmService_t *MTMService;
 
+#define ACCEPT_STRING accept
+#define DECLINE_STRING decline
+
 /**
 * This type defines all errors for the system.
 * These codes should be used for calling mtmPrintErrorMessage to report
