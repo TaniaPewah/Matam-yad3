@@ -26,15 +26,65 @@ static MTMServiceResult CreateEmailAndSearchForAgent(MTMService service,
 		char* email_adress, Email *out_email);
 static MTMServiceResult CreateEmailAndSearch(MTMService service,
 		char* email_adress, Email *out_email, bool search_for_client);
-static MTMServiceResult ConvertClientManagerResult(ClientsManagerResult value);
+static MTMServiceResult convertClientManagerResult(ClientsManagerResult value);
 static MTMServiceResult ConvertAgentManagerResult(AgentsManagerResult value);
-static MTMServiceResult ConvertEmailResult(EmailResult value);
-static MTMServiceResult ConvertOffersManagerResult(OfferManagerResult value);
+static MTMServiceResult convertEmailResult(EmailResult value);
+static MTMServiceResult convertOffersManagerResult(OfferManagerResult value);
 static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
 	Email client, Email agent, char* service_name, int id);
 static MTMServiceResult CommitClientPurchaseApartment(MTMService service,
 	Email client, Email agent, char* service_name, int id, int finalPrice);
+static MTMServiceResult CheckOffer(MTMService service, Email client,
+	Email agent, char* service_name, int id, int price);
 
+/**
+* Allocates a new MTMService.
+*
+* @return
+* 	NULL - if allocations failed.
+* 	A new service in case of success.
+*/
+MTMService mtmServiceCreate() {
+	ClientsManager client_manager = clientsManagerCreate();
+	if (client_manager == NULL) return NULL;
+	AgentsManager agent_manager = agentsManagerCreate();
+	if (agent_manager == NULL) {
+		clientsManagerDestroy(client_manager);
+		return NULL;
+	}
+	OffersManager offer_manager = offerManagerCreate();
+	if (offer_manager == NULL) {
+		clientsManagerDestroy(client_manager);
+		agentsManagerDestroy(agent_manager);
+		return NULL;
+	}
+	MTMService service = malloc(sizeof(*service));
+	if (service == NULL) {
+			clientsManagerDestroy(client_manager);
+			agentsManagerDestroy(agent_manager);
+			offerManagerDestroy(offer_manager);
+			return NULL;
+		}
+	service->clients = client_manager;
+	service->agents = agent_manager;
+	service->offers = offer_manager;
+	return service;
+}
+
+/**
+* mtmServiceDestroy: Deallocates an existing service.
+* Clears the elements by using the stored free function.
+*
+* @param service Target service to be deallocated.
+* If service is NULL nothing will be done
+*/
+void mtmServiceDestroy(MTMService service) {
+	if (service != NULL) {
+			clientsManagerDestroy(service->clients);
+			agentsManagerDestroy(service->agents);
+			offerManagerDestroy(service->offers);
+		}
+}
 
 /*
  *
@@ -66,7 +116,7 @@ MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
 	EmailResult result = emailCreate(email_adress, &mail);
-	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
+	if (result != EMAIL_SUCCESS) return convertEmailResult(result);
 	if (clientsManagerClientExists(service->clients, mail) ||
 		agentsManagerAgentExists(service->agents, mail)) {
 		emailDestroy(mail);
@@ -116,7 +166,7 @@ MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress){
 	OfferManagerResult offer_result =
 		offersMenagerRemoveAllEmailOffers(service->offers, mail);
 	emailDestroy(mail);
-	return ConvertOffersManagerResult(offer_result);
+	return convertOffersManagerResult(offer_result);
 }
 
 /*
@@ -195,12 +245,12 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 			(service->agents, mail, service_name);
 	if (agent_result != AGENT_MANAGER_SUCCESS) {
 		emailDestroy(mail);
-		return ConvertClientManagerResult(agent_result);
+		return convertClientManagerResult(agent_result);
 	}
 	OfferManagerResult offer_result = offersMenagerRemoveAllServiceOffers
 			(service->offers, mail, service_name);
 	emailDestroy(mail);
-	return ConvertOffersManagerResult(offer_result);
+	return convertOffersManagerResult(offer_result);
 }
 
 /*
@@ -251,7 +301,7 @@ MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
 				!=  height * width)) return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
 	EmailResult email_result = emailCreate(email_adress, &mail);
-	if (email_result != EMAIL_SUCCESS) return ConvertEmailResult(email_result);
+	if (email_result != EMAIL_SUCCESS) return convertEmailResult(email_result);
 	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
 	bool client_exists = clientsManagerClientExists(service->clients, mail);
 	if ((!agent_exists) && (!client_exists)) {
@@ -342,7 +392,7 @@ static MTMServiceResult RemoveApartmentFromAgent(MTMService service,
 	}
 	OfferManagerResult offer_result = offersMenagerRemoveAllApartmentOffers
 		(service->offers, mail, service_name, id);
-	return ConvertOffersManagerResult(offer_result);
+	return convertOffersManagerResult(offer_result);
 }
 
 /*
@@ -375,7 +425,7 @@ MTMServiceResult mtmServiceAddClient(MTMService service, char* email_adress,
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
 	EmailResult result = emailCreate(email_adress, &mail);
-	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
+	if (result != EMAIL_SUCCESS) return convertEmailResult(result);
 	if (clientsManagerClientExists( service->clients, mail) ||
 		agentsManagerAgentExists(service->agents, mail)) {
 		emailDestroy(mail);
@@ -384,7 +434,7 @@ MTMServiceResult mtmServiceAddClient(MTMService service, char* email_adress,
 	ClientsManagerResult client_result = clientsManagerAdd
 			(service->clients, mail, min_area, min_rooms, max_price);
 	emailDestroy(mail);
-	return ConvertClientManagerResult(client_result);
+	return convertClientManagerResult(client_result);
 }
 
 /*
@@ -421,12 +471,125 @@ MTMServiceResult mtmServiceRemoveClient(MTMService service,
 		clientsManagerRemove(service->clients, mail);
 	if (client_result != CLIENT_MANAGER_SUCCESS) {
 		emailDestroy(mail);
-		return ConvertClientManagerResult(client_result);
+		return convertClientManagerResult(client_result);
 	}
 	OfferManagerResult offer_result =
 		offersMenagerRemoveAllEmailOffers(service->offers, mail);
 	emailDestroy(mail);
-	return ConvertOffersManagerResult(offer_result);
+	return convertOffersManagerResult(offer_result);
+}
+
+/*
+ * CheckOffer: help function that checks if an offer can be purchased by a
+ * client.
+*
+* @param service service to remove from.
+* @param client client email.
+* @param agent agent email.
+* @param service_name agent apartment service name.
+* @param id apartment id.
+* @param price offer price.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal.
+*
+* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 		the given email address.
+*
+* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 		agent and not a client.
+*
+* 	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST the apartment service does
+* 		not exist.
+*
+* 	MTM_SERVICE_APARTMENT_DOES_NOT_EXIST the apartment does not exist
+*
+*	MTM_SERVICE_ALREADY_REQUESTED if an offer was already suggested
+*
+*	MTM_SERVICE_PURCHASE_WRONG_PROPERTIES offer details are wrong
+*
+*	MTM_SERVICE_REQUEST_ILLOGICAL_PRICE offer is not good for client
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	MTM_SERVICE_SUCCESS offer can be made
+*
+*/
+MTMServiceResult mtmServiceMakeClientOffer(MTMService service,
+		char* client_email, char* agent_email, char* service_name, int id,
+		int price) {
+	if ((service == NULL) || (client_email == NULL) || (agent_email == NULL)
+			|| (id < 0) || (price <=0)) return MTM_SERVICE_INVALID_PARAMETERS;
+	Email client = NULL, agent = NULL;
+	MTMServiceResult client_result = CreateEmailAndSearchForClient(service,
+		client_email, &client);
+	if (client_result != MTM_SERVICE_SUCCESS) return client_result;
+	MTMServiceResult agent_result = CreateEmailAndSearchForAgent(service,
+		client_email, &agent);
+	if (agent_result != MTM_SERVICE_SUCCESS) return agent_result;
+	MTMServiceResult offer_check_result =
+			CheckOffer(service, client, agent, service_name, id, price);
+	if(offer_check_result != MTM_SERVICE_SUCCESS) {
+		emailDestroy(client);
+		emailDestroy(agent);
+		return offer_check_result;
+	}
+	OfferManagerResult add_result = OfferManagerAddOffer(service->offers,
+			client, agent, service_name, id, price);
+	emailDestroy(client);
+	emailDestroy(agent);
+	return convertOffersManagerResult(add_result);
+}
+
+/*
+ * CheckOffer: help function that checks if an offer can be purchased by a
+ * client.
+*
+* @param service service to remove from.
+* @param client client email.
+* @param agent agent email.
+* @param service_name agent apartment service name.
+* @param id apartment id.
+* @param price offer price.
+*
+* @return
+*
+*	MTM_SERVICE_ALREADY_REQUESTED if an offer was already suggested
+*
+*	MTM_SERVICE_PURCHASE_WRONG_PROPERTIES offer details are wrong
+*
+*	MTM_SERVICE_REQUEST_ILLOGICAL_PRICE offer is not good for client
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	MTM_SERVICE_SUCCESS offer can be made
+*
+*/
+static MTMServiceResult CheckOffer(MTMService service, Email client,
+	Email agent, char* service_name, int id, int price) {
+	if (OfferManagerOfferExist(service->offers, client, agent,
+			service_name, id)) return MTM_SERVICE_ALREADY_REQUESTED;
+	int apartment_area, apartment_rooms, apartment_price, apartment_commition;
+	AgentsManagerResult aprtment_result = agentsManagerGetApartmentDetails(
+		service->agents, agent, service_name, id, &apartment_area,
+		&apartment_rooms, &apartment_price, &apartment_commition);
+	if (aprtment_result != AGENT_MANAGER_SUCCESS)
+		return ConvertAgentManagerResult(aprtment_result);
+	int client_min_area, client_min_room, client_max_price;
+	ClientsManagerResult restriction_result = clientsManagerGetRestriction(
+		service->clients, client, &client_min_area, &client_min_room,
+		&client_max_price);
+	if (restriction_result != CLIENT_MANAGER_SUCCESS)
+		return ConvertAgentManagerResult(aprtment_result);
+	if ((apartment_rooms < client_min_room) ||
+		(apartment_area < client_min_area) ||
+		(client_max_price < price))
+		return MTM_SERVICE_PURCHASE_WRONG_PROPERTIES;
+	if (apartment_price * (100 + apartment_commition) < price)
+		return MTM_SERVICE_REQUEST_ILLOGICAL_PRICE;
+	return MTM_SERVICE_SUCCESS;
 }
 
 /*
@@ -516,20 +679,20 @@ static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
 		AgentsManagerResult aprtment_result = agentsManagerGetApartmentDetails(
 			service->agents, agent, service_name, id, &apartment_area,
 			&apartment_rooms, &apartment_price, &apartment_commition);
-		if (aprtment_result != AGENT_MANAGER_SUCCESS)
-			return ConvertAgentManagerResult(aprtment_result);
-		int client_min_area, client_min_room, client_max_price;
-		ClientsManagerResult client_result = clientsManagerGetRestriction(
-			service->clients, client, &client_min_area, &client_min_room,
-			&client_max_price);
-		if (client_result != CLIENT_MANAGER_SUCCESS)
-			return ConvertAgentManagerResult(aprtment_result);
-		if ((apartment_rooms < client_min_room) ||
-			(apartment_area < client_min_area) ||
-			(client_max_price < apartment_price * (100 + apartment_commition)))
-			return MTM_SERVICE_PURCHASE_WRONG_PROPERTIES;
-		return CommitClientPurchaseApartment(service,client, agent,
-			service_name, id, apartment_price * (100 + apartment_commition));
+	if (aprtment_result != AGENT_MANAGER_SUCCESS)
+		return ConvertAgentManagerResult(aprtment_result);
+	int client_min_area, client_min_room, client_max_price;
+	ClientsManagerResult client_result = clientsManagerGetRestriction(
+		service->clients, client, &client_min_area, &client_min_room,
+		&client_max_price);
+	if (client_result != CLIENT_MANAGER_SUCCESS)
+		return ConvertAgentManagerResult(aprtment_result);
+	if ((apartment_rooms < client_min_room) ||
+		(apartment_area < client_min_area) ||
+		(client_max_price < apartment_price * (100 + apartment_commition)))
+		return MTM_SERVICE_PURCHASE_WRONG_PROPERTIES;
+	return CommitClientPurchaseApartment(service,client, agent,
+		service_name, id, apartment_price * (100 + apartment_commition));
 }
 
 /*
@@ -556,7 +719,7 @@ static MTMServiceResult CommitClientPurchaseApartment(MTMService service,
 	ClientsManagerResult result = clientsManagerExecurePurchase
 			(service->clients, client, finalPrice);
 	if (result != CLIENT_MANAGER_SUCCESS)
-		return ConvertClientManagerResult(result);
+		return convertClientManagerResult(result);
 	return RemoveApartmentFromAgent(service, agent, service_name, id);
 }
 
@@ -604,7 +767,7 @@ static MTMServiceResult CreateEmailAndSearch(MTMService service,
 		char* email_adress, Email *out_email, bool search_for_client) {
 	Email mail = NULL;
 	EmailResult result = emailCreate(email_adress, &mail);
-	if (result != EMAIL_SUCCESS) return ConvertEmailResult(result);
+	if (result != EMAIL_SUCCESS) return convertEmailResult(result);
 	*out_email = mail;
 	bool agent_exists = agentsManagerAgentExists(service->agents, mail);
 	bool client_exists = clientsManagerClientExists(service->clients, mail);
@@ -620,14 +783,14 @@ static MTMServiceResult CreateEmailAndSearch(MTMService service,
 }
 
 /**
-* ConvertClientManagerResult: Converts a ClientsManagerResult to
+* convertClientManagerResult: Converts a ClientsManagerResult to
 * MTMServiceResult.
 *
 * @param value the ClientsManagerResult.
 *
 * @return the matching MTMServiceResult
 */
-static MTMServiceResult ConvertClientManagerResult(ClientsManagerResult value){
+static MTMServiceResult convertClientManagerResult(ClientsManagerResult value) {
 	MTMServiceResult result;
 	switch (value){
 	case CLIENT_MANAGER_OUT_OF_MEMORY: {
@@ -705,14 +868,14 @@ static MTMServiceResult ConvertAgentManagerResult(AgentsManagerResult value) {
 }
 
 /**
-* ConvertEmailResult: Converts an EmailResult to
+* convertEmailResult: Converts an EmailResult to
 * MTMServiceResult.
 *
 * @param value the EmailResult.
 *
 * @return the matching MTMServiceResult
 */
-static MTMServiceResult ConvertEmailResult(EmailResult value) {
+static MTMServiceResult convertEmailResult(EmailResult value) {
 	MTMServiceResult result;
 	switch (value){
 	case EMAIL_OUT_OF_MEMORY: {
@@ -734,14 +897,14 @@ static MTMServiceResult ConvertEmailResult(EmailResult value) {
 }
 
 /**
-* ConvertEmailResult: Converts an OfferManagerResult to
+* convertEmailResult: Converts an OfferManagerResult to
 * MTMServiceResult.
 *
 * @param value the OfferManagerResult.
 *
 * @return the matching MTMServiceResult
 */
-static MTMServiceResult ConvertOffersManagerResult(OfferManagerResult value) {
+static MTMServiceResult convertOffersManagerResult(OfferManagerResult value) {
 	MTMServiceResult result;
 	switch (value){
 	case OFFERS_MANAGER_OUT_OF_MEMORY: {

@@ -30,18 +30,18 @@ static CompareResult isServiceConnectedToOffer(Offer offer,
 	checkOfferParam parameter);
 static CompareResult isApartmentConnectedToOffer(Offer offer,
 	checkOfferParam parameter);
-
 static void FreeOfferListElement(ListElement element);
 static ListElement CopyOfferListElement(ListElement);
+static OfferManagerResult convertOfferResult(OfferResult value);
 
 /**
 * Allocates a new OfferManager.
 *
 * @return
 * 	NULL - if allocations failed.
-* 	A new clients in case of success.
+* 	A new offer manager in case of success.
 */
-OffersManager OfferManagerCreate() {
+OffersManager offerManagerCreate() {
 	List list = listCreate(CopyOfferListElement, FreeOfferListElement);
 	if (list == NULL) return NULL;
 	OffersManager manager = malloc (sizeof(*manager));
@@ -73,13 +73,15 @@ static void FreeOfferListElement(ListElement element) {
 * offerManagerDestroy: Deallocates an existing offers manager.
 * Clears the element by using the stored free function.
 *
-* @param offer Target offer to be deallocated.
-* If offer is NULL nothing will be done
+* @param manager Target manager to be deallocated.
+* If manager is NULL nothing will be done
 */
-void offersManagerDestroy(OffersManager offer) {
-	if (offer != NULL) {
-		listDestroy(offer->offers);
-		free(offer);
+void offerManagerDestroy(OffersManager manager) {
+	if (manager != NULL) {
+		if (manager->offers != NULL) {
+			listDestroy(manager->offers);
+		}
+		free(manager);
 	}
 }
 
@@ -296,4 +298,91 @@ static CompareResult isApartmentConnectedToOffer(Offer offer,
 			    (char*)(((void**)parameter)[1]))) &&
 			(offerGetApartmentId(offer) == *(int*)(((void**)parameter)[2]))) ?
 			COMPARE_FIT : COMPARE_UNFIT;
+}
+
+/*
+* OfferManagerOfferExist: checks if an offer with the given parameters exists
+*
+* @param manager OffersManager to use.
+* @param client Offer's client email.
+* @param agent Offer's agent email.
+* @param Offer's service_name.
+* @param Offer's apartment_id.
+*
+* @return
+* 	false if one of the parameters is NULL or apartment id in negative,
+* 	or if an offer was not found; otherwise if an offer found returns true.
+*/
+bool OfferManagerOfferExist(OffersManager manager, Email client,
+		Email agent, char* service_name, int apartment_id) {
+	if ((manager == NULL) || (client == NULL) || (agent == NULL)
+			|| (service_name == NULL) || (apartment_id < 0))
+		return false;
+	bool found = false;
+	Offer current = (Offer)listGetFirst(manager->offers);
+	while ((current != NULL) || (!found)) {
+		found = (emailAreEqual(offerGetClientEmail(current), client) &&
+				 emailAreEqual(offerGetAgentEmail(current), agent) &&
+				 (offerGetApartmentId(current) == apartment_id) &&
+				 areStringsEqual(service_name, offerGetServiceName(current)));
+		current = listGetNext(manager->offers);
+	}
+	return found;
+}
+
+/*
+* OfferManagerAddOffer: adds an offer with the given parameters
+*
+* @param manager OffersManager to use.
+* @param client Offer's client email.
+* @param agent Offer's agent email.
+* @param Offer's service_name.
+* @param Offer's apartment_id.
+* @param Offer's price.
+*
+* @return
+* 	false if one of the parameters is NULL or apartment id in negative,
+* 	or if an offer was not found; otherwise if an offer found returns true.
+*/
+OfferManagerResult OfferManagerAddOffer(OffersManager manager, Email client,
+		Email agent, char* service_name, int id, int price) {
+	Offer new_offer = NULL;
+	OfferResult result = offerCreate(client, agent, service_name,
+		id, price, &new_offer);
+	if (result != OFFER_SUCCESS) return convertOfferResult(result);
+	ListResult offer_result = listInsertLast(manager->offers, new_offer);
+	offerDestroy(new_offer);
+	if (offer_result != LIST_SUCCESS) return OFFERS_MANAGER_OUT_OF_MEMORY;
+	return OFFERS_MANAGER_SUCCESS;
+}
+
+/**
+* convertOfferResult: Converts a OfferResult to OfferManagerResult.
+*
+* @param value the OfferResult.
+*
+* @return the matching OfferManagerResult
+*/
+static OfferManagerResult convertOfferResult(OfferResult value) {
+	OfferManagerResult result;
+	switch (value) {
+		case OFFER_NULL_PARAMETERS: {
+			result = OFFERS_MANAGER_NULL_PARAMETERS;
+			break;
+		}
+		case OFFER_INVALID_PARAMETERS: {
+			result = OFFERS_MANAGER_INVALID_PARAMETERS;
+			break;
+		}
+		case OFFER_OUT_OF_MEMORY: {
+			result = OFFERS_MANAGER_OUT_OF_MEMORY;
+			break;
+		}
+		case OFFER_SUCCESS:
+		default: {
+			result = OFFERS_MANAGER_SUCCESS;
+			break;
+		}
+	}
+	return result;
 }
