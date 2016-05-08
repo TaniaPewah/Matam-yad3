@@ -573,7 +573,7 @@ AgentResult agentGetApartmentDetails(Agent agent, char* service_name,
 	if (service == NULL) return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
 	Apartment apartment = NULL;
 	ApartmentServiceResult result = serviceGetById(service, id, &apartment);
-	if (result != APARTMENT_SUCCESS) {
+	if (result != APARTMENT_SERVICE_SUCCESS) {
 		if (result == APARTMENT_SERVICE_NO_FIT || APARTMENT_SERVICE_EMPTY) {
 			return AGENT_APARTMENT_NOT_EXISTS;
 		} else return AGENT_OUT_OF_MEMORY;

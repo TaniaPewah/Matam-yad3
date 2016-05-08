@@ -25,8 +25,6 @@ typedef enum {
 */
 OffersManager OfferManagerCreate();
 
-
-
 /*
  * offersMenagerRemoveAllConnectedOffers: Removes all the offers associated
  * with the given email.

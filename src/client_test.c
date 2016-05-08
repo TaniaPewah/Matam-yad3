@@ -11,7 +11,6 @@ static bool testClientCreate();
 static bool testClientGetersAndSetters();
 static bool testClientCopy();
 
-//int main() {
 int RunClientTest() {
 	RUN_TEST(testClientCreate);
 	RUN_TEST(testClientGetersAndSetters);
