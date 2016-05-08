@@ -13,7 +13,7 @@ int RunOfferTest();
 int RunAgentDetailsTest();
 int RunMtmServiceTest();
 
-int main(){
+int main() {
 	RunEmailTest();
 	RunAgentTest();
 	RunAgentDetailsTest();

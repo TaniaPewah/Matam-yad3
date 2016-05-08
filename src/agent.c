@@ -445,40 +445,36 @@ AgentResult agentFindMatch(Agent agent, int min_rooms, int min_area,
 * @param agent 	the requested agent
 *
 * @return
-*	the rank of the agent agent if agent has at least 1 apartment, and -1
-*	if has no apartments
+*	the rank of the agent agent if agent has at least 1 apartment, and
+*	RANK_EMPTY if has no apartments
 */
 double agentGetRank(Agent agent) {
 	if( agent == NULL ) return AGENT_INVALID_PARAMETERS;
-	int apartments_count = 0;
-	int median_price = 0;
-	int median_area = 0;
-	int out = 0;
-	char* name = mapGetFirst( agent->apartmentServices );
-	ApartmentService current;
-	if( name != NULL)
-		current = mapGet( agent->apartmentServices, name );
-	while(current) {
-		if (serviceAreaMedian( current, &out ) == APARTMENT_SERVICE_SUCCESS ){
-			median_area += out;
-			out = 0;
-			servicePriceMedian( current, &out );
-			median_price += out;
-			out = 0;
+	int apartments_count = 0, median_price = 0, median_area = 0,
+		area = 0, price;
+	char* name = mapGetFirst(agent->apartmentServices);
+	ApartmentService current = NULL;
+	if(name != NULL) current = mapGet(agent->apartmentServices, name);
+	while(current != NULL) {
+		if ((serviceAreaMedian(current, &area) == APARTMENT_SERVICE_SUCCESS) &&
+			(servicePriceMedian(current, &price) == APARTMENT_SERVICE_SUCCESS))
+		{
+			median_area += area;
+			median_price += price;
 			apartments_count++;
 		}
-		current = NULL;
-		name = mapGetNext( agent->apartmentServices );
-		if( name != NULL)
-			current = mapGet( agent->apartmentServices, name );
+		name = mapGetNext(agent->apartmentServices);
+		current = ((name != NULL) ?
+					mapGet(agent->apartmentServices, name) :
+					NULL);
 	}
-	if( apartments_count ){
+	if (apartments_count != 0) {
 		median_price /= apartments_count;
 		median_area /= apartments_count;
 	}
 	return apartments_count ?
 		(1000000 * apartments_count + median_price + 100000 * median_area)
-		: -1;
+		: RANK_EMPTY;
 }
 
 /* isTaxValid: The function checks whether the tax is between 1 and 100
