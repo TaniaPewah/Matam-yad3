@@ -258,11 +258,57 @@ static bool testMtmServiceRemoveApartmentFromAgent() {
 	return true;
 }
 static bool testMtmServiceAddClient() {
+	MTMService service = mtmServiceCreate();
+
+	ASSERT_TEST( mtmServiceAddClient( NULL, "ba@ganosh", 1, 1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, NULL, 1, 1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", -1, 1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, -1, 22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, 1, -22 ) ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceAddClient( service, "baganosh", 1, 1, -22 ) ==
+				MTM_SERVICE_INVALID_PARAMETERS );
+
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, 1, 22 ) ==
+					MTM_SERVICE_SUCCESS );
+	ASSERT_TEST( mtmServiceAddClient( service, "ba@ganosh", 1, 1, 22 ) ==
+			MTM_SERVICE_EMAIL_ALREADY_EXISTS );
+
+	mtmServiceDestroy( service );
 	return true;
 }
 static bool testMtmServiceRemoveClient() {
+	MTMService service = mtmServiceCreate();
+	mtmServiceAddAgent( service, "baba@ganosh", "tania", 1 );
+	mtmServiceAddClient(service, "ba@ganosh", 1, 1, 22);
+
+	ASSERT_TEST( mtmServiceRemoveClient( NULL, "ba@ganosh") ==
+			MTM_SERVICE_INVALID_PARAMETERS );
+	ASSERT_TEST( mtmServiceRemoveClient( service, "baganosh") ==
+			MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveClient( service, NULL) ==
+			MTM_SERVICE_INVALID_PARAMETERS);
+	ASSERT_TEST( mtmServiceRemoveClient( service, "baga@nosh") ==
+			MTM_SERVICE_EMAIL_DOES_NOT_EXIST);
+
+
+	ASSERT_TEST( mtmServiceRemoveClient( service, "baba@ganosh") ==
+			MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE);
+
+	ASSERT_TEST( mtmServiceRemoveClient( service, "ba@ganosh") ==
+			MTM_SERVICE_SUCCESS );
+
+	ASSERT_TEST( mtmServiceRemoveClient( service, "ba@ganosh") ==
+			MTM_SERVICE_EMAIL_DOES_NOT_EXIST );
+
+	mtmServiceDestroy( service );
 	return true;
 }
 static bool testMtmServiceClientPurchaseApartment() {
+
 	return true;
 }
