@@ -107,7 +107,7 @@ void emailDestroy(Email email) {
 *
 * 	zero if both are equal or both are NULL.
 *
-* 	negative value if first is less than second or first is NULL.
+* 	negative value if first is more than second or first is NULL.
 *
 * 	positive value if first is less than second or second is NULL.
 */

@@ -93,9 +93,9 @@ void clientPurchaseBillDestroy(ClientPurchaseBill purchase_bill) {
 int clientPurchaseBillComapre(ClientPurchaseBill first,
 							  ClientPurchaseBill second) {
 	if ((first == NULL) && (second == NULL)) return 0;
-	if (second == NULL) return 1;
-	if (first == NULL) return -1;
-	int diff = (second->total_money_paid - first->total_money_paid);
+	if (second == NULL) return -1;
+	if (first == NULL) return 1;
+	int diff = (first->total_money_paid - second->total_money_paid);
 	if (diff == 0) {
 		diff = emailComapre(first->email, second->email);
 	}

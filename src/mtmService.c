@@ -27,7 +27,7 @@ static MTMServiceResult CreateEmailAndSearchForAgent(MTMService service,
 static MTMServiceResult CreateEmailAndSearch(MTMService service,
 	char* email_adress, Email *out_email, bool search_for_client);
 static MTMServiceResult convertClientManagerResult(ClientsManagerResult value);
-static MTMServiceResult ConvertAgentManagerResult(AgentsManagerResult value);
+static MTMServiceResult convertAgentManagerResult(AgentsManagerResult value);
 static MTMServiceResult convertEmailResult(EmailResult value);
 static MTMServiceResult convertOffersManagerResult(OfferManagerResult value);
 static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
@@ -125,7 +125,7 @@ MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
 	AgentsManagerResult agents_result = agentsManagerAdd
 				(service->agents, mail, company_name, tax_percentage);
 	emailDestroy(mail);
-	return ConvertAgentManagerResult(agents_result);
+	return convertAgentManagerResult(agents_result);
 }
 
 /*
@@ -161,7 +161,7 @@ MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress){
 		agentsManagerRemove(service->agents, mail);
 	if (agents_result != AGENT_MANAGER_SUCCESS) {
 		emailDestroy(mail);
-		return ConvertAgentManagerResult(agents_result);
+		return convertAgentManagerResult(agents_result);
 	}
 	OfferManagerResult offer_result =
 		offersMenagerRemoveAllEmailOffers(service->offers, mail);
@@ -208,7 +208,7 @@ MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
 	AgentsManagerResult agents_result = agentsManagerAddApartmentService
 			(service->agents, mail, service_name, max_apartments);
 	emailDestroy(mail);
-	return ConvertAgentManagerResult(agents_result);
+	return convertAgentManagerResult(agents_result);
 }
 
 /*
@@ -245,7 +245,7 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 			(service->agents, mail, service_name);
 	if (agent_result != AGENT_MANAGER_SUCCESS) {
 		emailDestroy(mail);
-		return convertClientManagerResult(agent_result);
+		return convertAgentManagerResult(agent_result);
 	}
 	OfferManagerResult offer_result = offersMenagerRemoveAllServiceOffers
 			(service->offers, mail, service_name);
@@ -314,7 +314,7 @@ MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
 	AgentsManagerResult result = agentsManagerAddApartmentToService(
 		service->agents, mail, service_name, id, price, width, height, matrix);
 	emailDestroy(mail);
-	return ConvertAgentManagerResult(result);
+	return convertAgentManagerResult(result);
 }
 
 /*
@@ -388,7 +388,7 @@ static MTMServiceResult RemoveApartmentFromAgent(MTMService service,
 	AgentsManagerResult agent_result = agentsManagerRemoveApartmentFromService
 		(service->agents, mail, service_name, id);
 	if (agent_result != AGENT_MANAGER_SUCCESS) {
-		return ConvertAgentManagerResult(agent_result);
+		return convertAgentManagerResult(agent_result);
 	}
 	OfferManagerResult offer_result = offersMenagerRemoveAllApartmentOffers
 		(service->offers, mail, service_name, id);
@@ -576,13 +576,13 @@ static MTMServiceResult CheckOffer(MTMService service, Email client,
 		service->agents, agent, service_name, id, &apartment_area,
 		&apartment_rooms, &apartment_price, &apartment_commition);
 	if (aprtment_result != AGENT_MANAGER_SUCCESS)
-		return ConvertAgentManagerResult(aprtment_result);
+		return convertAgentManagerResult(aprtment_result);
 	int client_min_area, client_min_room, client_max_price;
 	ClientsManagerResult restriction_result = clientsManagerGetRestriction(
 		service->clients, client, &client_min_area, &client_min_room,
 		&client_max_price);
 	if (restriction_result != CLIENT_MANAGER_SUCCESS)
-		return ConvertAgentManagerResult(aprtment_result);
+		return convertAgentManagerResult(aprtment_result);
 	if ((apartment_rooms < client_min_room) ||
 		(apartment_area < client_min_area) ||
 		(client_max_price < price))
@@ -680,13 +680,13 @@ static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
 			service->agents, agent, service_name, id, &apartment_area,
 			&apartment_rooms, &apartment_price, &apartment_commition);
 	if (aprtment_result != AGENT_MANAGER_SUCCESS)
-		return ConvertAgentManagerResult(aprtment_result);
+		return convertAgentManagerResult(aprtment_result);
 	int client_min_area, client_min_room, client_max_price;
 	ClientsManagerResult client_result = clientsManagerGetRestriction(
 		service->clients, client, &client_min_area, &client_min_room,
 		&client_max_price);
 	if (client_result != CLIENT_MANAGER_SUCCESS)
-		return ConvertAgentManagerResult(aprtment_result);
+		return convertAgentManagerResult(aprtment_result);
 	if ((apartment_rooms < client_min_room) ||
 		(apartment_area < client_min_area) ||
 		(client_max_price < apartment_price * (100 + apartment_commition)))
@@ -820,14 +820,14 @@ static MTMServiceResult convertClientManagerResult(ClientsManagerResult value){
 }
 
 /**
-* ConvertAgentManagerResult: Converts a AgentsManagerResult to
+* convertAgentManagerResult: Converts a AgentsManagerResult to
 * MTMServiceResult.
 *
 * @param value the AgentsManagerResult.
 *
 * @return the matching MTMServiceResult
 */
-static MTMServiceResult ConvertAgentManagerResult(AgentsManagerResult value) {
+static MTMServiceResult convertAgentManagerResult(AgentsManagerResult value) {
 	MTMServiceResult result;
 		switch (value){
 			case AGENT_MANAGER_OUT_OF_MEMORY: {
