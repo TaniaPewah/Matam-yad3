@@ -30,12 +30,6 @@ static bool testAgentsManagerGetApartmentDetails();
 static void freeListElement(ListElement element);
 static ListElement copyListElement(ListElement element);
 
-//static MapDataElement GetDataCopy(constMapDataElement data);
-//static MapKeyElement GetKeyCopy(constMapKeyElement key);
-//static void FreeData(MapDataElement data);
-//static void FreeKey(MapKeyElement key);
-//static int CompareKeys(constMapKeyElement first, constMapKeyElement second);
-
 int RunAgentManagerTest() {
 	RUN_TEST(testAgentsManagerCreate);
 	RUN_TEST(testAgentsManagerAddAgent);
@@ -236,7 +230,7 @@ static bool testAgentManagerFindMatch(){
 	agentsManagerAddApartmentToService(	manager, email, "serveMe",
 				AP_ID,300, 1, 2, "we" );
 	agentsManagerAddApartmentToService(	manager, mail, "serveMe",
-				2, 100, 2, 2, "weew" );
+				2, 200, 2, 2, "weew" );
 
 	List agents_list = listCreate(copyListElement, freeListElement);
 
@@ -254,7 +248,7 @@ static bool testAgentManagerFindMatch(){
 	ASSERT_TEST( listGetSize(agents_list) == 1);
 
 	listClear(agents_list);
-	result = agentManagerFindMatch( manager, 1, 1 , 0, &agents_list);
+	result = agentManagerFindMatch( manager, 1, 1 , 100, &agents_list);
 	ASSERT_TEST( result == AGENT_MANAGER_APARTMENT_NOT_EXISTS );
 
 	ASSERT_TEST( listGetSize(agents_list) == 0);

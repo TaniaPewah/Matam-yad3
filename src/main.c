@@ -7,6 +7,7 @@ int RunEmailTest();
 int RunAgentTest();
 int	RunAgentManagerTest();
 int RunClientTest();
+int RunClientManagerTest();
 int RunClientPurchaseBillTest();
 int RunOfferTest();
 
@@ -15,6 +16,7 @@ int main(){
 	RunAgentTest();
 	RunAgentManagerTest();
 	RunClientTest();
+	RunClientManagerTest();
 	RunClientPurchaseBillTest();
 	RunOfferTest();
 	return 0;

@@ -3,6 +3,7 @@
 
 #include "client.h"
 #include "email.h"
+#include "list.h"
 
 /**
 * This type defines end codes for the methods.
@@ -128,5 +129,21 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 */
 ClientsManagerResult clientsManagerExecurePurchase(ClientsManager manager,
 		Email mail, int finalPrice);
+
+/**
+* clientsManagerGetSortedPayments: creates a list of all the registered clients
+* who bought apartments, sorted firstly by the payment size, and secondly
+* Alphabetically by the email
+*
+* @param manager Target clients Manager to use.
+* @param list pointer to save destination list in.
+*
+* @return
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if manager or list are NULL.
+* 	CLIENT_MANAGER_OUT_OF_MEMORY - in case of allocation failure.
+* 	CLIENT_MANAGER_SUCCESS - in case of success.
+*/
+ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
+		List* list);
 
 #endif /* SRC_CLIENTSMANAGER_H_ */

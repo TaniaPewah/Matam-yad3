@@ -518,7 +518,8 @@ static bool isValid( int param ){
 	return param > 0;
 }
 
-/* priceisValid: The function checks whether the price gane be divided by 10
+/* priceisValid: The function checks whether the price can be
+ *  divided by 10 and positive
  *
  * @price  The price to check.
  *
@@ -526,7 +527,7 @@ static bool isValid( int param ){
  * false if invalid; else returns true.
  */
 static bool isPriceValid(int price) {
-	return !(price%100);
+	return !(price%100) && price > 0;
 }
 
 

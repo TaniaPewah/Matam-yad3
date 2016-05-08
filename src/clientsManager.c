@@ -111,6 +111,7 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Email email,
 		int apartment_max_price) {
 	if (manager == NULL || email == NULL)
 		return CLIENT_MANAGER_NULL_PARAMETERS;
+
 	Client client = NULL;
 	ClientResult result = clientCreate(email, apartment_min_area,
 			apartment_min_rooms, apartment_max_price, &client);
@@ -119,14 +120,16 @@ ClientsManagerResult clientsManagerAdd(ClientsManager manager, Email email,
 			return CLIENT_MANAGER_INVALID_PARAMETERS;
 		return CLIENT_MANAGER_OUT_OF_MEMORY;
 	}
-	ClientsManagerResult manager_result;
+
+	ClientsManagerResult manager_result = CLIENT_MANAGER_SUCCESS;
 	if (mapContains(manager->clientsMap, email)) {
 		manager_result = CLIENT_MANAGER_ALREADY_EXISTS;
-	} else if (!(mapPut(manager->clientsMap, (constMapKeyElement)email,
-			(constMapDataElement)client) != MAP_SUCCESS)) {
-		manager_result =  CLIENT_MANAGER_OUT_OF_MEMORY;
 	} else {
-		manager_result = CLIENT_MANAGER_SUCCESS;
+		MapResult map_result = mapPut( manager->clientsMap,
+			(constMapKeyElement)email, (constMapDataElement)client);
+
+		if( map_result != MAP_SUCCESS )
+			manager_result = CLIENT_MANAGER_OUT_OF_MEMORY;
 	}
 	clientDestroy(client);
 	return manager_result;
@@ -270,7 +273,7 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 * @param finalPrice the apartment final price, for the client to pay
 *
 * @return
-* 	CLIENT_MANAGER_NULL_PARAMETERS - if manager or email are NULL.
+* 	CLIENT_MANAGER_INVALID_PARAMETERS - if manager or email are NULL.
 *
 * 	CLIENT_MANAGER_NOT_EXISTS - if client email is not registered.
 *

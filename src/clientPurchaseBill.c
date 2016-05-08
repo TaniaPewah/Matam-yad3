@@ -119,7 +119,7 @@ char* clientPurchaseBillGetMoneyPaidString(ClientPurchaseBill bill) {
 }
 
 /**
-* clientPurchaseGetClientEmailAddress: gets a string representing the client
+* clientPurchaseBillGetClientEmailToString: gets a string representing the client
 * email address.
 *
 * @param bill Target purchase bill.
@@ -128,8 +128,22 @@ char* clientPurchaseBillGetMoneyPaidString(ClientPurchaseBill bill) {
 * 	NULL - if purchase_bill is NULL or in case of memory allocation error,
 * 	else a string representing the client email address.
 */
-char* clientPurchaseBillGetClientEmailAddress(ClientPurchaseBill bill) {
+char* clientPurchaseBillGetClientEmailToString(ClientPurchaseBill bill) {
 	if (bill == NULL) return NULL;
 	return emailToString(bill->email);
 }
 
+/**
+* clientPurchaseBillGetClientEmail: gets the clients
+* email address.
+*
+* @param bill Target purchase bill.
+*
+* @return
+* 	NULL - if purchase_bill is NULL or in case of memory allocation error,
+* 	else a clients email address.
+*/
+Email clientPurchaseBillGetClientEmail(ClientPurchaseBill bill) {
+	if (bill == NULL) return NULL;
+	return bill->email;
+}
