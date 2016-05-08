@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 #include <stdbool.h>
 #include "test_utilities.h"
@@ -171,6 +170,8 @@ static bool testClientsManagerGetSortedPayments(){
 			CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 2);
 
+
+	// TODO: test does not pass
 	ClientPurchaseBill top_bill = listGetFirst(clients_list);
 	//ASSERT_TEST( emailAreEqual(
 		//	clientPurchaseBillGetClientEmail(top_bill), mail));
