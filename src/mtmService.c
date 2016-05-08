@@ -613,11 +613,11 @@ static MTMServiceResult CheckOffer(MTMService service, Email client,
 * 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
 * 		agent and not a client.
 *
-*	MTM_APARTMENT_SERVICE_DOES_NOT_EXIST if apartment service does not exist
+*	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST if apartment service does not exist
 *
-*	MTM_APARTMENT_DOES_NOT_EXIST if apartment does not exist
+*	MTM_SERVICE_APARTMENT_DOES_NOT_EXIST if apartment does not exist
 *
-*	MTM_PURCHASE_WRONG_PROPERTIES if client cant buy the  apartent, because it
+*	MTM_SERVICE_PURCHASE_WRONG_PROPERTIES if client cant buy the  apartent, because it
 *		is too small for him or if it is too expansive.
 *
 * 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
@@ -635,8 +635,8 @@ MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
 	MTMServiceResult search_result = CreateEmailAndSearchForClient(service,
 			client_email, &client);
 	if (search_result != MTM_SERVICE_SUCCESS) return search_result;
-	search_result = CreateEmailAndSearchForAgent(service, client_email,
-		&client);
+	search_result = CreateEmailAndSearchForAgent(service, agent_email,
+		&agent);
 	if (search_result != MTM_SERVICE_SUCCESS) {
 		emailDestroy(client);
 		return search_result;
@@ -689,7 +689,7 @@ static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
 		return convertAgentManagerResult(aprtment_result);
 	if ((apartment_rooms < client_min_room) ||
 		(apartment_area < client_min_area) ||
-		(client_max_price < apartment_price * (100 + apartment_commition)))
+		(client_max_price > apartment_price * (100 + apartment_commition)))
 		return MTM_SERVICE_PURCHASE_WRONG_PROPERTIES;
 	return CommitClientPurchaseApartment(service,client, agent,
 		service_name, id, apartment_price * (100 + apartment_commition));
