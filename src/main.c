@@ -20,9 +20,9 @@ int main(int argc, char *argv[]) {
 	}*/
 
 //	RunEmailTest();
-	RunAgentTest();
+//	RunAgentTest();
 //	RunAgentDetailsTest();
-//	RunAgentManagerTest();
+	RunAgentManagerTest();
 //	RunClientPurchaseBillTest();
 //	RunClientTest();
 //	RunClientManagerTest();

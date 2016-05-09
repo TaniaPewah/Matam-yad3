@@ -4,7 +4,8 @@
 #include <stdbool.h>
 #include "utilities.h"
 
-#define END_OF_LINE '\0'
+#define END_OF_LINE '\n'
+#define END_OF_STRING '\0'
 
 static int getDigitsCount(int number);
 static char* getSubString(char* str, int start_index, int end_index);
@@ -102,13 +103,17 @@ int countChar(char* string, char value) {
 	return count;
 }
 
-char** commandSplit(char* string_to_split, const char separator) {
+
+
+
+
+char** commandSplit(char* string_to_split, int *size, const char separator) {
     char** result = NULL;
-    int count = countChar(string_to_split, separator) + 1;
+    size = countChar(string_to_split, separator) + 2;
     int start_index = 0, last_index = 0, current_index = 0, item_index = 0;
-    result = malloc(sizeof(char*) * count);
+    result = malloc(sizeof(char*) * size);
     if (result == NULL) return NULL;
-    for (int i = 0; i < count; i++) result[i] = NULL;
+    for (int i = 0; i < size; i++) result[i] = NULL;
     while (string_to_split[current_index] != END_OF_LINE) {
     	if (string_to_split[current_index] != separator) {
     		last_index++;
@@ -131,7 +136,20 @@ char** commandSplit(char* string_to_split, const char separator) {
 }
 
 static char* getSubString(char* str, int start_index, int end_index) {
-	return NULL;
+	char* new_string = malloc(sizeof(char) * ((end_index - start_index) + 2));
+	if (new_string == NULL) return NULL;
+	for (int i = 0; i < (end_index - start_index + 1); i++) {
+		new_string[i] = str[start_index + i];
+	}
+	new_string[end_index - start_index + 1] = END_OF_LINE;
+	return new_string;
+}
+
+void matrixDestroy(char** matrix, int size) {
+	for (int i = 0; i < size; i++) {
+		free(matrix[i]);
+	}
+	free(matrix);
 }
 
 /*
