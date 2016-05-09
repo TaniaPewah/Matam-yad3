@@ -108,6 +108,7 @@ static bool testOffersMenagerRemoveAllApartmentOffers(){
 		agentDestroy(agent);
 		clientDestroy(client);
 		emailDestroy(email);
+		emailDestroy(mail);
 		offersManagerDestroy( manager );
 		return true;
 }
@@ -131,6 +132,7 @@ static bool testOffersManagerOfferExist(){
 			== true );
 	agentDestroy(agent);
 	clientDestroy(client);
+	emailDestroy(mail);
 	emailDestroy(email);
 	offersManagerDestroy( manager );
 	return true;
@@ -167,6 +169,7 @@ static bool testOffersManagerAddOffer(){
 	agentDestroy(agent);
 	clientDestroy(client);
 	emailDestroy(email);
+	emailDestroy(mail);
 	offersManagerDestroy( manager );
 	return true;
 }
