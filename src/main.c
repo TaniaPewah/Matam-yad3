@@ -19,14 +19,14 @@ int main(int argc, char *argv[]) {
 		printf("%s\n", argv[i]);
 	}*/
 
-//	RunEmailTest();
-//	RunAgentTest();
-//	RunAgentDetailsTest();
+	RunEmailTest();
+	RunAgentTest();
+	RunAgentDetailsTest();
 	RunAgentManagerTest();
-//	RunClientPurchaseBillTest();
-//	RunClientTest();
-//	RunClientManagerTest();
-//	RunOfferTest();
-//	RunMtmServiceTest();
+	RunClientPurchaseBillTest();
+	RunClientTest();
+	RunClientManagerTest();
+	RunOfferTest();
+	RunMtmServiceTest();
 	return 0;
 }

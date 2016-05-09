@@ -322,7 +322,27 @@ AgentsManagerResult agentsManagerRemoveApartmentFromService(
 	return convertAgentResult( result );
 }
 
+static bool findMatch(Agent agent, int area, int rooms, int price,
+		List agents_list ){
 
+	AgentDetails curr_details;
+	AgentResult result = agentFindMatch(agent, area, rooms,
+		price, &curr_details);
+	if(result == AGENT_OUT_OF_MEMORY) {
+		listDestroy(agents_list);
+		return false;
+	} else if(result == AGENT_SUCCESS) {
+		ListResult lr =  listInsertLast(agents_list,
+				(ListElement)(curr_details));
+		if( lr == LIST_OUT_OF_MEMORY) {
+			agentDetailsDestroy(curr_details);
+			listDestroy(agents_list);
+			return false;
+		}
+		agentDetailsDestroy(curr_details);
+	}
+	return true;
+}
 /**
 * agentFindMatch: finds a matching apartment in each of the agent's services
 *
@@ -343,34 +363,24 @@ AgentsManagerResult agentManagerFindMatch(AgentsManager manager, int min_rooms,
 	if ( manager == NULL || result_list == NULL || !isValid(min_area) ||
 			!isValid(min_rooms) || !isPriceValid(max_price))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
+
 	Email curr_email = mapGetFirst(manager->agentsMap);
-	Agent curr_agent = NULL;
-	if(curr_email != NULL)
-		curr_agent = agentsManagerGetAgent(manager, curr_email);
+	Agent curr_agent = (curr_email != NULL) ?
+			agentsManagerGetAgent(manager, curr_email) : NULL;
+
 	List agents_list = listCreate(copyListElement, freeListElement);
-	if(agents_list == NULL) {
-		return AGENT_MANAGER_OUT_OF_MEMORY;
-	}
+	if(agents_list == NULL) return AGENT_MANAGER_OUT_OF_MEMORY;
+
 	while(curr_agent != NULL) {
-		AgentDetails curr_details;
-		AgentResult result = agentFindMatch(curr_agent, min_area, min_rooms,
-			max_price, &curr_details);
-		if(result == AGENT_OUT_OF_MEMORY) {
-			listDestroy(agents_list);
-			return AGENT_MANAGER_OUT_OF_MEMORY;
-		}
-		if((result == AGENT_SUCCESS) && listInsertLast(agents_list,
-				(ListElement)(curr_details)) == LIST_OUT_OF_MEMORY) {
-			agentDetailsDestroy(curr_details);
-			listDestroy(agents_list);
-			return AGENT_MANAGER_OUT_OF_MEMORY;
-		}
-		agentDetailsDestroy(curr_details);
-		curr_agent = NULL;
+
+		if (!findMatch( curr_agent, min_area, min_rooms, max_price,
+				agents_list )) return AGENT_MANAGER_OUT_OF_MEMORY;
+
 		curr_email = mapGetNext(manager->agentsMap);
-		if(curr_email != NULL)
-			curr_agent = agentsManagerGetAgent(manager, curr_email);
+		curr_agent = (curr_email != NULL) ?
+				agentsManagerGetAgent(manager, curr_email) : NULL;
 	}
+
 	if(listGetSize(agents_list) == 0) {
 		listDestroy(agents_list);
 		return AGENT_MANAGER_APARTMENT_NOT_EXISTS;
@@ -394,6 +404,32 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
 	return mapContains(manager->agentsMap, email);
 }
 
+
+static bool addRankedAgentToList(Agent curr_agent, Email curr_email,
+		List agents_list ){
+
+	double rank = agentGetRank(curr_agent);
+	AgentDetails curr_details;
+
+	if(rank != RANK_EMPTY) {
+		curr_details = agentDetailsCreate(curr_email,
+				agentGetCompany(curr_agent), rank);
+		if(curr_details == NULL) {
+			listDestroy(agents_list);
+			return false;
+		}
+		if (listInsertLast(agents_list, curr_details) ==
+				LIST_OUT_OF_MEMORY) {
+			listDestroy(agents_list);
+			agentDetailsDestroy(curr_details);
+			return false;
+		}
+		agentDetailsDestroy(curr_details);
+	}
+	return true;
+}
+
+
 /* getSignificantAgents: The function gets list with the mast significant agents
  * 						 according to a formula
  *
@@ -403,50 +439,39 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
  * 							the significant agents
  *
  * * @return
+ * AGENT_MANAGER_AGENT_NOT_EXISTS   if no agents found
  * AGENT_MANAGER_OUT_OF_MEMORY 		if an allocation problem occurred
  * AGENT_MANAGER_SUCCESS			otherwise
  */
 AgentsManagerResult agentManagerGetSignificantAgents(AgentsManager manager,
 		int count, List* significant_list) {
 	if (!isValid(count)) return AGENT_MANAGER_INVALID_PARAMETERS;
-	Agent curr_agent = NULL;
+
 	Email curr_email = mapGetFirst(manager->agentsMap);
-	if(curr_email != NULL)
-		curr_agent = agentsManagerGetAgent(manager, curr_email);
-	AgentDetails curr_details;
+	Agent curr_agent = (curr_email != NULL) ?
+			agentsManagerGetAgent(manager, curr_email) : NULL;
+	if(curr_agent == NULL)
+			return AGENT_MANAGER_AGENT_NOT_EXISTS;
+
 	List agents_list = listCreate(copyListElement, freeListElement);
 	if(agents_list == NULL)
 		return AGENT_MANAGER_OUT_OF_MEMORY;
-	double rank;
+
 	while(curr_agent) {
-		rank = agentGetRank(curr_agent);
-		if(rank != RANK_EMPTY) {
-			curr_details = agentDetailsCreate(curr_email,
-					agentGetCompany(curr_agent), rank);
-			if(curr_details == NULL) {
-				listDestroy(agents_list);
-				return AGENT_MANAGER_OUT_OF_MEMORY;
-			}
-			if (listInsertLast(agents_list, curr_details) ==
-					LIST_OUT_OF_MEMORY) {
-				listDestroy(agents_list);
-				agentDetailsDestroy(curr_details);
-				return AGENT_MANAGER_OUT_OF_MEMORY;
-			}
-			agentDetailsDestroy(curr_details);
-		}
-		curr_agent = NULL;
+
+		if ( !addRankedAgentToList( curr_agent, curr_email, agents_list ))
+			return AGENT_MANAGER_OUT_OF_MEMORY;
+
 		curr_email = mapGetNext(manager->agentsMap);
-		if(curr_email != NULL)
-			curr_agent = agentsManagerGetAgent( manager, curr_email);
+		curr_agent = (curr_email != NULL ) ?
+				agentsManagerGetAgent( manager, curr_email) : NULL;
 	}
+
 	listSort(agents_list, compareListElements);
 	reduceListToCount(agents_list, count);
 	*significant_list = agents_list;
 
 	return AGENT_MANAGER_SUCCESS;
-
-
 }
 
 /**
