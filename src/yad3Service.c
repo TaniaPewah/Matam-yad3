@@ -18,8 +18,8 @@ struct yad3Service_t {
 	OffersManager offers;
 };
 
-static Yad3ServiceResult RemoveApartmentFromAgent(Yad3Service service, Email mail,
-	char* service_name, int id);
+static Yad3ServiceResult RemoveApartmentFromAgent(Yad3Service service,
+	Email mail, char* service_name, int id);
 static Yad3ServiceResult CreateEmailAndSearchForClient(Yad3Service service,
 	char* email_adress, Email *out_email);
 static Yad3ServiceResult CreateEmailAndSearchForAgent(Yad3Service service,

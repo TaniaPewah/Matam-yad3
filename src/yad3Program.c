@@ -255,6 +255,8 @@ void yad3ProgramDestroy(Yad3Program program) {
 	if (program) {
 		closeFile(program->input);
 		closeFile(program->output);
+		program->input = NULL;
+		program->output = NULL;
 		yad3ServiceDestroy(program->service);
 	}
 }
@@ -277,16 +279,13 @@ void yad3ProgramRun(Yad3Program program) {
 	if (program == NULL) return;
 	char buffer[MAX_LEN] = "";
 	bool should_continue = true;
-
-	char *charcter =  fgets(buffer, MAX_LEN, program->input);
-		//	(program->input != NULL ? program->input : stdin));
-
+	char *charcter =  fgets(buffer, MAX_LEN, //program->input);
+			(program->input != NULL ? program->input : stdin));
 	while ((should_continue) && (charcter != NULL)) {
 		should_continue = RunCommand(buffer, program);
 		if (should_continue) {
-			charcter =  fgets(buffer, MAX_LEN, program->input);
-				//	(program->input != NULL ? program->input : stdin));
-
+			charcter =  fgets(buffer, MAX_LEN, //program->input);
+					(program->input != NULL ? program->input : stdin));
 		}
 	}
 }
@@ -320,6 +319,9 @@ static bool RunCommand(char* command, Yad3Program program) {
 	return should_continue;
 }
 
+/*
+ * Runs all the realtor commands
+*/
 static bool RunRealtorCommand(char** params, Yad3Program program) {
 	if (areStringsEqual(params[1], ACTION_ADD_USER)) {
 		return RunAddRealtor(params, program);
@@ -395,7 +397,7 @@ static bool RunRealtorRemoveApartmentService(char** params,
 }
 
 /*
- * Run AddRealtor command
+ * Run AddApartmentToRealtor command
 */
 static bool RunRealtorAddApartmentToRealtor(char** params,
 		Yad3Program program) {
@@ -436,7 +438,6 @@ static bool RunResponeToOffer(char** params, Yad3Program program) {
 		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
 		return false;
 }
-
 
 /*
  * Runs one of the possible Customer command
@@ -572,8 +573,6 @@ static bool RunPrintRealventRealtorReport(char** params, Yad3Program program) {
 	return false;
 }
 
-
-
 /*
  * Handles the code from service, returns if should continue or not
 */
@@ -646,50 +645,12 @@ MtmErrorCode ConvertYad3ServiceResult(Yad3ServiceResult value) {
 }
 
 /*
-* commandSplit: splits the string to an array of sub string
-* ignores eampty strings.
-*
-* @param string the string.
-* @param size the new array size.
-* @param value the split character.
+* addToArray: adds a new allocated string from the given range in the string
+* to the result matrix
 *
 * @return
-* 	NULL if string is null or malloc failed; else returns the matrix
+* 	true in case of success, false in case of allocation error
  */
-/*static bool splitString(char* string, int *size, char*** out_matrix) {
-	int actual_size = 8;
-	int logical_size = 0;
-	char** result = malloc(sizeof(char*) * actual_size);
-	if (result == NULL) return NULL;
-	char *token = strtok(string, COMMAND_SAPARATORS);
-	while (token != NULL) {
-		if (actual_size == logical_size) {
-			actual_size += 6;
-			char** new_array =
-					realloc(result, actual_size * sizeof(*new_array));
-			if (new_array == NULL) {
-				matrixDestroy(result, logical_size);
-				return false;
-			}
-			result = new_array;
-		}
-		result[logical_size] = strdup(token);
-		logical_size++;
-		token = strtok(NULL, COMMAND_SAPARATORS);
-	}
-	/ *char** new_array = NULL;
-	if (logical_size > 0) {
-		new_array = realloc(result, logical_size * sizeof(char*));
-		if (new_array == NULL) {
-			free (result);
-			return false;
-		}
-	}* /
-	*out_matrix = result;//new_array;
-	*size = logical_size;
-	return true;
-}*/
-
 bool addToArray(char*** result, int *logical_size, int *actual_size,
 				char* string, int start_index, int index);
 
