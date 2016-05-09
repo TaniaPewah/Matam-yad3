@@ -1,10 +1,3 @@
-/*
- * agent.h
- *
- *  Created on: Apr 30, 2016
- *      Author: Tania
- */
-
 #ifndef SRC_AGENT_H_
 #define SRC_AGENT_H_
 
@@ -194,23 +187,23 @@ AgentResult agentRemoveService(Agent agent, char* service_name);
 * agentFindMatch: finds a matching apartment in each of the agent's services
 *
 * @param agent   	the requested agent
-* @param min_rooms  the minimum amounts of rooms in the requested apartment
-* @param min_area   the minimum area in the requested apartment
-* @param max_price  the maximum price of the apartment
+* @param rooms  the minimum amounts of rooms in the requested apartment
+* @param area   the minimum area in the requested apartment
+* @param price  the maximum price of the apartment
 * @param details out parameter AgentDetails instance with the details of the
 * 				 agent - if the requested apartment was found in at least one
 * 				 of the apartment services that the
 *
 * @return
-* *   AGENT_INVALID_PARAMETERS			if any of the parameters are NULL
+* * AGENT_INVALID_PARAMETERS			if any of the parameters are NULL
 *	AGENT_APARTMENT_NOT_EXISTS          if the matching apartment is not found
 *	AGENT_APARTMENT_SERVICE_NOT_EXISTS  if the current agent has no apartment
 *										services
 *	AGENT_OUT_OF_MEMORY                 if any of the allocations failed
 *	AGENT_SUCCESS                       a match is found
 */
-AgentResult agentFindMatch(Agent agent, int min_rooms, int min_area,
-									int max_price, AgentDetails* details);
+AgentResult agentFindMatch(Agent agent, int rooms, int area,
+							int price, AgentDetails* details);
 
 /**
 * agentGetRank: calculates the rank of the agent according to a formula

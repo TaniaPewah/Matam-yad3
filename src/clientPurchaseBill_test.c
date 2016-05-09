@@ -64,6 +64,7 @@ static bool testClientPurchaseBillCopy() {
 	clientPurchaseBillDestroy(bill_second);
 	clientPurchaseBillDestroy(copy);
 	emailDestroy(mail);
+	emailDestroy(mail_2);
 	return true;
 }
 

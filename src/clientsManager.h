@@ -113,7 +113,7 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 		int* apartment_max_price);
 
 /**
-* clientsManagerExecurePurchase: commits an apartment purchase for a given
+* clientsManagerExecutePurchase: commits an apartment purchase for a given
 * client.
 *
 * @param manager Target clients Manager.
@@ -127,7 +127,7 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 *
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
-ClientsManagerResult clientsManagerExecurePurchase(ClientsManager manager,
+ClientsManagerResult clientsManagerExecutePurchase(ClientsManager manager,
 		Email mail, int finalPrice);
 
 /**

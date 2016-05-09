@@ -38,23 +38,20 @@ static bool testAgentCreate(){
 	ASSERT_TEST(email != NULL);
 	Agent agent = NULL;
 	ASSERT_TEST(agentCreate(NULL,"tania", 5, &agent)
-			== AGENT_INVALID_PARAMETERS);
+		== AGENT_INVALID_PARAMETERS);
 	ASSERT_TEST(agentCreate(email, NULL, 5, &agent)
-			== AGENT_INVALID_PARAMETERS);
+		== AGENT_INVALID_PARAMETERS);
 	ASSERT_TEST(agentCreate(email, "tania", -5, &agent)
-			== AGENT_INVALID_PARAMETERS);
+		== AGENT_INVALID_PARAMETERS);
 	ASSERT_TEST(agentCreate(email, "tania", 0, &agent)
-			== AGENT_INVALID_PARAMETERS);
+		== AGENT_INVALID_PARAMETERS);
 	ASSERT_TEST(agentCreate(email, "tania", 101, &agent)
-			== AGENT_INVALID_PARAMETERS);
+		== AGENT_INVALID_PARAMETERS);
 	ASSERT_TEST(agentCreate(email, "tania", 20, NULL)
-			== AGENT_INVALID_PARAMETERS);
-	agentCreate(email,"tania", 5, &agent);
-	ASSERT_TEST(agent != NULL);
-
+		== AGENT_INVALID_PARAMETERS);
 	ASSERT_TEST(agentCreate(email,"tania", 5, &agent)
-				== AGENT_SUCCESS);
-
+		== AGENT_SUCCESS);
+	ASSERT_TEST(agent != NULL);
 	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
@@ -201,8 +198,8 @@ static bool testAgentCopy() {
 	ASSERT_TEST(agentCopy(NULL, &copy) == AGENT_INVALID_PARAMETERS);
 	ASSERT_TEST(agentCopy(agent, &copy) == AGENT_SUCCESS);
 	ASSERT_TEST(emailAreEqual(agentGetMail(agent), agentGetMail(copy)));
-	agentDestroy(agent);
 	agentDestroy(copy);
+	agentDestroy(agent);
 	emailDestroy(email);
 	return true;
 }
