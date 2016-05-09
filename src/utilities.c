@@ -103,9 +103,6 @@ int countChar(char* string, char value) {
 }
 
 
-
-
-
 char** commandSplit(char* string_to_split, int *size, const char separator) {
    /* char** result = NULL;
     size = countChar(string_to_split, separator) + 2;
@@ -151,19 +148,3 @@ void matrixDestroy(char** matrix, int size) {
 	free(matrix);
 }
 
-/*
-int main()
-{
-    int string_index = 0, number = 0;
-    int leangth = strlen(string);
-    if (string[0] == '-')  string_index++;
-    for(int i = leangth - 1; i >= 0; i--)
-    {
-    	number *= 10;
-        if(string[i] >= '0' && string[i] <= '9')
-        	string += (string[i] - (int)'0');
-        string_index++;
-    }
-    if (string[0] == '-') return -1 * number;
-    return number;
-}
