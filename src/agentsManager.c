@@ -338,49 +338,44 @@ AgentsManagerResult agentsManagerRemoveApartmentFromService(
 *	AGENT_OUT_OF_MEMORY                 if any of the allocations failed
 *	AGENT_MANAER_SUCCESS                at least one match is found
 */
-AgentsManagerResult agentManagerFindMatch( AgentsManager manager, int min_rooms,
-					 int min_area, int max_price, List* result_list ){
-
+AgentsManagerResult agentManagerFindMatch(AgentsManager manager, int min_rooms,
+	int min_area, int max_price, List* result_list ){
 	if ( manager == NULL || result_list == NULL || !isValid(min_area) ||
 			!isValid(min_rooms) || !isPriceValid(max_price))
 		return AGENT_MANAGER_INVALID_PARAMETERS;
-	Email curr_email = mapGetFirst( manager->agentsMap );
+	Email curr_email = mapGetFirst(manager->agentsMap);
 	Agent curr_agent = NULL;
-	if( curr_email != NULL)
-		curr_agent = agentsManagerGetAgent( manager, curr_email);
-
-	AgentDetails curr_details;
-
+	if(curr_email != NULL)
+		curr_agent = agentsManagerGetAgent(manager, curr_email);
 	List agents_list = listCreate(copyListElement, freeListElement);
-
-	if(agents_list == NULL ) return AGENT_MANAGER_OUT_OF_MEMORY;
-
-	while( curr_agent ){
-
-		AgentResult result = agentFindMatch( curr_agent, min_area,
-										min_rooms, max_price, &curr_details);
-		if( result == AGENT_OUT_OF_MEMORY ){
+	if(agents_list == NULL) {
+		return AGENT_MANAGER_OUT_OF_MEMORY;
+	}
+	while(curr_agent != NULL) {
+		AgentDetails curr_details;
+		AgentResult result = agentFindMatch(curr_agent, min_area, min_rooms,
+			max_price, &curr_details);
+		if(result == AGENT_OUT_OF_MEMORY) {
 			listDestroy(agents_list);
 			return AGENT_MANAGER_OUT_OF_MEMORY;
 		}
-		if( result == AGENT_SUCCESS &&
-			listInsertLast(agents_list, (ListElement)(curr_details)) ==
-															LIST_OUT_OF_MEMORY){
-				listDestroy(agents_list);
-				return AGENT_MANAGER_OUT_OF_MEMORY;
+		if((result == AGENT_SUCCESS) && listInsertLast(agents_list,
+				(ListElement)(curr_details)) == LIST_OUT_OF_MEMORY) {
+			agentDetailsDestroy(curr_details);
+			listDestroy(agents_list);
+			return AGENT_MANAGER_OUT_OF_MEMORY;
 		}
-
-		curr_agent= NULL;
-		curr_email = mapGetNext( manager->agentsMap );
-		if( curr_email != NULL)
-			curr_agent = agentsManagerGetAgent( manager, curr_email);
+		agentDetailsDestroy(curr_details);
+		curr_agent = NULL;
+		curr_email = mapGetNext(manager->agentsMap);
+		if(curr_email != NULL)
+			curr_agent = agentsManagerGetAgent(manager, curr_email);
 	}
-
-	if( listGetSize( agents_list ) == 0 )
+	if(listGetSize(agents_list) == 0) {
+		listDestroy(agents_list);
 		return AGENT_MANAGER_APARTMENT_NOT_EXISTS;
-
+	}
 	*result_list = agents_list;
-
 	return AGENT_MANAGER_SUCCESS;
 }
 
@@ -411,53 +406,47 @@ bool agentsManagerAgentExists(AgentsManager manager, Email email){
  * AGENT_MANAGER_OUT_OF_MEMORY 		if an allocation problem occurred
  * AGENT_MANAGER_SUCCESS			otherwise
  */
-AgentsManagerResult agentManagerGetSignificantAgents( AgentsManager manager,
-		int count, List* significant_list ){
-	if (isValid(count)){
-
-		Agent curr_agent = NULL;
-		Email curr_email = mapGetFirst(manager->agentsMap);
-		if( curr_email != NULL)
-			curr_agent = agentsManagerGetAgent( manager, curr_email);
-
-		AgentDetails curr_details;
-		List agents_list = listCreate(copyListElement, freeListElement);
-		if(agents_list == NULL)
-			return AGENT_MANAGER_OUT_OF_MEMORY;
-
-		double rank;
-		while( curr_agent ){
-
-			rank = agentGetRank( curr_agent );
-			if( rank != RANK_EMPTY ){
-
-				curr_details = agentDetailsCreate( curr_email,
-										agentGetCompany( curr_agent ), rank);
-				if(curr_details == NULL){
-					listDestroy( agents_list );
-					return AGENT_MANAGER_OUT_OF_MEMORY;
-				}
-				if ( listInsertLast(agents_list, curr_details) ==
-						LIST_OUT_OF_MEMORY){
-					listDestroy( agents_list );
-					return AGENT_MANAGER_OUT_OF_MEMORY;
-				}
+AgentsManagerResult agentManagerGetSignificantAgents(AgentsManager manager,
+		int count, List* significant_list) {
+	if (!isValid(count)) return AGENT_MANAGER_INVALID_PARAMETERS;
+	Agent curr_agent = NULL;
+	Email curr_email = mapGetFirst(manager->agentsMap);
+	if(curr_email != NULL)
+		curr_agent = agentsManagerGetAgent(manager, curr_email);
+	AgentDetails curr_details;
+	List agents_list = listCreate(copyListElement, freeListElement);
+	if(agents_list == NULL)
+		return AGENT_MANAGER_OUT_OF_MEMORY;
+	double rank;
+	while(curr_agent) {
+		rank = agentGetRank(curr_agent);
+		if(rank != RANK_EMPTY) {
+			curr_details = agentDetailsCreate(curr_email,
+					agentGetCompany(curr_agent), rank);
+			if(curr_details == NULL) {
+				listDestroy(agents_list);
+				return AGENT_MANAGER_OUT_OF_MEMORY;
 			}
-
-			curr_agent = NULL;
-			curr_email = mapGetNext(manager->agentsMap);
-			if( curr_email != NULL)
-				curr_agent = agentsManagerGetAgent( manager, curr_email);
+			if (listInsertLast(agents_list, curr_details) ==
+					LIST_OUT_OF_MEMORY) {
+				listDestroy(agents_list);
+				agentDetailsDestroy(curr_details);
+				return AGENT_MANAGER_OUT_OF_MEMORY;
+			}
+			agentDetailsDestroy(curr_details);
 		}
-
-		listSort(agents_list, compareListElements);
-
-		reduceListToCount( agents_list, count );
-		*significant_list = agents_list;
-
-		return AGENT_MANAGER_SUCCESS;
+		curr_agent = NULL;
+		curr_email = mapGetNext(manager->agentsMap);
+		if(curr_email != NULL)
+			curr_agent = agentsManagerGetAgent( manager, curr_email);
 	}
-	return AGENT_MANAGER_INVALID_PARAMETERS;
+	listSort(agents_list, compareListElements);
+	reduceListToCount(agents_list, count);
+	*significant_list = agents_list;
+
+	return AGENT_MANAGER_SUCCESS;
+
+
 }
 
 /**
@@ -577,16 +566,13 @@ static int CompareKeys(constMapKeyElement first, constMapKeyElement second) {
 
 /** Function to be used for freeing data elements from list */
 void freeListElement(ListElement element) {
-	if (element != NULL)
-		agentDetailsDestroy((AgentDetails)element);
+	agentDetailsDestroy((AgentDetails)element);
 }
 
 
 /** Function to be used for coping data elements from list */
 ListElement copyListElement(ListElement element) {
-	AgentDetails agent_details =
-			agentDetailsCopy((AgentDetails)element);
-	return agent_details;
+	return agentDetailsCopy((AgentDetails)element);
 }
 
 /** Function to be used for comparing data elements in list */

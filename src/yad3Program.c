@@ -233,7 +233,7 @@ bool charArrayToComands( char* input_array, Yad3Program program ){
 
 	if((char)input_array[0] == COMMENT_SIGN ) return false;
 
-	char** split_command = str_split( input_array, ' ');
+	//char** split_command = str_split( input_array, ' ');
 
 	return true;
 }
