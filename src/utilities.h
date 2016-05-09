@@ -49,7 +49,15 @@ char* IntToString(int number);
  */
 int countChar(char* string, char value);
 
-
+/*
+* stringToInt: converts string into int. note that there is no validation
+* that the input is correct.
+*
+* @param string the string.
+*
+* @return
+* 	the number
+ */
 int stringToInt(const char* string);
 
 #endif /* SRC_UTILITIES_H_ */

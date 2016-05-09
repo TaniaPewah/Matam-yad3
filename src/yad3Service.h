@@ -1,7 +1,9 @@
-#ifndef SRC_MTMSERVICE_H_
-#define SRC_MTMSERVICE_H_
+#ifndef SRC_YAD3SERVICE_H_
+#define SRC_YAD3SERVICE_H_
 
-typedef struct mtmService_t *MTMService;
+#include "mtm_ex2.h"
+
+typedef struct yad3Service_t *Yad3Service;
 
 #define ACCEPT_STRING accept
 #define DECLINE_STRING decline
@@ -32,28 +34,28 @@ typedef enum {
 	MTM_SERVICE_REQUEST_WRONG_PROPERTIES,
 	MTM_SERVICE_REQUEST_ILLOGICAL_PRICE,
 	MTM_SERVICE_SUCCESS
-} MTMServiceResult;
+} Yad3ServiceResult;
 
 /**
-* Allocates a new MTMService.
+* Allocates a new Yad3Service.
 *
 * @return
 * 	NULL - if allocations failed.
 * 	A new service in case of success.
 */
-MTMService mtmServiceCreate();
+Yad3Service yad3ServiceCreate();
 
 /**
-* mtmServiceDestroy: Deallocates an existing service.
+* yad3ServiceDestroy: Deallocates an existing service.
 * Clears the elements by using the stored free function.
 *
 * @param service Target service to be deallocated.
 * If service is NULL nothing will be done
 */
-void mtmServiceDestroy(MTMService service);
+void yad3ServiceDestroy(Yad3Service service);
 
 /*
- * mtmServiceAddAgent: Adds new agent with the given parameters.
+ * yad3ServiceAddAgent: Adds new agent with the given parameters.
 *
 * @param service service to add to.
 * @param email_adress client email address.
@@ -74,11 +76,11 @@ void mtmServiceDestroy(MTMService service);
 * 	MTM_SERVICE_SUCCESS a new client agent successfully
 *
 */
-MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
+Yad3ServiceResult yad3ServiceAddAgent(Yad3Service service, char* email_adress,
 	char* company_name, int tax_percentage);
 
 /*
- * mtmServiceRemoveAgent: removes agent from service.
+ * yad3ServiceRemoveAgent: removes agent from service.
 *
 * @param service service to remove from.
 * @param email_adress agent email address.
@@ -99,10 +101,10 @@ MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
 * 	MTM_SERVICE_SUCCESS the agent removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress);
+Yad3ServiceResult yad3ServiceRemoveAgent(Yad3Service service, char* email_adress);
 
 /*
- * mtmServiceAddServiceToAgent: adds a new apartment service to an agent
+ * yad3ServiceAddServiceToAgent: adds a new apartment service to an agent
  * from service.
 *
 * @param service service of the agents.
@@ -129,11 +131,11 @@ MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress);
 * 	MTM_SERVICE_SUCCESS the agent removed successfully
 *
 */
-MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
+Yad3ServiceResult yad3ServiceAddServiceToAgent(Yad3Service service,
 	char* email_adress, char* service_name, int max_apartments);
 
 /*
- * mtmServiceRemoveClient: removes client from service.
+ * yad3ServiceRemoveClient: removes client from service.
 *
 * @param service service to remove from.
 * @param email_adress client email address.
@@ -154,11 +156,11 @@ MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
+Yad3ServiceResult yad3ServiceRemoveServiceFromAgent(Yad3Service service,
 	char* email_adress, char* service_name);
 
 /*
- * mtmServiceAddApartmentToAgent: adds a new apartment to an agent's apartment
+ * yad3ServiceAddApartmentToAgent: adds a new apartment to an agent's apartment
  * service.
 *
 * @param service service of the agents.
@@ -195,12 +197,12 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS the agent removed successfully
 *
 */
-MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
+Yad3ServiceResult yad3ServiceAddApartmentToAgent(Yad3Service service,
 	char* email_adress, char* service_name, int id, int price, int width,
 	int height, char* matrix);
 
 /*
- * mtmServiceRemoveApartmentFromAgent: removes an apartment from service.
+ * yad3ServiceRemoveApartmentFromAgent: removes an apartment from service.
 *
 * @param service service to remove from.
 * @param email_adress agent email address.
@@ -229,11 +231,11 @@ MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveApartmentFromAgent(MTMService service,
+Yad3ServiceResult yad3ServiceRemoveApartmentFromAgent(Yad3Service service,
 	char* email_adress, char* service_name, int id);
 
 /*
- * mtmServiceAddClient: Adds new client with the given parameters.
+ * yad3ServiceAddClient: Adds new client with the given parameters.
 *
 * @param service service to add to.
 * @param email_adress client email address.
@@ -255,11 +257,11 @@ MTMServiceResult mtmServiceRemoveApartmentFromAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS a new client added successfully
 *
 */
-MTMServiceResult mtmServiceAddClient(MTMService Service, char* email_adress,
+Yad3ServiceResult yad3ServiceAddClient(Yad3Service Service, char* email_adress,
 	int minArea, int minRooms, int maxPrice);
 
 /*
- * mtmServiceRemoveClient: removes client from service.
+ * yad3ServiceRemoveClient: removes client from service.
 *
 * @param service service to remove from.
 * @param email_adress client email address.
@@ -280,11 +282,11 @@ MTMServiceResult mtmServiceAddClient(MTMService Service, char* email_adress,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveClient(MTMService service,
+Yad3ServiceResult yad3ServiceRemoveClient(Yad3Service service,
 	char* email_adress);
 
 /*
- * mtmServiceClientPurchaseApartment: preforms an apartment prochase proccess
+ * yad3ServiceClientPurchaseApartment: preforms an apartment prochase proccess
  * 	by a client.
 *
 * @param service service to remove from.
@@ -316,10 +318,9 @@ MTMServiceResult mtmServiceRemoveClient(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
+Yad3ServiceResult yad3ServiceClientPurchaseApartment(Yad3Service service,
 	char* client_email, char* agent_email, char* service_name,
 	int id);
-
 
 /*
  * CheckOffer: help function that checks if an offer can be purchased by a
@@ -359,8 +360,30 @@ MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
 *	MTM_SERVICE_SUCCESS offer can be made
 *
 */
-MTMServiceResult mtmServiceMakeClientOffer(MTMService service,
+Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 		char* client_email, char* agent_email, char* service_name, int id,
 		int price);
 
-#endif /* SRC_MTMSERVICE_H_ */
+/*
+ * yad3ServiceMostPayingCustomers: prints a list with the top most paying
+ * customers.
+*
+* @param service service to print from.
+* @param count clients count.
+* @param agent agent email.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal.
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	MTM_SERVICE_SUCCESS offer can be made
+*
+*/
+Yad3ServiceResult yad3ServiceMostPayingCustomers(Yad3Service service,
+		int count, FILE* output);
+
+
+#endif /* SRC_YAD3SERVICE_H_ */

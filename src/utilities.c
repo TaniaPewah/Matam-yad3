@@ -4,8 +4,6 @@
 #include <stdbool.h>
 #include "utilities.h"
 
-
-
 static int getDigitsCount(int number);
 //static char* getSubString(char* str, int start_index, int end_index);
 
@@ -102,49 +100,27 @@ int countChar(char* string, char value) {
 	return count;
 }
 
-
-char** commandSplit(char* string_to_split, int *size, const char separator) {
-   /* char** result = NULL;
-    size = countChar(string_to_split, separator) + 2;
-    int start_index = 0, last_index = 0, current_index = 0, item_index = 0;
-    result = malloc(sizeof(char*) * size);
-    if (result == NULL) return NULL;
-    for (int i = 0; i < size; i++) result[i] = NULL;
-    while (string_to_split[current_index] != END_OF_LINE) {
-    	if (string_to_split[current_index] != separator) {
-    		last_index++;
-    	} else {
-    		if (start_index < last_index) {
-				result[item_index] = getSubString(string_to_split, start_index,
-						last_index);
-			}
-    		start_index = current_index + 1;
-    		last_index = current_index + 1;
-    	}
-    	current_index++;
+/*
+* stringToInt: converts string into int. note that there is no validation
+* that the input is correct.
+*
+* @param string the string.
+*
+* @return
+* 	the number
+ */
+int stringToInt(const char* string)
+{
+    int string_index = 0, number = 0;
+    int leangth = strlen(string);
+    if (string[0] == '-')  string_index++;
+    for(int i = leangth - 1; i >= 0; i--)
+    {
+    	number *= 10;
+        if(string[i] >= '0' && string[i] <= '9')
+        	string += (string[i] - (int)'0');
+        string_index++;
     }
-    if (start_index < last_index) {
-		result[item_index] = getSubString(string_to_split, start_index,
-				last_index);
-	}*/
-
-    return NULL;
+    if (string[0] == '-') return -1 * number;
+    return number;
 }
-
-/*static char* getSubString(char* str, int start_index, int end_index) {
-	char* new_string = malloc(sizeof(char) * ((end_index - start_index) + 2));
-	if (new_string == NULL) return NULL;
-	for (int i = 0; i < (end_index - start_index + 1); i++) {
-		new_string[i] = str[start_index + i];
-	}
-	new_string[end_index - start_index + 1] = END_OF_LINE;
-	return new_string;
-}*/
-
-void matrixDestroy(char** matrix, int size) {
-	for (int i = 0; i < size; i++) {
-		free(matrix[i]);
-	}
-	free(matrix);
-}
-
