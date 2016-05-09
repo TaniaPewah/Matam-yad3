@@ -41,7 +41,7 @@ static OfferManagerResult convertOfferResult(OfferResult value);
 * 	NULL - if allocations failed.
 * 	A new offer manager in case of success.
 */
-OffersManager offerManagerCreate() {
+OffersManager offersManagerCreate() {
 	List list = listCreate(CopyOfferListElement, FreeOfferListElement);
 	if (list == NULL) return NULL;
 	OffersManager manager = malloc (sizeof(*manager));
@@ -76,7 +76,7 @@ static void FreeOfferListElement(ListElement element) {
 * @param manager Target manager to be deallocated.
 * If manager is NULL nothing will be done
 */
-void offerManagerDestroy(OffersManager manager) {
+void offersManagerDestroy(OffersManager manager) {
 	if (manager != NULL) {
 		if (manager->offers != NULL) {
 			listDestroy(manager->offers);
@@ -313,14 +313,14 @@ static CompareResult isApartmentConnectedToOffer(Offer offer,
 * 	false if one of the parameters is NULL or apartment id in negative,
 * 	or if an offer was not found; otherwise if an offer found returns true.
 */
-bool OfferManagerOfferExist(OffersManager manager, Email client,
+bool offersManagerOfferExist(OffersManager manager, Email client,
 		Email agent, char* service_name, int apartment_id) {
 	if ((manager == NULL) || (client == NULL) || (agent == NULL)
 			|| (service_name == NULL) || (apartment_id < 0))
 		return false;
 	bool found = false;
-	Offer current = (Offer)listGetFirst(manager->offers);
-	while ((current != NULL) || (!found)) {
+	Offer current = listGetFirst(manager->offers);
+	while ((current != NULL) && (!found)) {
 		found = (emailAreEqual(offerGetClientEmail(current), client) &&
 				 emailAreEqual(offerGetAgentEmail(current), agent) &&
 				 (offerGetApartmentId(current) == apartment_id) &&
@@ -344,12 +344,15 @@ bool OfferManagerOfferExist(OffersManager manager, Email client,
 * 	false if one of the parameters is NULL or apartment id in negative,
 * 	or if an offer was not found; otherwise if an offer found returns true.
 */
-OfferManagerResult OfferManagerAddOffer(OffersManager manager, Email client,
+OfferManagerResult offersManagerAddOffer(OffersManager manager, Email client,
 		Email agent, char* service_name, int id, int price) {
+
+	if( manager == NULL ||  client == NULL || agent == NULL ||
+			service_name == NULL ) return OFFERS_MANAGER_NULL_PARAMETERS;
 	Offer new_offer = NULL;
 	OfferResult result = offerCreate(client, agent, service_name,
 		id, price, &new_offer);
-	if (result != OFFER_SUCCESS) return convertOfferResult(result);
+	if ( result != OFFER_SUCCESS) return convertOfferResult(result);
 	ListResult offer_result = listInsertLast(manager->offers, new_offer);
 	offerDestroy(new_offer);
 	if (offer_result != LIST_SUCCESS) return OFFERS_MANAGER_OUT_OF_MEMORY;

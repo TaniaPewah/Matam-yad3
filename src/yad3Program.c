@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "string.h"
+#include <string.h>
 #include <stdbool.h>
 #include "yad3Program.h"
 #include "utilities.h"
@@ -383,8 +383,8 @@ static bool RunRealtorAddApartmentToRealtor(char** params,
 		Yad3Program program) {
 	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)) {
 		Yad3ServiceResult result = yad3ServiceAddApartmentToAgent(
-			program->service, params[2], params[3], stringToInt(params[4])
-			, stringToInt(params[5]), stringToInt(params[6]),
+			program->service, params[2], params[3], stringToInt(params[4]),
+			stringToInt(params[5]), stringToInt(params[6]),
 			stringToInt(params[7]), params[8]);
 		return HandleResult(result);
 	}

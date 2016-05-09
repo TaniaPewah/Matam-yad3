@@ -52,7 +52,7 @@ Yad3Service yad3ServiceCreate() {
 		clientsManagerDestroy(client_manager);
 		return NULL;
 	}
-	OffersManager offer_manager = offerManagerCreate();
+	OffersManager offer_manager = offersManagerCreate();
 	if (offer_manager == NULL) {
 		clientsManagerDestroy(client_manager);
 		agentsManagerDestroy(agent_manager);
@@ -62,7 +62,7 @@ Yad3Service yad3ServiceCreate() {
 	if (service == NULL) {
 			clientsManagerDestroy(client_manager);
 			agentsManagerDestroy(agent_manager);
-			offerManagerDestroy(offer_manager);
+			offersManagerDestroy(offer_manager);
 			return NULL;
 		}
 	service->clients = client_manager;
@@ -82,7 +82,7 @@ void yad3ServiceDestroy(Yad3Service service) {
 	if (service != NULL) {
 		clientsManagerDestroy(service->clients);
 		agentsManagerDestroy(service->agents);
-		offerManagerDestroy(service->offers);
+		offersManagerDestroy(service->offers);
 		free(service);
 	}
 }
@@ -537,7 +537,7 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 		emailDestroy(agent);
 		return offer_check_result;
 	}
-	OfferManagerResult add_result = OfferManagerAddOffer(service->offers,
+	OfferManagerResult add_result = offersManagerAddOffer(service->offers,
 			client, agent, service_name, id, price);
 	emailDestroy(client);
 	emailDestroy(agent);
@@ -576,7 +576,7 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 */
 static Yad3ServiceResult CheckOffer(Yad3Service service, Email client,
 	Email agent, char* service_name, int id, int price) {
-	if (OfferManagerOfferExist(service->offers, client, agent,
+	if (offersManagerOfferExist(service->offers, client, agent,
 			service_name, id)) return MTM_SERVICE_ALREADY_REQUESTED;
 	int apartment_area, apartment_rooms, apartment_price, apartment_commition;
 	AgentsManagerResult aprtment_result = agentsManagerGetApartmentDetails(

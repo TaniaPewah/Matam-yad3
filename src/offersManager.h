@@ -23,7 +23,7 @@ typedef enum {
 * 	NULL - if allocations failed.
 * 	A new clients in case of success.
 */
-OffersManager offerManagerCreate();
+OffersManager offersManagerCreate();
 
 /**
 * offerManagerDestroy: Deallocates an existing offers manager.
@@ -32,7 +32,7 @@ OffersManager offerManagerCreate();
 * @param offer Target offer to be deallocated.
 * If offer is NULL nothing will be done
 */
-void offerManagerDestroy(OffersManager manager);
+void offersManagerDestroy(OffersManager manager);
 
 /*
  * offersMenagerRemoveAllConnectedOffers: Removes all the offers associated
@@ -102,10 +102,23 @@ OfferManagerResult offersMenagerRemoveAllApartmentOffers(OffersManager manager,
 * 	false if one of the parameters is NULL or apartment id in negative,
 * 	or if an offer was not found; otherwise if an offer found returns true.
 */
-bool OfferManagerOfferExist(OffersManager manager, Email client,
+bool offersManagerOfferExist(OffersManager manager, Email client,
 		Email agent, char* service_name, int apartment_id);
-
-OfferManagerResult OfferManagerAddOffer(OffersManager manager,
+/*
+* OfferManagerAddOffer: adds an offer with the given parameters
+*
+* @param manager OffersManager to use.
+* @param client Offer's client email.
+* @param agent Offer's agent email.
+* @param Offer's service_name.
+* @param Offer's apartment_id.
+* @param Offer's price.
+*
+* @return
+* 	false if one of the parameters is NULL or apartment id in negative,
+* 	or if an offer was not found; otherwise if an offer found returns true.
+*/
+OfferManagerResult offersManagerAddOffer(OffersManager manager,
 		Email client_mail, Email agent_mail, char* service_name,
 		int apartment_id, int price);
 

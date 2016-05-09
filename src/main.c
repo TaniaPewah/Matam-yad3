@@ -13,6 +13,7 @@ int RunClientPurchaseBillTest();
 int RunOfferTest();
 int RunAgentDetailsTest();
 int RunMtmServiceTest();
+int RunOffersManagerTest();
 
 int main(int argc, char *argv[]) {
 
@@ -36,5 +37,6 @@ int main(int argc, char *argv[]) {
 	RunClientManagerTest();
 	RunOfferTest();
 	RunMtmServiceTest();
+	RunOffersManagerTest();
 	return 0;
 }

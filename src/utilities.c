@@ -4,9 +4,8 @@
 #include <stdbool.h>
 #include "utilities.h"
 
-
-
 static int getDigitsCount(int number);
+//static char* getSubString(char* str, int start_index, int end_index);
 
 /*
  * duplicateString: Allocates and duplicates a new copy given string
@@ -101,6 +100,15 @@ int countChar(char* string, char value) {
 	return count;
 }
 
+/*
+* stringToInt: converts string into int. note that there is no validation
+* that the input is correct.
+*
+* @param string the string.
+*
+* @return
+* 	the number
+ */
 int stringToInt(const char* string)
 {
     int string_index = 0, number = 0;
