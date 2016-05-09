@@ -8,7 +8,8 @@
 #include "mtm_ex2.h"
 
 #define COMMENT_SIGN '#'
-#define COMMAND_SAPARATOR '\t'
+#define COMMAND_SAPARATOR_1 '\t'
+#define COMMAND_SAPARATOR_2 ' '
 #define USER_REALTOR "realtor"
 #define USER_CUSTOMER "customer"
 #define USER_REPORTER "report"
@@ -24,6 +25,7 @@
 #define REPORT_RELEVENT_REALTORS "relevant_realtors"
 #define REPORT_PAYING_CUSTOMERS "most_paying_customers"
 #define REPORT_SIGNIFICANT_REALTORS "significant_realtors"
+#define END_OF_STRING '\0'
 
 typedef enum  {
 	READ = 1,
@@ -43,6 +45,31 @@ static Yad3Program allocateYad3Program(FILE *input, FILE *output);
 static bool openFile(char* path, MTMFileMode mode, FILE** output);
 static void closeFile(FILE* output);
 static void writeToErrorOutStream(MtmErrorCode code);
+
+static bool RunCommand(char* command, Yad3Program program);
+static bool RunReporterCommand(char** params, Yad3Program program);
+
+static bool RunRealtorCommand(char** params, Yad3Program program);
+static bool RunAddRealtor(char** params, Yad3Program program);
+static bool RunRemoveRealtor(char** params, Yad3Program program);
+static bool RunRealtorAddApartmentService(char** params, Yad3Program program);
+static bool RunRealtorRemoveApartmentService(char** params,
+	Yad3Program program);
+static bool RunRealtorAddApartmentToRealtor(char** params,
+	Yad3Program program);
+static bool RunRemoveApartmentFromRealtor(char** params, Yad3Program program);
+
+static bool RunCustomerCommand(char** params, Yad3Program program);
+static bool RunAddCustumer(char** params, Yad3Program program);
+static bool RunRemoveCustumer(char** params, Yad3Program program);
+static bool RunCustumerPurchase(char** params, Yad3Program program);
+static bool RunMakeOffer(char** params, Yad3Program program);
+
+static bool HandleResult(MTMServiceResult result);
+MtmErrorCode ConvertMTMServiceResult(MTMServiceResult value);
+static char** splitString(char* string, int *size);
+static char* getSubString(char* str, int start_index, int end_index);
+static void matrixDestroy(char** matrix, int size);
 
 /**
 * Allocates Yad3Program.
@@ -229,13 +256,403 @@ static void writeToErrorOutStream(MtmErrorCode code) {
 	mtmPrintErrorMessage(stderr, code);
 }
 
-bool charArrayToComands( char* input_array, Yad3Program program ){
+/*
+* yad3ProgramRun: runs the Yad3Program.
+*
+* @param program program to destroy
+*/
+void yad3ProgramRun(Yad3Program program) {
+	if (program == NULL) return;
+	char buffer[MAX_LEN] = "";
+	bool should_continue = true;
 
-	if((char)input_array[0] == COMMENT_SIGN ) return false;
-
-	//char** split_command = str_split( input_array, ' ');
-
-	return true;
+	while (should_continue && fgets(buffer, MAX_LEN,
+			(program->input != NULL ? program->input : stdin)) != NULL) {
+		should_continue = RunCommand(buffer, program);
+	}
 }
 
+/*
+ * Runs a command recived from the defined input stream
+ */
+static bool RunCommand(char* command, Yad3Program program) {
+	if (command[0] == COMMENT_SIGN) return true;
+	int size;
+	char** params = splitString(command, &size);
+	bool should_continue = true;
 
+	if (params == NULL) {
+		writeToErrorOutStream(MTM_OUT_OF_MEMORY);
+		should_continue = false;
+	}
+	if (params[0] == NULL) {
+		should_continue = true;
+	} else if (areStringsEqual(params[0], USER_CUSTOMER)) {
+		should_continue = RunCustomerCommand(params, program);
+	} else if (areStringsEqual(params[0], USER_REALTOR)) {
+		should_continue = RunRealtorCommand(params, program);
+	} else if (areStringsEqual(params[0], USER_REPORTER)) {
+		should_continue = RunReporterCommand(params, program);
+	} else {
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		should_continue = false;
+	}
+
+	matrixDestroy(params, size);
+	return should_continue;
+}
+
+static bool RunRealtorCommand(char** params, Yad3Program program) {
+	if (areStringsEqual(params[1], ACTION_ADD_USER)) {
+		return RunAddRealtor(params, program);
+	} else if (areStringsEqual(params[1], ACTION_REMOVE_USER)) {
+		return RunRemoveRealtor(params, program);
+	} else if (areStringsEqual(params[1], ACTION_ADD_SERVICE)) {
+		return RunRealtorAddApartmentService(params, program);
+	} else if (areStringsEqual(params[1], ACTION_REMOVE_SERVICE)) {
+		return RunRealtorRemoveApartmentService(params, program);
+	} else if (areStringsEqual(params[1], ACTION_ADD_APARTMENT)) {
+		return RunRealtorAddApartmentToRealtor(params, program);
+	} else if (areStringsEqual(params[1], ACTION_REMOVE_APARTMENT)) {
+		return RunRemoveApartmentFromRealtor(params, program);
+	} else if (areStringsEqual(params[1], ACTION_RESPOND_OFFER)) {
+		// TODO : ADD to service!
+		return true;
+	} else {
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		return false;
+	}
+}
+
+/*
+ * Run AddRealtor command
+*/
+static bool RunAddRealtor(char** params, Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)) {
+		MTMServiceResult result = mtmServiceAddAgent(program->service,
+			params[2], params[3], stringToInt(params[4]));
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Run RunRemoveRealtor command
+*/
+static bool RunRemoveRealtor(char** params, Yad3Program program) {
+	if (params[2] != NULL) {
+		MTMServiceResult result = mtmServiceRemoveAgent(program->service,
+			params[2]);
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Run RealtorAddApartmentService command
+ */
+static bool RunRealtorAddApartmentService(char** params, Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)) {
+			MTMServiceResult result = mtmServiceAddServiceToAgent(program->
+				service, params[2], params[3], stringToInt(params[4]));
+			return HandleResult(result);
+		}
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		return false;
+}
+
+/*
+ * Run RealtorAddApartmentService command
+ */
+static bool RunRealtorRemoveApartmentService(char** params,
+	Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL)) {
+			MTMServiceResult result = mtmServiceRemoveServiceFromAgent(
+				program->service, params[2], params[3]);
+			return HandleResult(result);
+		}
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		return false;
+}
+
+/*
+ * Run AddRealtor command
+*/
+static bool RunRealtorAddApartmentToRealtor(char** params,
+		Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)) {
+		MTMServiceResult result = mtmServiceAddApartmentToAgent(
+			program->service, params[2], params[3], stringToInt(params[4])
+			, stringToInt(params[5]), stringToInt(params[6]),
+			stringToInt(params[7]), params[8]);
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Run RemoveApartmentFromRealtor command
+ */
+static bool RunRemoveApartmentFromRealtor(char** params, Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)) {
+			MTMServiceResult result = mtmServiceRemoveApartmentFromAgent(
+				program->service, params[2], params[3],
+				stringToInt(params[4]));
+			return HandleResult(result);
+		}
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		return false;
+}
+
+/*
+ * Runs one of the possible Customer command
+*/
+static bool RunCustomerCommand(char** params, Yad3Program program) {
+	if (areStringsEqual(params[1], ACTION_ADD_USER)) {
+		return RunAddCustumer(params, program);
+	} else if (areStringsEqual(params[1], ACTION_REMOVE_USER)) {
+		return RunRemoveCustumer(params, program);
+	} else if (areStringsEqual(params[1], ACTION_PURCHASE)) {
+		return RunCustumerPurchase(params, program);
+	} else if (areStringsEqual(params[1], ACTION_MAKE_OFFER)) {
+		return RunMakeOffer(params, program);
+	} else {
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		return false;
+	}
+}
+
+/*
+ * Run AddCustumer command
+*/
+static bool RunAddCustumer(char** params, Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)
+			&& (params[5] != NULL)) {
+		MTMServiceResult result = mtmServiceAddClient(program->service,
+			params[2], stringToInt(params[3]), stringToInt(params[4]),
+			stringToInt(params[5]));
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Run RemoveCustumer command
+*/
+static bool RunRemoveCustumer(char** params, Yad3Program program) {
+	if (params[2] != NULL) {
+		MTMServiceResult result = mtmServiceRemoveClient(program->service,
+			params[2]);
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Run RunCustumerPurchase command
+*/
+static bool RunCustumerPurchase(char** params, Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)
+			&& (params[5] != NULL)) {
+		MTMServiceResult result = mtmServiceClientPurchaseApartment
+			(program->service,  params[2], params[3], params[4],
+			stringToInt(params[5]));
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Run RunMakeOffer command
+*/
+static bool RunMakeOffer(char** params, Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)
+			&& (params[5] != NULL) && (params[6] != NULL)) {
+		MTMServiceResult result = mtmServiceMakeClientOffer(program->service,
+			params[2], params[3], params[4], stringToInt(params[5]),
+			stringToInt(params[6]));
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Runs all the possible Reporter commands
+*/
+static bool RunReporterCommand(char** params, Yad3Program program) {
+	if (areStringsEqual(params[1], REPORT_RELEVENT_REALTORS)) {
+		// TODO : ADD to service!
+		return true;
+	} else if (areStringsEqual(params[1], REPORT_SIGNIFICANT_REALTORS)) {
+		// TODO : ADD to service!
+		return true;
+	}else if (areStringsEqual(params[1], REPORT_PAYING_CUSTOMERS)) {
+		// TODO : ADD to service!
+		return true;
+	} else {
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		return false;
+	}
+}
+
+/*
+ * Handles the code from service, returns if should continue or not
+*/
+static bool HandleResult(MTMServiceResult result) {
+	if (result == MTM_SERVICE_SUCCESS) return true;
+	MtmErrorCode code = ConvertMTMServiceResult(result);
+	writeToErrorOutStream(code);
+	return (code == MTM_OUT_OF_MEMORY || code == MTM_CANNOT_OPEN_FILE ||
+		code == MTM_INVALID_COMMAND_LINE_PARAMETERS);
+}
+
+/*
+ * Convert MTMServiceResult to MtmErrorCode
+*/
+MtmErrorCode ConvertMTMServiceResult(MTMServiceResult value) {
+	MtmErrorCode result;
+	switch (value) {
+		case MTM_SERVICE_OUT_OF_MEMORY: {
+			result = MTM_OUT_OF_MEMORY;
+			break; }
+		case MTM_SERVICE_INVALID_PARAMETERS: {
+			result = MTM_INVALID_PARAMETERS;
+			break; }
+		case MTM_SERVICE_EMAIL_ALREADY_EXISTS: {
+			result = MTM_EMAIL_ALREADY_EXISTS;
+			break; }
+		case MTM_SERVICE_EMAIL_DOES_NOT_EXIST: {
+			result = MTM_EMAIL_DOES_NOT_EXIST;
+			break; }
+		case MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE: {
+			result = MTM_EMAIL_WRONG_ACCOUNT_TYPE;
+			break; }
+		case MTM_SERVICE_ALREADY_REQUESTED: {
+			result = MTM_ALREADY_REQUESTED;
+			break; }
+		case MTM_SERVICE_NOT_REQUESTED: {
+			result = MTM_NOT_REQUESTED;
+			break; }
+		case MTM_SERVICE_APARTMENT_SERVICE_ALREADY_EXISTS: {
+			result = MTM_APARTMENT_SERVICE_ALREADY_EXISTS;
+			break; }
+		case MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST: {
+			result = MTM_APARTMENT_SERVICE_DOES_NOT_EXIST;
+			break; }
+		case MTM_SERVICE_APARTMENT_SERVICE_FULL: {
+			result = MTM_APARTMENT_SERVICE_FULL;
+			break; }
+		case MTM_SERVICE_APARTMENT_ALREADY_EXISTS: {
+			result = MTM_APARTMENT_ALREADY_EXISTS;
+			break; }
+		case MTM_SERVICE_APARTMENT_DOES_NOT_EXIST: {
+			result = MTM_APARTMENT_DOES_NOT_EXIST;
+			break; }
+		case MTM_SERVICE_PURCHASE_WRONG_PROPERTIES: {
+			result = MTM_PURCHASE_WRONG_PROPERTIES;
+			break; }
+		case MTM_SERVICE_REQUEST_WRONG_PROPERTIES: {
+			result = MTM_REQUEST_WRONG_PROPERTIES;
+			break; }
+		case MTM_SERVICE_REQUEST_ILLOGICAL_PRICE: {
+			result = MTM_REQUEST_ILLOGICAL_PRICE;
+			break; }
+		case MTM_SERVICE_SUCCESS:
+		default: {
+			result = MTM_OUT_OF_MEMORY;
+			break;
+		}
+	}
+	return result;
+}
+
+/*
+* commandSplit: splits the string to an array of sub string
+* ignores eampty strings.
+*
+* @param string the string.
+* @param size the new array size.
+* @param value the split character.
+*
+* @return
+* 	NULL if string is null or malloc failed; else returns the matrix
+ */
+static char** splitString(char* string, int *size) {
+    char** result = NULL;
+    int count = countChar(string, COMMAND_SAPARATOR_1) +
+    		countChar(string, COMMAND_SAPARATOR_2);
+    *size = count;
+    int start_index = 0, last_index = 0, current_index = 0, item_index = 0;
+    result = malloc(sizeof(char*) * count);
+    if (result == NULL) return NULL;
+    for (int i = 0; i < count; i++) result[i] = NULL;
+    while (string[current_index] != END_OF_STRING) {
+    	if ((string[current_index] != countChar(string, COMMAND_SAPARATOR_1))&&
+    		(string[current_index] != countChar(string, COMMAND_SAPARATOR_2))){
+    		last_index++;
+    	} else {
+    		if (start_index < last_index) {
+				result[item_index] = getSubString(string, start_index,
+						last_index);
+				item_index++;
+				if (result[item_index] == NULL) {
+					matrixDestroy(result, count);
+					return NULL;
+				}
+			}
+    		start_index = current_index + 1;
+    		last_index = current_index + 1;
+    	}
+    	current_index++;
+    }
+    if (start_index < last_index) {
+		result[item_index] = getSubString(string, start_index, last_index-1);
+		if (result[item_index] == NULL) {
+			matrixDestroy(result, count);
+			return NULL;
+		}
+	}
+    return result;
+}
+
+/*
+* getSubString: returns a new sub string in the given range.
+*
+* @param string the string.
+* @param start_index the start_index.
+* @param end_index the end_index.
+*
+* @return
+* 	NULL if string is null or malloc failed or end_index - start_index <= 0;
+* 	else returns the string
+ */
+static char* getSubString(char* str, int start_index, int end_index) {
+	if ((str == NULL) || (end_index - start_index <= 0)) return NULL;
+	char* new_string = malloc(sizeof(char) * ((end_index - start_index) + 2));
+	if (new_string == NULL) return NULL;
+	for (int i = 0; i < (end_index - start_index + 1); i++) {
+		new_string[i] = str[start_index + i];
+	}
+	new_string[end_index - start_index + 1] = END_OF_STRING;
+	return new_string;
+}
+
+/*
+* matrixDestroy: Destroys the given matrixDestroy using free.
+*
+* @param matrix the matrix.
+* @param size the size.
+ */
+static void matrixDestroy(char** matrix, int size) {
+	for (int i = 0; i < size; i++) {
+		free(matrix[i]);
+	}
+	free(matrix);
+}
