@@ -49,6 +49,7 @@ static void writeToErrorOutStream(MtmErrorCode code);
 
 static bool RunCommand(char* command, Yad3Program program);
 static bool RunReporterCommand(char** params, Yad3Program program);
+static bool RunPayingCustumersReport(char** params, Yad3Program program);
 
 static bool RunRealtorCommand(char** params, Yad3Program program);
 static bool RunAddRealtor(char** params, Yad3Program program);
@@ -493,7 +494,7 @@ static bool RunReporterCommand(char** params, Yad3Program program) {
 		// TODO : ADD to service!
 		return true;
 	}else if (areStringsEqual(params[1], REPORT_PAYING_CUSTOMERS)) {
-		// TODO : ADD to service!
+		RunPayingCustumersReport(params, program);
 		return true;
 	} else {
 		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
@@ -502,10 +503,23 @@ static bool RunReporterCommand(char** params, Yad3Program program) {
 }
 
 /*
+ * Run print most paying costumers report command
+*/
+static bool RunPayingCustumersReport(char** params, Yad3Program program) {
+	if ((params[2] != NULL)) {
+		Yad3ServiceResult result = yad3ServiceMostPayingCustomers(
+			program->service, stringToInt(params[2]), program->output);
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
  * Handles the code from service, returns if should continue or not
 */
 static bool HandleResult(Yad3ServiceResult result) {
-	if (result == MTM_SERVICE_SUCCESS) return true;
+	if (result == YAD3_SERVICE_SUCCESS) return true;
 	MtmErrorCode code = ConvertYad3ServiceResult(result);
 	writeToErrorOutStream(code);
 	return (code == MTM_OUT_OF_MEMORY || code == MTM_CANNOT_OPEN_FILE ||
@@ -518,52 +532,52 @@ static bool HandleResult(Yad3ServiceResult result) {
 MtmErrorCode ConvertYad3ServiceResult(Yad3ServiceResult value) {
 	MtmErrorCode result;
 	switch (value) {
-		case MTM_SERVICE_OUT_OF_MEMORY: {
+		case YAD3_SERVICE_OUT_OF_MEMORY: {
 			result = MTM_OUT_OF_MEMORY;
 			break; }
-		case MTM_SERVICE_INVALID_PARAMETERS: {
+		case YAD3_SERVICE_INVALID_PARAMETERS: {
 			result = MTM_INVALID_PARAMETERS;
 			break; }
-		case MTM_SERVICE_EMAIL_ALREADY_EXISTS: {
+		case YAD3_SERVICE_EMAIL_ALREADY_EXISTS: {
 			result = MTM_EMAIL_ALREADY_EXISTS;
 			break; }
-		case MTM_SERVICE_EMAIL_DOES_NOT_EXIST: {
+		case YAD3_SERVICE_EMAIL_DOES_NOT_EXIST: {
 			result = MTM_EMAIL_DOES_NOT_EXIST;
 			break; }
-		case MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE: {
+		case YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE: {
 			result = MTM_EMAIL_WRONG_ACCOUNT_TYPE;
 			break; }
-		case MTM_SERVICE_ALREADY_REQUESTED: {
+		case YAD3_SERVICE_ALREADY_REQUESTED: {
 			result = MTM_ALREADY_REQUESTED;
 			break; }
-		case MTM_SERVICE_NOT_REQUESTED: {
+		case YAD3_SERVICE_NOT_REQUESTED: {
 			result = MTM_NOT_REQUESTED;
 			break; }
-		case MTM_SERVICE_APARTMENT_SERVICE_ALREADY_EXISTS: {
+		case YAD3_SERVICE_APARTMENT_SERVICE_ALREADY_EXISTS: {
 			result = MTM_APARTMENT_SERVICE_ALREADY_EXISTS;
 			break; }
-		case MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST: {
+		case YAD3_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST: {
 			result = MTM_APARTMENT_SERVICE_DOES_NOT_EXIST;
 			break; }
-		case MTM_SERVICE_APARTMENT_SERVICE_FULL: {
+		case YAD3_SERVICE_APARTMENT_SERVICE_FULL: {
 			result = MTM_APARTMENT_SERVICE_FULL;
 			break; }
-		case MTM_SERVICE_APARTMENT_ALREADY_EXISTS: {
+		case YAD3_SERVICE_APARTMENT_ALREADY_EXISTS: {
 			result = MTM_APARTMENT_ALREADY_EXISTS;
 			break; }
-		case MTM_SERVICE_APARTMENT_DOES_NOT_EXIST: {
+		case YAD3_SERVICE_APARTMENT_DOES_NOT_EXIST: {
 			result = MTM_APARTMENT_DOES_NOT_EXIST;
 			break; }
-		case MTM_SERVICE_PURCHASE_WRONG_PROPERTIES: {
+		case YAD3_SERVICE_PURCHASE_WRONG_PROPERTIES: {
 			result = MTM_PURCHASE_WRONG_PROPERTIES;
 			break; }
-		case MTM_SERVICE_REQUEST_WRONG_PROPERTIES: {
+		case YAD3_SERVICE_REQUEST_WRONG_PROPERTIES: {
 			result = MTM_REQUEST_WRONG_PROPERTIES;
 			break; }
-		case MTM_SERVICE_REQUEST_ILLOGICAL_PRICE: {
+		case YAD3_SERVICE_REQUEST_ILLOGICAL_PRICE: {
 			result = MTM_REQUEST_ILLOGICAL_PRICE;
 			break; }
-		case MTM_SERVICE_SUCCESS:
+		case YAD3_SERVICE_SUCCESS:
 		default: {
 			result = MTM_OUT_OF_MEMORY;
 			break;

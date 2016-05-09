@@ -125,9 +125,9 @@ static bool testClientPurchaseBillGeters() {
 	ASSERT_TEST(clientPurchaseBillGetClientEmailToString(NULL) == NULL);
 	char* address = clientPurchaseBillGetClientEmailToString(bill_1);
 	ASSERT_TEST(areStringsEqual(address, good_mail_1) == true);
-	ASSERT_TEST(clientPurchaseBillGetMoneyPaidString(NULL) == NULL);
-	char* paid = clientPurchaseBillGetMoneyPaidString(bill_2);
-	ASSERT_TEST(areStringsEqual(paid, "500") == true);
+	ASSERT_TEST(clientPurchaseBillGetMoneyPaid(NULL) == -1);
+	int paid = clientPurchaseBillGetMoneyPaid(bill_2);
+	ASSERT_TEST(paid == 500);
 	free(address);
 	free(paid);
 	clientPurchaseBillDestroy(bill_1);

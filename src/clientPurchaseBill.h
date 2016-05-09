@@ -65,16 +65,15 @@ int clientPurchaseBillComapre(ClientPurchaseBill first,
 							  ClientPurchaseBill second);
 
 /**
-* clientPurchaseGetMoneyPaidString: gets a string representing the client
-* purchase bill, AKA the total sum of money usr spent on buying apartments.
+* clientPurchaseGetMoneyPaidString: gets an int representing the client
+* purchase bill, AKA the total sum of money client spent on buying apartments.
 *
 * @param bill Target purchase bill.
 *
 * @return
-* 	NULL - if purchase_bill is NULL or in case of memory allocation error,
-* 	else a string representing the client purchase bill.
+* 	-1 if client is NULL; int representing the client purchase bill.
 */
-char* clientPurchaseBillGetMoneyPaidString(ClientPurchaseBill bill);
+int clientPurchaseBillGetMoneyPaid(ClientPurchaseBill bill);
 
 /**
 * clientPurchaseBillGetClientEmailToString: gets a string representing the client

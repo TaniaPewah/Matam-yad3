@@ -18,22 +18,22 @@ typedef struct yad3Service_t *Yad3Service;
 * rules
 */
 typedef enum {
-	MTM_SERVICE_OUT_OF_MEMORY,
-	MTM_SERVICE_INVALID_PARAMETERS,
-	MTM_SERVICE_EMAIL_ALREADY_EXISTS,
-	MTM_SERVICE_EMAIL_DOES_NOT_EXIST,
-	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE,
-	MTM_SERVICE_ALREADY_REQUESTED,
-	MTM_SERVICE_NOT_REQUESTED,
-	MTM_SERVICE_APARTMENT_SERVICE_ALREADY_EXISTS,
-	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST,
-	MTM_SERVICE_APARTMENT_SERVICE_FULL,
-	MTM_SERVICE_APARTMENT_ALREADY_EXISTS,
-	MTM_SERVICE_APARTMENT_DOES_NOT_EXIST,
-	MTM_SERVICE_PURCHASE_WRONG_PROPERTIES,
-	MTM_SERVICE_REQUEST_WRONG_PROPERTIES,
-	MTM_SERVICE_REQUEST_ILLOGICAL_PRICE,
-	MTM_SERVICE_SUCCESS
+	YAD3_SERVICE_OUT_OF_MEMORY,
+	YAD3_SERVICE_INVALID_PARAMETERS,
+	YAD3_SERVICE_EMAIL_ALREADY_EXISTS,
+	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST,
+	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE,
+	YAD3_SERVICE_ALREADY_REQUESTED,
+	YAD3_SERVICE_NOT_REQUESTED,
+	YAD3_SERVICE_APARTMENT_SERVICE_ALREADY_EXISTS,
+	YAD3_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST,
+	YAD3_SERVICE_APARTMENT_SERVICE_FULL,
+	YAD3_SERVICE_APARTMENT_ALREADY_EXISTS,
+	YAD3_SERVICE_APARTMENT_DOES_NOT_EXIST,
+	YAD3_SERVICE_PURCHASE_WRONG_PROPERTIES,
+	YAD3_SERVICE_REQUEST_WRONG_PROPERTIES,
+	YAD3_SERVICE_REQUEST_ILLOGICAL_PRICE,
+	YAD3_SERVICE_SUCCESS
 } Yad3ServiceResult;
 
 /**
@@ -64,16 +64,16 @@ void yad3ServiceDestroy(Yad3Service service);
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service, email_adress or company_name
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service, email_adress or company_name
 * 		NULL, or if email_adress is illegal, or if tax_percentage is not
 * 		between 1 to 100.
 *
-* 	MTM_SERVICE_EMAIL_ALREADY_EXISTS if service already contains a client or an
+* 	YAD3_SERVICE_EMAIL_ALREADY_EXISTS if service already contains a client or an
 * 		agent under the given email address.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS a new client agent successfully
+* 	YAD3_SERVICE_SUCCESS a new client agent successfully
 *
 */
 Yad3ServiceResult yad3ServiceAddAgent(Yad3Service service, char* email_adress,
@@ -87,18 +87,18 @@ Yad3ServiceResult yad3ServiceAddAgent(Yad3Service service, char* email_adress,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or email_adress are NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or email_adress are NULL,
 * 		or if email_adress is illegal.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain an agent with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain an agent with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to a client and not
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to a client and not
 * 		an agent.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS the agent removed successfully
+* 	YAD3_SERVICE_SUCCESS the agent removed successfully
 *
 */
 Yad3ServiceResult yad3ServiceRemoveAgent(Yad3Service service, char* email_adress);
@@ -114,21 +114,21 @@ Yad3ServiceResult yad3ServiceRemoveAgent(Yad3Service service, char* email_adress
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service, service_name or email_adress
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service, service_name or email_adress
 * 		are NULL, or if email_adress is illegal.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain an agent with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain an agent with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to a client and not
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to a client and not
 * 		an agent.
 *
 * 	MTM_APARTMENT_SERVICE_ALREADY_EXISTS if there is already a service under
 * 		that name to the same agent.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS the agent removed successfully
+* 	YAD3_SERVICE_SUCCESS the agent removed successfully
 *
 */
 Yad3ServiceResult yad3ServiceAddServiceToAgent(Yad3Service service,
@@ -142,18 +142,18 @@ Yad3ServiceResult yad3ServiceAddServiceToAgent(Yad3Service service,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
 * 		or if email_adress is illegal.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to an agent and not
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to an agent and not
 * 		to a client.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS the client removed successfully
+* 	YAD3_SERVICE_SUCCESS the client removed successfully
 *
 */
 Yad3ServiceResult yad3ServiceRemoveServiceFromAgent(Yad3Service service,
@@ -174,27 +174,27 @@ Yad3ServiceResult yad3ServiceRemoveServiceFromAgent(Yad3Service service,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service, service_name or email_adress
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service, service_name or email_adress
 * 		are NULL, or if email_adress is illegal.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain an agent with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain an agent with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to a client and not
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to a client and not
 * 		an agent.
 *
-* 	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST if there is no service under
+* 	YAD3_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST if there is no service under
 * 		that name to the given agent.
 *
 *	MTM_APARTMENT_SERVICE_FULL The apartment service is full and it is
 *		impossible to add a new apartment.
 *
-* 	MTM_SERVICE_APARTMENT_ALREADY_EXISTS if there is already an apartment under
+* 	YAD3_SERVICE_APARTMENT_ALREADY_EXISTS if there is already an apartment under
 * 		the given id.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS the agent removed successfully
+* 	YAD3_SERVICE_SUCCESS the agent removed successfully
 *
 */
 Yad3ServiceResult yad3ServiceAddApartmentToAgent(Yad3Service service,
@@ -211,24 +211,24 @@ Yad3ServiceResult yad3ServiceAddApartmentToAgent(Yad3Service service,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
 * 		or if email_adress is illegal.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to an agent and not
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE is email belongs to an agent and not
 * 		to a client.
 *
-* 	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST if the wanted apartment
+* 	YAD3_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST if the wanted apartment
 * 		service does not exist.
 *
-* 	MTM_SERVICE_APARTMENT_DOES_NOT_EXIST if the wanted apartment
+* 	YAD3_SERVICE_APARTMENT_DOES_NOT_EXIST if the wanted apartment
 * 		does not exist.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS the client removed successfully
+* 	YAD3_SERVICE_SUCCESS the client removed successfully
 *
 */
 Yad3ServiceResult yad3ServiceRemoveApartmentFromAgent(Yad3Service service,
@@ -245,16 +245,16 @@ Yad3ServiceResult yad3ServiceRemoveApartmentFromAgent(Yad3Service service,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or email_adress are NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or email_adress are NULL,
 * 		or if email_adress is illegal, or if min_area or min_rooms or max_price
 * 		are negative.
 *
-* 	MTM_SERVICE_EMAIL_ALREADY_EXISTS if service already contains a client or an
+* 	YAD3_SERVICE_EMAIL_ALREADY_EXISTS if service already contains a client or an
 * 		agent under the given email address.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS a new client added successfully
+* 	YAD3_SERVICE_SUCCESS a new client added successfully
 *
 */
 Yad3ServiceResult yad3ServiceAddClient(Yad3Service Service, char* email_adress,
@@ -268,18 +268,18 @@ Yad3ServiceResult yad3ServiceAddClient(Yad3Service Service, char* email_adress,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
 * 		or if email_adress is illegal.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
 * 		agent and not a client.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS the client removed successfully
+* 	YAD3_SERVICE_SUCCESS the client removed successfully
 *
 */
 Yad3ServiceResult yad3ServiceRemoveClient(Yad3Service service,
@@ -297,13 +297,13 @@ Yad3ServiceResult yad3ServiceRemoveClient(Yad3Service service,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service, emails, or service_name is NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service, emails, or service_name is NULL,
 * 		or if email_adress is illegal, or if id is negative.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
 * 		agent and not a client.
 *
 *	MTM_APARTMENT_SERVICE_DOES_NOT_EXIST if apartment service does not exist
@@ -313,9 +313,9 @@ Yad3ServiceResult yad3ServiceRemoveClient(Yad3Service service,
 *	MTM_PURCHASE_WRONG_PROPERTIES if client cant buy the  apartent, because it
 *		is too small for him or if it is too expansive.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-* 	MTM_SERVICE_SUCCESS the client removed successfully
+* 	YAD3_SERVICE_SUCCESS the client removed successfully
 *
 */
 Yad3ServiceResult yad3ServiceClientPurchaseApartment(Yad3Service service,
@@ -335,29 +335,29 @@ Yad3ServiceResult yad3ServiceClientPurchaseApartment(Yad3Service service,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
 * 		or if email_adress is illegal.
 *
-* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
 * 		the given email address.
 *
-* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
 * 		agent and not a client.
 *
-* 	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST the apartment service does
+* 	YAD3_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST the apartment service does
 * 		not exist.
 *
-* 	MTM_SERVICE_APARTMENT_DOES_NOT_EXIST the apartment does not exist
+* 	YAD3_SERVICE_APARTMENT_DOES_NOT_EXIST the apartment does not exist
 *
-*	MTM_SERVICE_ALREADY_REQUESTED if an offer was already suggested
+*	YAD3_SERVICE_ALREADY_REQUESTED if an offer was already suggested
 *
-*	MTM_SERVICE_PURCHASE_WRONG_PROPERTIES offer details are wrong
+*	YAD3_SERVICE_PURCHASE_WRONG_PROPERTIES offer details are wrong
 *
-*	MTM_SERVICE_REQUEST_ILLOGICAL_PRICE offer is not good for client
+*	YAD3_SERVICE_REQUEST_ILLOGICAL_PRICE offer is not good for client
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-*	MTM_SERVICE_SUCCESS offer can be made
+*	YAD3_SERVICE_SUCCESS offer can be made
 *
 */
 Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
@@ -374,16 +374,19 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 *
 * @return
 *
-* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
 * 		or if email_adress is illegal.
 *
-* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
-*	MTM_SERVICE_SUCCESS offer can be made
+*	YAD3_SERVICE_SUCCESS offer can be made
 *
 */
 Yad3ServiceResult yad3ServiceMostPayingCustomers(Yad3Service service,
 		int count, FILE* output);
+
+
+
 
 
 #endif /* SRC_YAD3SERVICE_H_ */
