@@ -76,21 +76,59 @@ static bool testOffersMenagerRemoveAllServiceOffers(){
 	return true;
 }
 static bool testOffersMenagerRemoveAllApartmentOffers(){
-	return true;
+	OffersManager manager = offersManagerCreate();
+		Email email;
+		emailCreate( "client@m", &email );
+		Email mail;
+		emailCreate( "agent@m", &mail );
+		Agent agent;
+		agentCreate(mail,"comp", 1, &agent);
+		Client client;
+		clientCreate(email, 1, 1, 30, &client);
+		agentAddService( agent, "serveMe", 3);
+
+		agentAddApartmentToService(agent, "serveMe",1,100,1,2,"we");
+		offersManagerAddOffer( manager,email, mail, "serveMe",
+					1, 1000 );
+		ASSERT_TEST( offersManagerOfferExist(manager,email,mail,"serveMe", 1)
+				== true );
+		ASSERT_TEST( offersMenagerRemoveAllApartmentOffers(NULL,mail, "serveMe",
+				1) == OFFERS_MANAGER_NULL_PARAMETERS);
+		ASSERT_TEST( offersMenagerRemoveAllApartmentOffers(manager,NULL, "serveMe",
+						1) == OFFERS_MANAGER_NULL_PARAMETERS);
+		ASSERT_TEST( offersMenagerRemoveAllApartmentOffers(manager,mail, NULL,
+						1) == OFFERS_MANAGER_NULL_PARAMETERS);
+
+		ASSERT_TEST( offersMenagerRemoveAllApartmentOffers(manager,mail, "serveMe",
+						1) == OFFERS_MANAGER_SUCCESS);
+
+
+		ASSERT_TEST( offersManagerOfferExist(manager,email,mail,"serveMe", 1)
+						== false );
+		agentDestroy(agent);
+		clientDestroy(client);
+		emailDestroy(email);
+		offersManagerDestroy( manager );
+		return true;
 }
 static bool testOffersManagerOfferExist(){
 	OffersManager manager = offersManagerCreate();
 	Email email;
-	emailCreate( "tania@m", &email );
+	emailCreate( "client@m", &email );
 	Email mail;
-	emailCreate( "ta@m", &mail );
+	emailCreate( "agent@m", &mail );
 	Agent agent;
-	agentCreate(email,"comp", 1, &agent);
+	agentCreate(mail,"comp", 1, &agent);
 	Client client;
-	clientCreate(mail, 1, 1, 30, &client);
+	clientCreate(email, 1, 1, 30, &client);
 	agentAddService( agent, "serveMe", 3);
+	ASSERT_TEST( offersManagerOfferExist(manager,mail,email,"serveMe", 1)
+			== false );
 	agentAddApartmentToService(agent, "serveMe",1,100,1,2,"we");
-	offersManagerOfferExist(manager,mail,email,"serveMe", 1);
+	offersManagerAddOffer( manager,email, mail, "serveMe",
+				1, 1000 );
+	ASSERT_TEST( offersManagerOfferExist(manager,email,mail,"serveMe", 1)
+			== true );
 	agentDestroy(agent);
 	clientDestroy(client);
 	emailDestroy(email);
@@ -121,7 +159,7 @@ static bool testOffersManagerAddOffer(){
 	ASSERT_TEST( offersManagerAddOffer( manager,mail, email, "serveMe",
 				-2, 100 ) == OFFERS_MANAGER_INVALID_PARAMETERS );
 	ASSERT_TEST( offersManagerAddOffer( manager,mail, email, "serveMe",
-					3, -100 ) == OFFERS_MANAGER_INVALID_PARAMETERS );
+				3, -100 ) == OFFERS_MANAGER_INVALID_PARAMETERS );
 
 	ASSERT_TEST( offersManagerAddOffer( manager,mail, email, "serveMe",
 			1, 100 ) ==	OFFERS_MANAGER_SUCCESS );
@@ -132,3 +170,4 @@ static bool testOffersManagerAddOffer(){
 	offersManagerDestroy( manager );
 	return true;
 }
+

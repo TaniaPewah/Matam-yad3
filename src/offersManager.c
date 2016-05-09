@@ -319,8 +319,8 @@ bool offersManagerOfferExist(OffersManager manager, Email client,
 			|| (service_name == NULL) || (apartment_id < 0))
 		return false;
 	bool found = false;
-	Offer current = (Offer)listGetFirst(manager->offers);
-	while ((current != NULL) || (!found)) {
+	Offer current = listGetFirst(manager->offers);
+	while ((current != NULL) && (!found)) {
 		found = (emailAreEqual(offerGetClientEmail(current), client) &&
 				 emailAreEqual(offerGetAgentEmail(current), agent) &&
 				 (offerGetApartmentId(current) == apartment_id) &&
