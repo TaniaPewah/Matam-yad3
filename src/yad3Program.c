@@ -1,13 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "string.h"
 #include <stdbool.h>
 #include "yad3Program.h"
 #include "utilities.h"
 #include "mtmService.h"
 #include "mtm_ex2.h"
 
-#define COMMENT_SIGN "#"
-#define COMMAND_SAPARATOR "\t"
+#define COMMENT_SIGN '#'
+#define COMMAND_SAPARATOR '\t'
 #define USER_REALTOR "realtor"
 #define USER_CUSTOMER "customer"
 #define USER_REPORTER "report"
@@ -227,3 +228,14 @@ void yad3ProgramDestroy(Yad3Program program) {
 static void writeToErrorOutStream(MtmErrorCode code) {
 	mtmPrintErrorMessage(stderr, code);
 }
+
+bool charArrayToComands( char* input_array, Yad3Program program ){
+
+	if((char)input_array[0] == COMMENT_SIGN ) return false;
+
+	char** split_command = str_split( input_array, ' ');
+
+	return true;
+}
+
+

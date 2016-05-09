@@ -1,9 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 #include <stdbool.h>
 #include "utilities.h"
 
 static int getDigitsCount(int number);
+char** str_split(char* string_to_split, const char separator);
 
 /*
  * duplicateString: Allocates and duplicates a new copy given string
@@ -98,3 +100,75 @@ int countChar(char* string, char value) {
 	return count;
 }
 
+char** str_split(char* string_to_split, const char separator){
+    char** result    = 0;
+    size_t count     = 0;
+    char* tmp        = string_to_split;
+    char* last_separator = 0;
+    char delim[2];
+    delim[0] = separator;
+    delim[1] = 0;
+
+    /* Count how many elements will be extracted. */
+    while (*tmp) {
+        if (separator == *tmp){
+            count++;
+            last_separator = tmp;
+        }
+        tmp++;
+    }
+
+    /* Add space for trailing token. */
+    count += last_separator < (string_to_split + strlen(string_to_split) - 1);
+
+    /* Add space for terminating null string so caller
+       knows where the list of returned strings ends. */
+    count++;
+    result = malloc(sizeof(char*) * count);
+
+    if (result){
+        size_t idx  = 0;
+        char* token = strtok(string_to_split, delim);
+
+        while (token){
+            if(!(idx < count)){
+            	free(result);
+            	return NULL;
+            }
+
+            *(result + idx++) = duplicateString(token);
+            token = strtok(0, delim);
+        }
+        if(!(idx == count - 1)){
+        	free(result);
+        	return NULL;
+        }
+        *(result + idx) = 0;
+    }
+
+    return result;
+}
+/*
+int main()
+{
+    char months[] = "JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC";
+    char** tokens;
+
+    printf("months=[%s]\n\n", months);
+
+    tokens = str_split(months, ',');
+
+    if (tokens)
+    {
+        int i;
+        for (i = 0; *(tokens + i); i++)
+        {
+            printf("month=[%s]\n", *(tokens + i));
+            free(*(tokens + i));
+        }
+        printf("\n");
+        free(tokens);
+    }
+
+    return 0;
+}*/
