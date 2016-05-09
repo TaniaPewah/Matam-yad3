@@ -235,7 +235,6 @@ static OfferManagerResult filteredRemoveOffers(OffersManager manager,
 		CompareResult copare = function(current, param);
 		if (copare == COMPARE_FIT) {
 			listRemoveCurrent(manager->offers);
-			// TODO : What about this ? is it needed???
 			current = (Offer)listGetFirst(manager->offers);
 		} else if (copare == COMPARE_UNFIT) {
 			current = listGetNext(manager->offers);

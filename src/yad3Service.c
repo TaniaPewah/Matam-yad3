@@ -1139,38 +1139,6 @@ static Yad3ServiceResult PrintClientsDetails(List list, FILE* output) {
 }
 
 /*
- * Prints the given list to the output specified, not more then max_count
- *
-* @param list details list.
-* @param output output stream.
-* #param max_count - max number of agents to print.
-*
-* @return
-*
-* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
-*
-*	YAD3_SERVICE_SUCCESS offer can be made
- */
-/*static Yad3ServiceResult PrintClientsDetails(List list, FILE* output,
-	int max_count) {
-	AgentDetails agentDetails = listGetFirst(list);
-	while ((agentDetails != NULL) && (max_count > 0)) {
-		char* mail = emailToString(agentDetailsGetEmail(agentDetails));
-		if (mail == NULL) {
-			listDestroy(list);
-			return YAD3_SERVICE_OUT_OF_MEMORY;
-		}
-		mtmPrintRealtor((output == NULL ? stdout : output), mail,
-				agentDetailsGetCompanyName(agentDetails));
-		free(mail);
-		max_count--;
-		agentDetails = listGetNext(list);
-	}
-	listDestroy(list);
-	return YAD3_SERVICE_SUCCESS;
-}*/
-
-/*
  * yad3ServiceMostPayingClients: prints a list with the top most paying
  * clients.
 *
