@@ -15,18 +15,18 @@ int RunMtmServiceTest();
 
 int main(int argc, char *argv[]) {
 
-	for (int i =0; i < argc; i++) {
+	/*for (int i =0; i < argc; i++) {
 		printf("%s\n", argv[i]);
-	}
+	}*/
 
-	RunEmailTest();
+//	RunEmailTest();
 	RunAgentTest();
-	RunAgentDetailsTest();
-	RunAgentManagerTest();
-	RunClientTest();
-	RunClientManagerTest();
-	RunClientPurchaseBillTest();
-	RunOfferTest();
-	RunMtmServiceTest();
+//	RunAgentDetailsTest();
+//	RunAgentManagerTest();
+//	RunClientPurchaseBillTest();
+//	RunClientTest();
+//	RunClientManagerTest();
+//	RunOfferTest();
+//	RunMtmServiceTest();
 	return 0;
 }

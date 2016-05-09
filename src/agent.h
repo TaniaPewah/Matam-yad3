@@ -1,10 +1,3 @@
-/*
- * agent.h
- *
- *  Created on: Apr 30, 2016
- *      Author: Tania
- */
-
 #ifndef SRC_AGENT_H_
 #define SRC_AGENT_H_
 

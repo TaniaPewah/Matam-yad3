@@ -200,6 +200,7 @@ ClientsManagerResult clientsManagerGetSortedPayments(ClientsManager manager,
 			error = (bill == NULL) ||
 					(listInsertLast(new_list, (ListElement)(bill))
 					!= LIST_SUCCESS);
+			clientPurchaseBillDestroy(bill);
 		}
 		element = mapGetNext(manager->clientsMap);
 	}
@@ -265,7 +266,7 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 }
 
 /**
-* clientsManagerExecurePurchase: commits an apartment purchase for a given
+* clientsManagerExecutePurchase: commits an apartment purchase for a given
 * client.
 *
 * @param manager Target clients Manager.
@@ -279,7 +280,7 @@ ClientsManagerResult clientsManagerGetRestriction(ClientsManager manager,
 *
 * 	CLIENT_MANAGER_SUCCESS - in case of success.
 */
-ClientsManagerResult clientsManagerExecurePurchase(ClientsManager manager,
+ClientsManagerResult clientsManagerExecutePurchase(ClientsManager manager,
 		Email mail, int finalPrice) {
 	if (manager == NULL || mail == NULL)
 		return CLIENT_MANAGER_INVALID_PARAMETERS;

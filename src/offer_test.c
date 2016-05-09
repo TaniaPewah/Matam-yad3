@@ -113,6 +113,7 @@ static bool testOfferCompareAndEqals() {
 	offerDestroy(second_offer);
 	offerDestroy(first_offer);
 	emailDestroy(client);
+	emailDestroy(client_b);
 	emailDestroy(agent);
 	return true;
 }

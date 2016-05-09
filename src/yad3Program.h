@@ -29,6 +29,8 @@ typedef struct yad3Command_t *Yad3Command;
 */
 Yad3Program yad3ProgramCreate(char *input_parameters[], int parameter_count);
 
+void yad3ProgramRun(Yad3Program program);
+
 /*
 * yad3ProgramDestroy: destroys a Yad3Program.
 * if NULL is sent, nothing happens

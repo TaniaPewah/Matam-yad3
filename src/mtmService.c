@@ -80,10 +80,11 @@ MTMService mtmServiceCreate() {
 */
 void mtmServiceDestroy(MTMService service) {
 	if (service != NULL) {
-			clientsManagerDestroy(service->clients);
-			agentsManagerDestroy(service->agents);
-			offerManagerDestroy(service->offers);
-		}
+		clientsManagerDestroy(service->clients);
+		agentsManagerDestroy(service->agents);
+		offerManagerDestroy(service->offers);
+		free(service);
+	}
 }
 
 /*
@@ -716,7 +717,7 @@ static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
 */
 static MTMServiceResult CommitClientPurchaseApartment(MTMService service,
 	Email client, Email agent, char* service_name, int id, int finalPrice) {
-	ClientsManagerResult result = clientsManagerExecurePurchase
+	ClientsManagerResult result = clientsManagerExecutePurchase
 			(service->clients, client, finalPrice);
 	if (result != CLIENT_MANAGER_SUCCESS)
 		return convertClientManagerResult(result);

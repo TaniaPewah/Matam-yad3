@@ -8,9 +8,6 @@
 #include "list.h"
 #include "client.h"
 
-static void freeListElement(ListElement element);
-static ListElement copyListElement(ListElement element);
-
 static bool testClientsManagerAddClient();
 static bool testClientsManagerRemoveClient();
 static bool testClientsManagerCreate();
@@ -72,22 +69,16 @@ static bool testClientsManagerRemoveClient(){
 	Email mail = NULL;
 	emailCreate("baba@gash", &mail);
 	ClientsManager manager = clientsManagerCreate();
-
 	ASSERT_TEST( clientsManagerAdd( manager, email, 1, 1, 200) ==
-			CLIENT_MANAGER_SUCCESS);
-
+		CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( clientsManagerRemove( manager, NULL ) ==
-			CLIENT_MANAGER_INVALID_PARAMETERS);
-
+		CLIENT_MANAGER_INVALID_PARAMETERS);
 	ASSERT_TEST( clientsManagerRemove( NULL, email ) ==
-				CLIENT_MANAGER_INVALID_PARAMETERS);
-
+		CLIENT_MANAGER_INVALID_PARAMETERS);
 	ASSERT_TEST( clientsManagerRemove( manager, mail ) ==
-				CLIENT_MANAGER_NOT_EXISTS);
-
+		CLIENT_MANAGER_NOT_EXISTS);
 	ASSERT_TEST( clientsManagerRemove( manager, email ) ==
-				CLIENT_MANAGER_SUCCESS);
-
+		CLIENT_MANAGER_SUCCESS);
 	emailDestroy(mail);
 	emailDestroy(email);
 	clientsManagerDestroy(manager);
@@ -121,15 +112,15 @@ static bool testClientsManagerExecurePurchase(){
 	ClientsManager manager = clientsManagerCreate();
 	clientsManagerAdd( manager, email, 1, 1, 200);
 
-	ASSERT_TEST( clientsManagerExecurePurchase( NULL, email, 330) ==
+	ASSERT_TEST( clientsManagerExecutePurchase( NULL, email, 330) ==
 			CLIENT_MANAGER_INVALID_PARAMETERS);
-	ASSERT_TEST( clientsManagerExecurePurchase( manager, NULL, 330) ==
+	ASSERT_TEST( clientsManagerExecutePurchase( manager, NULL, 330) ==
 			CLIENT_MANAGER_INVALID_PARAMETERS);
 
-	ASSERT_TEST( clientsManagerExecurePurchase( manager, mail, 330) ==
+	ASSERT_TEST( clientsManagerExecutePurchase( manager, mail, 330) ==
 			CLIENT_MANAGER_NOT_EXISTS);
 
-	ASSERT_TEST( clientsManagerExecurePurchase( manager, email, 330) ==
+	ASSERT_TEST( clientsManagerExecutePurchase( manager, email, 330) ==
 				CLIENT_MANAGER_SUCCESS);
 
 	emailDestroy(mail);
@@ -139,23 +130,18 @@ static bool testClientsManagerExecurePurchase(){
 }
 
 static bool testClientsManagerGetSortedPayments(){
-
-	Email email = NULL;
+	Email email = NULL, mail1 = NULL ,mail2 = NULL, mail3 = NULL;
 	emailCreate("gaba@ganosh", &email);
-	Email mail1 = NULL;
 	emailCreate("baba@gash", &mail1);
-	Email mail2 = NULL;
 	emailCreate("baba@gash2", &mail2);
-	Email mail3 = NULL;
 	emailCreate("baaa@gash", &mail3);
-
 	ClientsManager manager = clientsManagerCreate();
 	clientsManagerAdd( manager, email, 1, 1, 200);
 	clientsManagerAdd( manager, mail1, 1, 2, 1000);
 	clientsManagerAdd( manager, mail2, 1, 2, 1000);
 	clientsManagerAdd( manager, mail3, 1, 2, 1000);
 
-	List clients_list = listCreate( copyListElement, freeListElement);
+	List clients_list = NULL;
 	ASSERT_TEST( clientsManagerGetSortedPayments(NULL, &clients_list) ==
 			CLIENT_MANAGER_INVALID_PARAMETERS);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager,NULL) ==
@@ -165,12 +151,13 @@ static bool testClientsManagerGetSortedPayments(){
 	ASSERT_TEST( listGetSize(clients_list) == 0);
 	listDestroy(clients_list);
 
-	clientsManagerExecurePurchase( manager, email, 330);
+	clientsManagerExecutePurchase( manager, email, 330);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 				CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 1);
 	listDestroy(clients_list);
-	clientsManagerExecurePurchase( manager, mail1, 900);
+
+	clientsManagerExecutePurchase( manager, mail1, 900);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 			CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 2);
@@ -182,7 +169,7 @@ static bool testClientsManagerGetSortedPayments(){
 		clientPurchaseBillGetClientEmail(second_bill), email));
 	listDestroy(clients_list);
 
-	clientsManagerExecurePurchase( manager, mail2, 900);
+	clientsManagerExecutePurchase( manager, mail2, 900);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 			CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 3);
@@ -197,7 +184,7 @@ static bool testClientsManagerGetSortedPayments(){
 		clientPurchaseBillGetClientEmail(second_bill), email));
 	listDestroy(clients_list);
 
-	clientsManagerExecurePurchase( manager, mail3, 900);
+	clientsManagerExecutePurchase( manager, mail3, 900);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 			CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 4);
@@ -215,7 +202,7 @@ static bool testClientsManagerGetSortedPayments(){
 		clientPurchaseBillGetClientEmail(second_bill), email));
 	listDestroy(clients_list);
 
-	clientsManagerExecurePurchase(manager, email, 900);
+	clientsManagerExecutePurchase(manager, email, 900);
 	ASSERT_TEST( clientsManagerGetSortedPayments(manager, &clients_list) ==
 			CLIENT_MANAGER_SUCCESS);
 	ASSERT_TEST( listGetSize(clients_list) == 4);
@@ -236,6 +223,7 @@ static bool testClientsManagerGetSortedPayments(){
 	emailDestroy(email);
 	emailDestroy(mail1);
 	emailDestroy(mail2);
+	emailDestroy(mail3);
 	clientsManagerDestroy(manager);
 	return true;
 }
@@ -279,18 +267,5 @@ static bool testClientsManagerGetRestriction(){
 	emailDestroy(mail);
 	clientsManagerDestroy(manager);
 	return true;
-}
-
-/** Function to be used for freeing data elements from list */
-static void freeListElement(ListElement element) {
-	if (element != NULL)
-		clientPurchaseBillDestroy((ClientPurchaseBill)element);
-}
-
-/** Function to be used for coping data elements from list */
-static ListElement copyListElement(ListElement element) {
-	ClientPurchaseBill new_bill =
-			clientPurchaseBillCopy((ClientPurchaseBill)element);
-	return new_bill;
 }
 
