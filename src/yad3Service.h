@@ -5,8 +5,8 @@
 
 typedef struct yad3Service_t *Yad3Service;
 
-#define ACCEPT_STRING accept
-#define DECLINE_STRING decline
+#define ACCEPT_STRING "accept"
+#define DECLINE_STRING "decline"
 
 /**
 * This type defines all errors for the system.
@@ -365,12 +365,64 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 		int price);
 
 /*
- * yad3ServiceMostPayingCustomers: prints a list with the top most paying
- * customers.
+* yad3ServiceRespondToClientOffer: method responeds to a specific client offer.
+* can decline or accept.
+*
+* @param service service to remove from.
+* @param client client email.
+* @param agent agent email.
+* @param choice - can be DECLINE_STRING or ACCEPT_STRING
+*
+* @return
+*
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal.
+*
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 		the given email address.
+*
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 		agent and not a client.
+*
+*	YAD3_SERVICE_NOT_REQUESTED if an offer does not exist
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer accepted / declined
+*
+*/
+Yad3ServiceResult yad3ServiceRespondToClientOffer(Yad3Service service,
+		char* client_email, char* agent_email, char* chioce);
+
+/*
+ * yad3ServicePrintMostPayingClients: prints a list with the top most paying
+ * clients.
 *
 * @param service service to print from.
-* @param count clients count.
-* @param agent agent email.
+* @param count Customers count.
+* #param output to print to.
+*
+* @return
+*
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service is NULL,
+* 		or if count not positive.
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer can be made
+*
+*/
+Yad3ServiceResult yad3ServicePrintMostPayingClients(Yad3Service service,
+		int count, FILE* output);
+
+
+/*
+ * yad3ServicePrintMostSignificantAgents: prints a list with the top most
+ * significant agents.
+*
+* @param service service to print from.
+* @param count agents count to print.
+* #param output to print to.
 *
 * @return
 *
@@ -382,11 +434,29 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 *	YAD3_SERVICE_SUCCESS offer can be made
 *
 */
-Yad3ServiceResult yad3ServiceMostPayingCustomers(Yad3Service service,
+Yad3ServiceResult yad3ServicePrintMostSignificantAgents(Yad3Service service,
 		int count, FILE* output);
 
-
-
+/*
+* yad3ServicePrintClientsRealventAgents: prints a list with the relevant
+* agents for a clients.
+*
+* @param service service to print from.
+* @param email Customers email.
+* #param output to print to.
+*
+* @return
+*
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or email are NULL,
+* 		or mail is invalid.
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer can be made
+*
+*/
+Yad3ServiceResult yad3ServicePrintClientsRealventAgents(Yad3Service service,
+		char* email, FILE* output);
 
 
 #endif /* SRC_YAD3SERVICE_H_ */

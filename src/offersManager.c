@@ -33,6 +33,8 @@ static CompareResult isApartmentConnectedToOffer(Offer offer,
 static void FreeOfferListElement(ListElement element);
 static ListElement CopyOfferListElement(ListElement);
 static OfferManagerResult convertOfferResult(OfferResult value);
+static CompareResult isOfferBetweenAgentAndClient(Offer offer,
+		checkOfferParam parameter);
 
 /**
 * Allocates a new OfferManager.
@@ -161,6 +163,36 @@ OfferManagerResult offersMenagerRemoveAllApartmentOffers(OffersManager manager,
 	parameters[2] = &apartment_id;
 	OfferManagerResult result = filteredRemoveOffers(manager,
 			isApartmentConnectedToOffer, parameters);
+	free (parameters);
+	return result;
+}
+
+/*
+* offersMenagerRemoveOffer: Removes spesific offer that between client and
+* agent.
+*
+* @param manager OffersManager to remove from add to.
+* @param mail client email.
+* @param mail agent email.
+*
+* @return
+*
+* 	OFFERS_MANAGER_NULL_PARAMETERS if manager, mail or service_name are NULL
+*
+* 	OFFERS_MANAGER_OUT_OF_MEMORY in case of memory allocation error
+*
+* 	OFFERS_MANAGER_SUCCESS the offers removed successfully
+*/
+OfferManagerResult offersMenagerRemoveOffer(OffersManager manager,
+	Email client, Email agent) {
+	if ((manager == NULL) || (client == NULL) || (agent == NULL))
+		return OFFERS_MANAGER_NULL_PARAMETERS;
+	void** parameters = malloc (2 * sizeof(void*));
+	if (parameters == NULL) return OFFERS_MANAGER_OUT_OF_MEMORY;
+	parameters[0] = agent;
+	parameters[1] = client;
+	OfferManagerResult result = filteredRemoveOffers(manager,
+			isOfferBetweenAgentAndClient, parameters);
 	free (parameters);
 	return result;
 }
@@ -301,6 +333,35 @@ static CompareResult isApartmentConnectedToOffer(Offer offer,
 }
 
 /*
+* isApartmentConnectedToOffer: checks if the offers is associated with the
+* given apartment identifier.
+*
+* @param offer Offer to check.
+* @param parameter a pointer to a three cells array. first cell contains the
+* 	agent Email, the second contains the service name and the last one contains
+* 	a pointer to the apartment id.
+*
+* @return
+*
+* 	COMPARE_UNFIT if manager or parameter NULL, or if the email address is
+* 		invalid, or if the apartment is not associated with the offer.
+*
+* 	COMPARE_FIT apartment is associated with the offer.
+*
+* 	COMPARE_OUT_OF_MEMORY method had a memory allocation error.
+*/
+static CompareResult isOfferBetweenAgentAndClient(Offer offer,
+		checkOfferParam parameter) {
+	if ((offer == NULL) || (parameter == NULL)) return COMPARE_UNFIT;
+	return ((emailAreEqual(offerGetAgentEmail(offer),
+				(Email)(((void**)parameter)[0]))) &&
+			(emailAreEqual(offerGetClientEmail(offer),
+				(Email)(((void**)parameter)[1])))) ?
+			COMPARE_FIT : COMPARE_UNFIT;
+}
+
+
+/*
 * OfferManagerOfferExist: checks if an offer with the given parameters exists
 *
 * @param manager OffersManager to use.
@@ -329,6 +390,65 @@ bool offersManagerOfferExist(OffersManager manager, Email client,
 	}
 	return found;
 }
+
+/*
+* offersManagerOfferExistForAgent: checks if an offer with the given parameters
+* exists, between the agent and a client.
+*
+* @param manager OffersManager to use.
+* @param client Offer's client email.
+* @param agent Offer's agent email.
+*
+* @return
+* 	false if one of the parameters is NULL; otherwise if an offer found
+* 	returns true.
+*/
+bool offersManagerOfferExistForAgent(OffersManager manager, Email client,
+		Email agent) {
+	if ((manager == NULL) || (client == NULL) || (agent == NULL))
+		return false;
+	bool found = false;
+	Offer current = listGetFirst(manager->offers);
+	while ((current != NULL) && (!found)) {
+		found = (emailAreEqual(offerGetClientEmail(current), client) &&
+				 emailAreEqual(offerGetAgentEmail(current), agent));
+		current = listGetNext(manager->offers);
+	}
+	return found;
+}
+
+/*
+* offersManagerGetOfferDetails: checks if an offer with the given parameters
+* exists, between the agent and a client. if one found, saves its details.
+*
+* @param manager OffersManager to use.
+* @param client Offer's client email.
+* @param agent Offer's agent email.
+*
+* @return
+* 	false if one of the parameters is NULL; otherwise if an offer found
+* 	returns true.
+*/
+bool offersManagerGetOfferDetails(OffersManager manager, Email client,
+		Email agent, int* apartment_id, char** service_name, int* price) {
+	if ((manager == NULL) || (client == NULL) || (agent == NULL))
+		return false;
+	bool found = false;
+	Offer current = listGetFirst(manager->offers);
+	while ((current != NULL) && (!found)) {
+		if (emailAreEqual(offerGetClientEmail(current), client) &&
+			 emailAreEqual(offerGetAgentEmail(current), agent)) {
+			 found = true;
+			 *apartment_id = offerGetApartmentId(current);
+			 *service_name = duplicateString(offerGetServiceName(current));
+			 *price = offerGetPrice(current);
+
+		}
+		current = listGetNext(manager->offers);
+	}
+	return found;
+}
+
 
 /*
 * OfferManagerAddOffer: adds an offer with the given parameters

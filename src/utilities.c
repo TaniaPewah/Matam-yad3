@@ -114,11 +114,11 @@ int stringToInt(const char* string)
     int string_index = 0, number = 0;
     int leangth = strlen(string);
     if (string[0] == '-')  string_index++;
-    for(int i = leangth - 1; i >= 0; i--)
+    for(int i = string_index; i < leangth; i++)
     {
     	number *= 10;
         if(string[i] >= '0' && string[i] <= '9')
-        	string += (string[i] - (int)'0');
+        	number += ((int)string[i] - (int)'0');
         string_index++;
     }
     if (string[0] == '-') return -1 * number;

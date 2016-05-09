@@ -457,7 +457,7 @@ AgentsManagerResult agentManagerGetSignificantAgents(AgentsManager manager,
 	if(agents_list == NULL)
 		return AGENT_MANAGER_OUT_OF_MEMORY;
 
-	while(curr_agent) {
+	while(curr_agent != NULL) {
 
 		if ( !addRankedAgentToList( curr_agent, curr_email, agents_list ))
 			return AGENT_MANAGER_OUT_OF_MEMORY;

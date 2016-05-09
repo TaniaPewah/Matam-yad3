@@ -36,6 +36,11 @@ static Yad3ServiceResult CommitClientPurchaseApartment(Yad3Service service,
 	Email client, Email agent, char* service_name, int id, int finalPrice);
 static Yad3ServiceResult CheckOffer(Yad3Service service, Email client,
 	Email agent, char* service_name, int id, int price);
+//static Yad3ServiceResult PrintClientsDetails(List list, FILE* output,
+//	int max_count);
+static Yad3ServiceResult PrintClientsDetails(List list, FILE* output);
+static Yad3ServiceResult RemoveOffer(Yad3Service service, Email client,
+		Email agent, int price, int id, char* service_name, char* choice);
 
 /**
 * Allocates a new Yad3Service.
@@ -427,7 +432,7 @@ Yad3ServiceResult yad3ServiceAddClient(Yad3Service service, char* email_adress,
 	Email mail = NULL;
 	EmailResult result = emailCreate(email_adress, &mail);
 	if (result != EMAIL_SUCCESS) return convertEmailResult(result);
-	if (clientsManagerClientExists( service->clients, mail) ||
+	if (clientsManagerClientExists(service->clients, mail) ||
 		agentsManagerAgentExists(service->agents, mail)) {
 		emailDestroy(mail);
 		return YAD3_SERVICE_EMAIL_ALREADY_EXISTS;
@@ -529,7 +534,10 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 	if (client_result != YAD3_SERVICE_SUCCESS) return client_result;
 	Yad3ServiceResult agent_result = CreateEmailAndSearchForAgent(service,
 		client_email, &agent);
-	if (agent_result != YAD3_SERVICE_SUCCESS) return agent_result;
+	if (agent_result != YAD3_SERVICE_SUCCESS) {
+		emailDestroy(client);
+		return agent_result;
+	}
 	Yad3ServiceResult offer_check_result =
 			CheckOffer(service, client, agent, service_name, id, price);
 	if(offer_check_result != YAD3_SERVICE_SUCCESS) {
@@ -543,12 +551,6 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 	emailDestroy(agent);
 	return convertOffersManagerResult(add_result);
 }
-
-
-
-
-
-
 
 /*
  * CheckOffer: help function that checks if an offer can be purchased by a
@@ -576,8 +578,8 @@ Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 */
 static Yad3ServiceResult CheckOffer(Yad3Service service, Email client,
 	Email agent, char* service_name, int id, int price) {
-	if (offersManagerOfferExist(service->offers, client, agent,
-			service_name, id)) return YAD3_SERVICE_ALREADY_REQUESTED;
+	if (offersManagerOfferExistForAgent(service->offers, client, agent))
+			return YAD3_SERVICE_ALREADY_REQUESTED;
 	int apartment_area, apartment_rooms, apartment_price, apartment_commition;
 	AgentsManagerResult aprtment_result = agentsManagerGetApartmentDetails(
 		service->agents, agent, service_name, id, &apartment_area,
@@ -693,7 +695,7 @@ static Yad3ServiceResult CheckClientPurchaseApartment(Yad3Service service,
 		service->clients, client, &client_min_area, &client_min_room,
 		&client_max_price);
 	if (client_result != CLIENT_MANAGER_SUCCESS)
-		return convertAgentManagerResult(aprtment_result);
+		return convertClientManagerResult(client_result);
 	if ((apartment_rooms < client_min_room) ||
 		(apartment_area < client_min_area) ||
 		(client_max_price > apartment_price * (100 + apartment_commition)))
@@ -729,6 +731,94 @@ static Yad3ServiceResult CommitClientPurchaseApartment(Yad3Service service,
 		return convertClientManagerResult(result);
 	return RemoveApartmentFromAgent(service, agent, service_name, id);
 }
+
+
+/*
+* yad3ServiceRespondToClientOffer: method responeds to a specific client offer.
+* can decline or accept.
+*
+* @param service service to remove from.
+* @param client client email.
+* @param agent agent email.
+* @param choice - can be DECLINE_STRING or ACCEPT_STRING
+*
+* @return
+*
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal.
+*
+* 	YAD3_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 		the given email address.
+*
+* 	YAD3_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 		agent and not a client.
+*
+*	YAD3_SERVICE_NOT_REQUESTED if an offer does not exist
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer accepted / declined
+*
+*/
+Yad3ServiceResult yad3ServiceRespondToClientOffer(Yad3Service service,
+		char* client_email, char* agent_email, char* chioce) {
+	if ((service == NULL) || (client_email == NULL) || (agent_email == NULL) ||
+			(chioce == NULL)) return YAD3_SERVICE_INVALID_PARAMETERS;
+	if (!areStringsEqual(chioce, DECLINE_STRING) && !areStringsEqual(chioce,
+			ACCEPT_STRING)) return YAD3_SERVICE_INVALID_PARAMETERS;
+	Email client = NULL, agent = NULL;
+	Yad3ServiceResult client_result = CreateEmailAndSearchForClient(service,
+		client_email, &client);
+	if (client_result != YAD3_SERVICE_SUCCESS) return client_result;
+	Yad3ServiceResult agent_result = CreateEmailAndSearchForAgent(service,
+		client_email, &agent);
+	if (agent_result != YAD3_SERVICE_SUCCESS) {
+		emailDestroy(client);
+		return agent_result;
+	}
+	int price, id;
+	char* service_name;
+	if (!offersManagerGetOfferDetails(service->offers, client, agent,
+			&id, &service_name, &price)) {
+		emailDestroy(client);
+		emailDestroy(agent);
+		return YAD3_SERVICE_NOT_REQUESTED;
+	} else {
+		return RemoveOffer(service, client, agent, price, id,
+				service_name, chioce);
+	}
+}
+
+/*
+ * Help function to the yad3ServiceRespondToClientOffer method.
+ * reoves the offer acording to the agents choice.
+ */
+static Yad3ServiceResult RemoveOffer(Yad3Service service, Email client,
+		Email agent, int price, int id, char* service_name, char* choice) {
+	if (areStringsEqual(choice, DECLINE_STRING)) {
+		OfferManagerResult remove_result = offersMenagerRemoveOffer(
+			service->offers, agent, client);
+		emailDestroy(client);
+		emailDestroy(agent);
+		free(service_name);
+		return convertOffersManagerResult(remove_result);
+	}
+	Yad3ServiceResult result = RemoveApartmentFromAgent(service, agent,
+			service_name, id);
+	if (result != YAD3_SERVICE_SUCCESS) {
+		emailDestroy(client);
+		emailDestroy(agent);
+		free(service_name);
+		return result;
+	}
+	ClientsManagerResult purchase_result =
+		clientsManagerExecutePurchase(service->clients, client, price);
+	emailDestroy(client);
+	emailDestroy(agent);
+	free(service_name);
+	return convertClientManagerResult(purchase_result);
+}
+
 
 /**
 * CreateEmailAndSearchForClient: Creates an email and checks if it is a
@@ -936,25 +1026,169 @@ static Yad3ServiceResult convertOffersManagerResult(OfferManagerResult value) {
 	return result;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*
- * yad3ServiceMostPayingCustomers: prints a list with the top most paying
- * customers.
+* yad3ServicePrintClientsRealventAgents: prints a list with the relevant
+* agents for a clients.
 *
 * @param service service to print from.
-* @param count clients count.
-* @param agent agent email.
+* @param email Customers email.
+* #param output to print to.
 *
 * @return
 *
-* 	YAD3_SERVICE_INVALID_PARAMETERS if service is NULL,
-* 		or count is not positive.
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or email are NULL,
+* 		or mail is invalid.
 *
 * 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
 *
 *	YAD3_SERVICE_SUCCESS offer can be made
 *
 */
-Yad3ServiceResult yad3ServiceMostPayingCustomers(Yad3Service service,
+Yad3ServiceResult yad3ServicePrintClientsRealventAgents(Yad3Service service,
+		char* email, FILE* output) {
+	if ((service == NULL) || (email == NULL))
+		return YAD3_SERVICE_INVALID_PARAMETERS;
+	Email client = NULL;
+	Yad3ServiceResult search_result = CreateEmailAndSearchForClient(service,
+			email, &client);
+	if (search_result != YAD3_SERVICE_SUCCESS) return search_result;
+	int client_min_area, client_min_room, client_max_price;
+		ClientsManagerResult client_result = clientsManagerGetRestriction(
+			service->clients, client, &client_min_area, &client_min_room,
+			&client_max_price);
+	emailDestroy(client);
+	if (client_result != CLIENT_MANAGER_SUCCESS)
+		return convertClientManagerResult(client_result);
+	List list = NULL;
+	AgentsManagerResult match_result = agentManagerFindMatch(service->agents,
+		client_min_room, client_min_area, client_max_price, &list);
+	if (match_result != AGENT_MANAGER_SUCCESS)
+		return convertAgentManagerResult(match_result);
+	return PrintClientsDetails(list, output);
+}
+
+/*
+ * yad3ServiceMostSignificantAgents: prints a list with the top most
+ * significant agents.
+*
+* @param service service to print from.
+* @param count agents count to print.
+* #param output to print to.
+*
+* @return
+*
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal.
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer can be made
+*
+*/
+Yad3ServiceResult yad3ServicePrintMostSignificantAgents(Yad3Service service,
+		int count, FILE* output) {
+	if ((service == NULL) || (count <= 0))
+		return YAD3_SERVICE_INVALID_PARAMETERS;
+	List list = NULL;
+	AgentsManagerResult result =
+			agentManagerGetSignificantAgents(service->agents, count, &list);
+	if (!(result == AGENT_MANAGER_SUCCESS))
+		return convertAgentManagerResult(result);
+	return PrintClientsDetails(list, output);
+}
+
+/*
+ * Prints the given list to the output specified, not more then max_count
+ *
+* @param list details list.
+* @param output output stream.=
+*
+* @return
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer can be made
+ */
+static Yad3ServiceResult PrintClientsDetails(List list, FILE* output) {
+	AgentDetails agentDetails = listGetFirst(list);
+	while (agentDetails != NULL) {
+		char* mail = emailToString(agentDetailsGetEmail(agentDetails));
+		if (mail == NULL) {
+			listDestroy(list);
+			return YAD3_SERVICE_OUT_OF_MEMORY;
+		}
+		mtmPrintRealtor((output == NULL ? stdout : output), mail,
+				agentDetailsGetCompanyName(agentDetails));
+		free(mail);
+		agentDetails = listGetNext(list);
+	}
+	listDestroy(list);
+	return YAD3_SERVICE_SUCCESS;
+}
+
+/*
+ * Prints the given list to the output specified, not more then max_count
+ *
+* @param list details list.
+* @param output output stream.
+* #param max_count - max number of agents to print.
+*
+* @return
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer can be made
+ */
+/*static Yad3ServiceResult PrintClientsDetails(List list, FILE* output,
+	int max_count) {
+	AgentDetails agentDetails = listGetFirst(list);
+	while ((agentDetails != NULL) && (max_count > 0)) {
+		char* mail = emailToString(agentDetailsGetEmail(agentDetails));
+		if (mail == NULL) {
+			listDestroy(list);
+			return YAD3_SERVICE_OUT_OF_MEMORY;
+		}
+		mtmPrintRealtor((output == NULL ? stdout : output), mail,
+				agentDetailsGetCompanyName(agentDetails));
+		free(mail);
+		max_count--;
+		agentDetails = listGetNext(list);
+	}
+	listDestroy(list);
+	return YAD3_SERVICE_SUCCESS;
+}*/
+
+/*
+ * yad3ServiceMostPayingClients: prints a list with the top most paying
+ * clients.
+*
+* @param service service to print from.
+* @param count Customers count.
+* #param output to print to.
+*
+* @return
+*
+* 	YAD3_SERVICE_INVALID_PARAMETERS if service is NULL,
+* 		or if count not positive.
+*
+* 	YAD3_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	YAD3_SERVICE_SUCCESS offer can be made
+*
+*/
+Yad3ServiceResult yad3ServicePrintMostPayingClients(Yad3Service service,
 		int count, FILE* output) {
 	if ((service == NULL) || (count <= 0))
 		return YAD3_SERVICE_INVALID_PARAMETERS;
@@ -963,9 +1197,8 @@ Yad3ServiceResult yad3ServiceMostPayingCustomers(Yad3Service service,
 			clientsManagerGetSortedPayments(service->clients, &list);
 	if (!(result == CLIENT_MANAGER_SUCCESS))
 		return convertClientManagerResult(result);
-	int size = listGetSize(list);
 	ClientPurchaseBill currentBill = listGetFirst(list);
-	while((currentBill != NULL) && (size > 0)) {
+	while((currentBill != NULL) && (count > 0)) {
 		char* mail = clientPurchaseBillGetClientEmailToString(currentBill);
 		if (mail == NULL) {
 			listDestroy(list);
@@ -974,7 +1207,7 @@ Yad3ServiceResult yad3ServiceMostPayingCustomers(Yad3Service service,
 		mtmPrintCustomer((output == NULL ? stdout : output), mail,
 				clientPurchaseBillGetMoneyPaid(currentBill));
 		free(mail);
-		size--;
+		count--;
 		currentBill = listGetNext(list);
 	}
 	listDestroy(list);

@@ -10,7 +10,7 @@
 #define COMMENT_SIGN '#'
 #define COMMAND_SAPARATOR_1 '\t'
 #define COMMAND_SAPARATOR_2 ' '
-#define COMMAND_SAPARATORS " \t"
+#define COMMAND_END '\n'
 #define USER_REALTOR "realtor"
 #define USER_CUSTOMER "customer"
 #define USER_REPORTER "report"
@@ -48,8 +48,11 @@ static void closeFile(FILE* output);
 static void writeToErrorOutStream(MtmErrorCode code);
 
 static bool RunCommand(char* command, Yad3Program program);
+
 static bool RunReporterCommand(char** params, Yad3Program program);
 static bool RunPayingCustumersReport(char** params, Yad3Program program);
+static bool RunSignificantRealtorReport(char** params, Yad3Program program);
+static bool RunPrintRealventRealtorReport(char** params, Yad3Program program);
 
 static bool RunRealtorCommand(char** params, Yad3Program program);
 static bool RunAddRealtor(char** params, Yad3Program program);
@@ -60,6 +63,7 @@ static bool RunRealtorRemoveApartmentService(char** params,
 static bool RunRealtorAddApartmentToRealtor(char** params,
 	Yad3Program program);
 static bool RunRemoveApartmentFromRealtor(char** params, Yad3Program program);
+static bool RunResponeToOffer(char** params, Yad3Program program);
 
 static bool RunCustomerCommand(char** params, Yad3Program program);
 static bool RunAddCustumer(char** params, Yad3Program program);
@@ -71,8 +75,8 @@ static bool HandleResult(Yad3ServiceResult result);
 MtmErrorCode ConvertYad3ServiceResult(Yad3ServiceResult value);
 static bool splitString(char* string, int *size, char*** out_matrix);
 //static char** splitString(char* string, int *size);
-//static char* getSubString(char* str, int start_index, int end_index);
-//static void matrixDestroy(char** matrix, int size);
+static char* getSubString(char* str, int start_index, int end_index);
+static void matrixDestroy(char** matrix, int size);
 
 /**
 * Allocates Yad3Program.
@@ -97,11 +101,16 @@ Yad3Program yad3ProgramCreate(char *input_parameters[], int parameter_count) {
 		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
 		return NULL;
 	}
-	char* input = GetInputsPaths(input_parameters, parameter_count, false);
-	char* output = GetInputsPaths(input_parameters, parameter_count, true);
+	char* input = GetInputsPaths(input_parameters, parameter_count, true);
+	char* output = GetInputsPaths(input_parameters, parameter_count, false);
 	FILE *out_file = NULL, *in_file = NULL;
-	bool error = (!(output == NULL || openFile(output, WRITE, &out_file))) &&
-				 (!(input == NULL || openFile(input, READ, &in_file)));
+	bool error = false;
+	if (output != NULL) {
+		error = !openFile(output, WRITE, &out_file);
+	}
+	if (input != NULL) {
+		error &= !openFile(input, READ, &in_file);
+	}
 	if (error) {
 		writeToErrorOutStream(MTM_CANNOT_OPEN_FILE);
 		return NULL;
@@ -151,12 +160,12 @@ static bool checkProgramParameters(char *input[], int count) {
 *	false if parameters are not good; else returns true.
 */
 static char* GetInputsPaths(char *input[], int count, bool find_input) {
-	if ((count == 3) &&
-		(areStringsEqual(input[1], (find_input ? OUTPUT_SIGN : INPUT_SIGN)))) {
+	if ((count >= 3) &&
+		(areStringsEqual(input[1], (find_input ? INPUT_SIGN : OUTPUT_SIGN)))) {
 		return input[2];
 	}
 	if ((count == 5) &&
-		(areStringsEqual(input[3], (find_input ? OUTPUT_SIGN : INPUT_SIGN)))) {
+		(areStringsEqual(input[3], (find_input ? INPUT_SIGN : OUTPUT_SIGN)))) {
 		return input[4];
 	}
 	return NULL;
@@ -269,9 +278,16 @@ void yad3ProgramRun(Yad3Program program) {
 	char buffer[MAX_LEN] = "";
 	bool should_continue = true;
 
-	while (should_continue && fgets(buffer, MAX_LEN,
-			(program->input != NULL ? program->input : stdin)) != NULL) {
+	char *charcter =  fgets(buffer, MAX_LEN, program->input);
+		//	(program->input != NULL ? program->input : stdin));
+
+	while ((should_continue) && (charcter != NULL)) {
 		should_continue = RunCommand(buffer, program);
+		if (should_continue) {
+			charcter =  fgets(buffer, MAX_LEN, program->input);
+				//	(program->input != NULL ? program->input : stdin));
+
+		}
 	}
 }
 
@@ -281,12 +297,14 @@ void yad3ProgramRun(Yad3Program program) {
 static bool RunCommand(char* command, Yad3Program program) {
 	if (command[0] == COMMENT_SIGN) return true;
 	int size;
-	char** params;
+	char** params = NULL;
 	bool should_continue = true;
 	if (!splitString(command, &size, &params)) {
 		writeToErrorOutStream(MTM_OUT_OF_MEMORY);
 		should_continue = false;
-	}else if (params == NULL) {
+	} else if (params == NULL) {
+		return true;
+	} else  if (params[0][0] == '\n') {
 		should_continue = true;
 	} else if (areStringsEqual(params[0], USER_CUSTOMER)) {
 		should_continue = RunCustomerCommand(params, program);
@@ -298,7 +316,7 @@ static bool RunCommand(char* command, Yad3Program program) {
 		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
 		should_continue = false;
 	}
-	free(params);
+	matrixDestroy(params, size);
 	return should_continue;
 }
 
@@ -316,8 +334,7 @@ static bool RunRealtorCommand(char** params, Yad3Program program) {
 	} else if (areStringsEqual(params[1], ACTION_REMOVE_APARTMENT)) {
 		return RunRemoveApartmentFromRealtor(params, program);
 	} else if (areStringsEqual(params[1], ACTION_RESPOND_OFFER)) {
-		// TODO : ADD to service!
-		return true;
+		return RunResponeToOffer(params, program);
 	} else {
 		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
 		return false;
@@ -408,6 +425,20 @@ static bool RunRemoveApartmentFromRealtor(char** params, Yad3Program program) {
 }
 
 /*
+ * Run RemoveApartmentFromRealtor command
+ */
+static bool RunResponeToOffer(char** params, Yad3Program program) {
+	if ((params[2] != NULL) && (params[3] != NULL) && (params[4] != NULL)) {
+			Yad3ServiceResult result = yad3ServiceRespondToClientOffer(
+				program->service, params[2], params[3], params[4]);
+			return HandleResult(result);
+		}
+		writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+		return false;
+}
+
+
+/*
  * Runs one of the possible Customer command
 */
 static bool RunCustomerCommand(char** params, Yad3Program program) {
@@ -488,10 +519,10 @@ static bool RunMakeOffer(char** params, Yad3Program program) {
 */
 static bool RunReporterCommand(char** params, Yad3Program program) {
 	if (areStringsEqual(params[1], REPORT_RELEVENT_REALTORS)) {
-		// TODO : ADD to service!
+		RunPrintRealventRealtorReport(params, program);
 		return true;
 	} else if (areStringsEqual(params[1], REPORT_SIGNIFICANT_REALTORS)) {
-		// TODO : ADD to service!
+		RunSignificantRealtorReport(params, program);
 		return true;
 	}else if (areStringsEqual(params[1], REPORT_PAYING_CUSTOMERS)) {
 		RunPayingCustumersReport(params, program);
@@ -507,7 +538,7 @@ static bool RunReporterCommand(char** params, Yad3Program program) {
 */
 static bool RunPayingCustumersReport(char** params, Yad3Program program) {
 	if ((params[2] != NULL)) {
-		Yad3ServiceResult result = yad3ServiceMostPayingCustomers(
+		Yad3ServiceResult result = yad3ServicePrintMostPayingClients(
 			program->service, stringToInt(params[2]), program->output);
 		return HandleResult(result);
 	}
@@ -516,14 +547,42 @@ static bool RunPayingCustumersReport(char** params, Yad3Program program) {
 }
 
 /*
+ * Run print most significant realtors report command
+*/
+static bool RunSignificantRealtorReport(char** params, Yad3Program program) {
+	if ((params[2] != NULL)) {
+		Yad3ServiceResult result = yad3ServicePrintMostSignificantAgents(
+			program->service, stringToInt(params[2]), program->output);
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+/*
+ * Run print most significant realtors report command
+*/
+static bool RunPrintRealventRealtorReport(char** params, Yad3Program program) {
+	if ((params[2] != NULL)) {
+		Yad3ServiceResult result = yad3ServicePrintClientsRealventAgents(
+			program->service, params[2], program->output);
+		return HandleResult(result);
+	}
+	writeToErrorOutStream(MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return false;
+}
+
+
+
+/*
  * Handles the code from service, returns if should continue or not
 */
 static bool HandleResult(Yad3ServiceResult result) {
 	if (result == YAD3_SERVICE_SUCCESS) return true;
 	MtmErrorCode code = ConvertYad3ServiceResult(result);
 	writeToErrorOutStream(code);
-	return (code == MTM_OUT_OF_MEMORY || code == MTM_CANNOT_OPEN_FILE ||
-		code == MTM_INVALID_COMMAND_LINE_PARAMETERS);
+	return (code != MTM_OUT_OF_MEMORY && code != MTM_CANNOT_OPEN_FILE &&
+		code != MTM_INVALID_COMMAND_LINE_PARAMETERS);
 }
 
 /*
@@ -597,7 +656,7 @@ MtmErrorCode ConvertYad3ServiceResult(Yad3ServiceResult value) {
 * @return
 * 	NULL if string is null or malloc failed; else returns the matrix
  */
-static bool splitString(char* string, int *size, char*** out_matrix) {
+/*static bool splitString(char* string, int *size, char*** out_matrix) {
 	int actual_size = 8;
 	int logical_size = 0;
 	char** result = malloc(sizeof(char*) * actual_size);
@@ -606,30 +665,33 @@ static bool splitString(char* string, int *size, char*** out_matrix) {
 	while (token != NULL) {
 		if (actual_size == logical_size) {
 			actual_size += 6;
-			char** new_array = realloc(result, actual_size);
+			char** new_array =
+					realloc(result, actual_size * sizeof(*new_array));
 			if (new_array == NULL) {
-				free (result);
+				matrixDestroy(result, logical_size);
 				return false;
 			}
 			result = new_array;
 		}
-		result[logical_size] = token;
+		result[logical_size] = strdup(token);
 		logical_size++;
+		token = strtok(NULL, COMMAND_SAPARATORS);
 	}
-	char** new_array = NULL;
+	/ *char** new_array = NULL;
 	if (logical_size > 0) {
-		char** new_array = realloc(result, logical_size);
+		new_array = realloc(result, logical_size * sizeof(char*));
 		if (new_array == NULL) {
 			free (result);
 			return false;
 		}
-	}
-	free(result);
-	*out_matrix = new_array;
+	}* /
+	*out_matrix = result;//new_array;
+	*size = logical_size;
 	return true;
-}
+}*/
 
-
+bool addToArray(char*** result, int *logical_size, int *actual_size,
+				char* string, int start_index, int index);
 
 /*
 * commandSplit: splits the string to an array of sub string
@@ -642,75 +704,107 @@ static bool splitString(char* string, int *size, char*** out_matrix) {
 * @return
 * 	NULL if string is null or malloc failed; else returns the matrix
  */
-//static char** splitString(char* string, int *size) {
-//    char** result = NULL;
-//    int count = countChar(string, COMMAND_SAPARATOR_1) +
-//    		countChar(string, COMMAND_SAPARATOR_2);
-//    *size = count;
-//    int start_index = 0, last_index = 0, current_index = 0, item_index = 0;
-//    result = malloc(sizeof(char*) * count);
-//    if (result == NULL) return NULL;
-//    for (int i = 0; i < count; i++) result[i] = NULL;
-//    while (string[current_index] != END_OF_STRING) {
-//    	if ((string[current_index] != countChar(string, COMMAND_SAPARATOR_1))&&
-//    		(string[current_index] != countChar(string, COMMAND_SAPARATOR_2))){
-//    		last_index++;
-//    	} else {
-//    		if (start_index < last_index) {
-//				result[item_index] = getSubString(string, start_index,
-//						last_index);
-//				item_index++;
-//				if (result[item_index] == NULL) {
-//					matrixDestroy(result, count);
-//					return NULL;
-//				}
-//			}
-//    		start_index = current_index + 1;
-//    		last_index = current_index + 1;
-//    	}
-//    	current_index++;
-//    }
-//    if (start_index < last_index) {
-//		result[item_index] = getSubString(string, start_index, last_index-1);
-//		if (result[item_index] == NULL) {
-//			matrixDestroy(result, count);
-//			return NULL;
-//		}
-//	}
-//    return result;
-//}
-//
-///*
-//* getSubString: returns a new sub string in the given range.
-//*
-//* @param string the string.
-//* @param start_index the start_index.
-//* @param end_index the end_index.
-//*
-//* @return
-//* 	NULL if string is null or malloc failed or end_index - start_index <= 0;
-//* 	else returns the string
-// */
-//static char* getSubString(char* str, int start_index, int end_index) {
-//	if ((str == NULL) || (end_index - start_index <= 0)) return NULL;
-//	char* new_string = malloc(sizeof(char) * ((end_index - start_index) + 2));
-//	if (new_string == NULL) return NULL;
-//	for (int i = 0; i < (end_index - start_index + 1); i++) {
-//		new_string[i] = str[start_index + i];
-//	}
-//	new_string[end_index - start_index + 1] = END_OF_STRING;
-//	return new_string;
-//}
-//
-///*
-//* matrixDestroy: Destroys the given matrixDestroy using free.
-//*
-//* @param matrix the matrix.
-//* @param size the size.
-// */
-//static void matrixDestroy(char** matrix, int size) {
-//	for (int i = 0; i < size; i++) {
-//		free(matrix[i]);
-//	}
-//	free(matrix);
-//}
+static bool splitString(char* string, int *size, char*** result_ptr) {
+	int actual_size = 8;
+	int logical_size = 0;
+	int start_index = 0;
+	char** result = malloc(sizeof(char*) * actual_size);
+	int index = 0;
+	while ((string[index] != '\0') && (string[index] != '\n')) {
+		if ((string[index] == COMMAND_SAPARATOR_1) ||
+			(string[index] == COMMAND_SAPARATOR_2)) {
+			if (start_index < index) {
+				if (!addToArray(&result, &logical_size, &actual_size,
+						string, start_index, index)) {
+					return false;
+				}
+			}
+			start_index = index + 1;
+		}
+		index++;
+	}
+	if (start_index < index) {
+		if (!addToArray(&result, &logical_size, &actual_size,
+				string, start_index, index)) {
+			return false;
+		}
+	}
+	if (logical_size == 0) {
+		free(result);
+		return true;
+	}
+	if (logical_size != actual_size) {
+		char** new_array =
+			realloc(result, logical_size * sizeof(*new_array));
+		if (new_array == NULL) {
+			matrixDestroy(result, logical_size);
+			return false;
+		}
+		result = new_array;
+	}
+
+	*size = logical_size;
+	*result_ptr = logical_size == 0 ? NULL : result;
+
+    return true;
+}
+
+/*
+ * Adds a copy of the given string to the array
+ */
+bool addToArray(char*** result, int *logical_size, int *actual_size,
+				char* string, int start_index, int index) {
+	if (*logical_size == *actual_size) {
+		*actual_size += 4;
+		char** new_array =
+			realloc(*result, (*actual_size) * sizeof(*new_array));
+		if (new_array == NULL) {
+			matrixDestroy(*result, *logical_size);
+			return false;
+		}
+		*result = new_array;
+	}
+	(*result)[*logical_size] = getSubString(string, start_index, index);
+	if (result[*logical_size] == NULL) {
+		matrixDestroy(*result, *logical_size);
+		return false;
+	}
+	(*logical_size)++;
+	return true;
+}
+
+/*
+* getSubString: returns a new sub string in the given range.
+*
+* @param string the string.
+* @param start_index the start_index.
+* @param end_index the end_index.
+*
+* @return
+* 	NULL if string is null or malloc failed or end_index - start_index <= 0;
+* 	else returns the string
+ */
+static char* getSubString(char* str, int start_index, int end_index) {
+	if ((str == NULL) || (end_index - start_index <= 0)) return NULL;
+	char* new_string =
+			malloc(sizeof(char) * (end_index - start_index + 1));
+	if (new_string == NULL) return NULL;
+	for (int i = 0; i < (end_index - start_index); i++) {
+		new_string[i] = str[start_index + i];
+	}
+	new_string[end_index - start_index] = END_OF_STRING;
+	return new_string;
+}
+
+/*
+* matrixDestroy: Destroys the given matrixDestroy using free.
+*
+* @param matrix the matrix.
+* @param size the size.
+ */
+static void matrixDestroy(char** matrix, int size) {
+	for (int i = 0; i < size; i++) {
+		free(matrix[i]);
+	}
+	free(matrix);
+}

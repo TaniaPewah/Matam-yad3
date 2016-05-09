@@ -129,7 +129,6 @@ static bool testClientPurchaseBillGeters() {
 	int paid = clientPurchaseBillGetMoneyPaid(bill_2);
 	ASSERT_TEST(paid == 500);
 	free(address);
-	free(paid);
 	clientPurchaseBillDestroy(bill_1);
 	clientPurchaseBillDestroy(bill_2);
 	emailDestroy(mail_1);

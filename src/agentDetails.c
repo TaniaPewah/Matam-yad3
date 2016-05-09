@@ -68,11 +68,11 @@ AgentDetails agentDetailsCreate(Email email, char* company_name, double rank) {
 * NULL if agent_details is NULL or allocation failed; else returns the new
 * AgentDetails.
 */
-AgentDetails agentDetailsCopy( AgentDetails agent_details){
+AgentDetails agentDetailsCopy(AgentDetails agent_details) {
 	if (agent_details == NULL) return NULL;
-		return agentDetailsCreate( agent_details->email,
-								   agent_details->companyName,
-								   agent_details->rank);
+		return agentDetailsCreate(agent_details->email,
+								  agent_details->companyName,
+								  agent_details->rank);
 }
 
 /**
@@ -83,7 +83,7 @@ AgentDetails agentDetailsCopy( AgentDetails agent_details){
 *
 * If purchase_bill is NULL nothing will be done
 */
-void agentDetailsDestroy( AgentDetails agent_details ){
+void agentDetailsDestroy(AgentDetails agent_details) {
 	if (agent_details != NULL) {
 		emailDestroy(agent_details->email);
 		free(agent_details->companyName);
@@ -101,9 +101,9 @@ void agentDetailsDestroy( AgentDetails agent_details ){
 * return:
 * int -the difference between the first and the second
 */
-double agentDetailsRankCompare( AgentDetails first, AgentDetails second){
+double agentDetailsRankCompare(AgentDetails first, AgentDetails second) {
 
-	return ( first->rank - second->rank );
+	return (first->rank - second->rank);
 }
 
 
@@ -112,8 +112,8 @@ double agentDetailsRankCompare( AgentDetails first, AgentDetails second){
 * returns NULL if a NUll details param recieved
 * else the email of this agent details
 */
-Email agentDetailsGetEmail( AgentDetails details ){
-	return details? details->email : NULL;
+Email agentDetailsGetEmail(AgentDetails details) {
+	return details != NULL ? details->email : NULL;
 }
 
 /* agentDetailsGetEmail : gets the companyName of the agent
@@ -121,8 +121,8 @@ Email agentDetailsGetEmail( AgentDetails details ){
 * returns NULL if a NUll details param recieved
 * else the companyName of this agent details
 */
-char* agentDetailsGetCompanyName( AgentDetails details ){
-	return details? details->companyName : NULL;
+char* agentDetailsGetCompanyName(AgentDetails details) {
+	return details != NULL ? details->companyName : NULL;
 }
 
 /* agentDetailsGetEmail : gets the rank of the agent
@@ -130,6 +130,6 @@ char* agentDetailsGetCompanyName( AgentDetails details ){
 * returns NO_RANK if NULL details recieved
 * else the rank of this agent details
 */
-double agentDetailsGetRank( AgentDetails details){
-	return details ? details->rank : NO_RANK;
+double agentDetailsGetRank(AgentDetails details) {
+	return details != NULL ? details->rank : NO_RANK;
 }
