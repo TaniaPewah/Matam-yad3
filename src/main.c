@@ -12,7 +12,7 @@ int RunClientManagerTest();
 int RunClientPurchaseBillTest();
 int RunOfferTest();
 int RunAgentDetailsTest();
-int RunMtmServiceTest();
+int RunYad3ServiceTest();
 int RunOffersManagerTest();
 
 int main(int argc, char *argv[]) {
@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 	RunClientTest();
 	RunClientManagerTest();
 	RunOfferTest();
-	RunMtmServiceTest();
+	RunYad3ServiceTest();
 	RunOffersManagerTest();
 	return 0;
 }

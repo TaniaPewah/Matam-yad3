@@ -10,39 +10,39 @@
 #include "test_utilities.h"
 #include "yad3Service.h"
 
-static bool testMtmServiceCreate();
-static bool testMtmServiceAddAgent();
-static bool testMtmServiceRemoveAgent();
-static bool testMtmServiceAddServiceToAgent();
-static bool testMtmServiceRemoveServiceFromAgent();
-static bool testMtmServiceAddApartmentToAgent();
-static bool testMtmServiceRemoveApartmentFromAgent();
-static bool testMtmServiceAddClient();
-static bool testMtmServiceRemoveClient();
-static bool testMtmServiceClientPurchaseApartment();
+static bool testYad3ServiceCreate();
+static bool testYad3ServiceAddAgent();
+static bool testYad3ServiceRemoveAgent();
+static bool testYad3ServiceAddServiceToAgent();
+static bool testYad3ServiceRemoveServiceFromAgent();
+static bool testYad3ServiceAddApartmentToAgent();
+static bool testYad3ServiceRemoveApartmentFromAgent();
+static bool testYad3ServiceAddClient();
+static bool testYad3ServiceRemoveClient();
+static bool testYad3ServiceClientPurchaseApartment();
 
-int RunMtmServiceTest() {
+int RunYad3ServiceTest() {
 
-	RUN_TEST(testMtmServiceCreate);
-	RUN_TEST(testMtmServiceAddAgent);
-	RUN_TEST(testMtmServiceRemoveAgent);
-	RUN_TEST(testMtmServiceAddServiceToAgent);
-	RUN_TEST(testMtmServiceRemoveServiceFromAgent);
-	RUN_TEST(testMtmServiceAddApartmentToAgent);
-	RUN_TEST(testMtmServiceRemoveApartmentFromAgent);
-	RUN_TEST(testMtmServiceAddClient);
-	RUN_TEST(testMtmServiceRemoveClient);
-	RUN_TEST(testMtmServiceClientPurchaseApartment);
+	RUN_TEST(testYad3ServiceCreate);
+	RUN_TEST(testYad3ServiceAddAgent);
+	RUN_TEST(testYad3ServiceRemoveAgent);
+	RUN_TEST(testYad3ServiceAddServiceToAgent);
+	RUN_TEST(testYad3ServiceRemoveServiceFromAgent);
+	RUN_TEST(testYad3ServiceAddApartmentToAgent);
+	RUN_TEST(testYad3ServiceRemoveApartmentFromAgent);
+	RUN_TEST(testYad3ServiceAddClient);
+	RUN_TEST(testYad3ServiceRemoveClient);
+	RUN_TEST(testYad3ServiceClientPurchaseApartment);
 	return 0;
 }
 
-static bool testMtmServiceCreate() {
+static bool testYad3ServiceCreate() {
 	Yad3Service service = yad3ServiceCreate();
 	ASSERT_TEST(service != NULL);
 	yad3ServiceDestroy(service);
 	return true;
 }
-static bool testMtmServiceAddAgent() {
+static bool testYad3ServiceAddAgent() {
 	Yad3Service service = yad3ServiceCreate();
 
 	ASSERT_TEST(yad3ServiceAddAgent(NULL, "baba@ganosh", "tania", 5) ==
@@ -66,7 +66,7 @@ static bool testMtmServiceAddAgent() {
 	yad3ServiceDestroy(service);
 	return true;
 }
-static bool testMtmServiceRemoveAgent() {
+static bool testYad3ServiceRemoveAgent() {
 	Yad3Service service = yad3ServiceCreate();
 
 	ASSERT_TEST(yad3ServiceRemoveAgent(NULL, "baba@ganosh") ==
@@ -99,7 +99,7 @@ static bool testMtmServiceRemoveAgent() {
 	yad3ServiceDestroy(service);
 	return true;
 }
-static bool testMtmServiceAddServiceToAgent() {
+static bool testYad3ServiceAddServiceToAgent() {
 	Yad3Service service = yad3ServiceCreate();
 	yad3ServiceAddAgent(service, "baba@ganosh", "tania", 5);
 	ASSERT_TEST(yad3ServiceAddServiceToAgent(NULL, "baba@ganosh", "serveMe",
@@ -130,7 +130,7 @@ static bool testMtmServiceAddServiceToAgent() {
 	yad3ServiceDestroy(service);
 	return true;
 }
-static bool testMtmServiceRemoveServiceFromAgent() {
+static bool testYad3ServiceRemoveServiceFromAgent() {
 	Yad3Service service = yad3ServiceCreate();
 	yad3ServiceAddAgent(service, "baba@ganosh", "tania", 5);
 
@@ -165,7 +165,7 @@ static bool testMtmServiceRemoveServiceFromAgent() {
 	return true;
 }
 
-static bool testMtmServiceAddApartmentToAgent(){
+static bool testYad3ServiceAddApartmentToAgent(){
 
 	Yad3Service service = yad3ServiceCreate();
 	yad3ServiceAddAgent( service, "baba@ganosh", "tania", 1 );
@@ -217,7 +217,7 @@ static bool testMtmServiceAddApartmentToAgent(){
 	return true;
 }
 
-static bool testMtmServiceRemoveApartmentFromAgent() {
+static bool testYad3ServiceRemoveApartmentFromAgent() {
 
 	Yad3Service service = yad3ServiceCreate();
 	yad3ServiceAddAgent( service, "baba@ganosh", "tania", 1 );
@@ -257,7 +257,7 @@ static bool testMtmServiceRemoveApartmentFromAgent() {
 	yad3ServiceDestroy( service );
 	return true;
 }
-static bool testMtmServiceAddClient() {
+static bool testYad3ServiceAddClient() {
 	Yad3Service service = yad3ServiceCreate();
 
 	ASSERT_TEST( yad3ServiceAddClient( NULL, "ba@ganosh", 1, 1, 22 ) ==
@@ -281,7 +281,7 @@ static bool testMtmServiceAddClient() {
 	yad3ServiceDestroy( service );
 	return true;
 }
-static bool testMtmServiceRemoveClient() {
+static bool testYad3ServiceRemoveClient() {
 	Yad3Service service = yad3ServiceCreate();
 	yad3ServiceAddAgent( service, "baba@ganosh", "tania", 1 );
 	yad3ServiceAddClient(service, "ba@ganosh", 1, 1, 22);
@@ -308,7 +308,7 @@ static bool testMtmServiceRemoveClient() {
 	yad3ServiceDestroy( service );
 	return true;
 }
-static bool testMtmServiceClientPurchaseApartment() {
+static bool testYad3ServiceClientPurchaseApartment() {
 
 	Yad3Service service = yad3ServiceCreate();
 	yad3ServiceAddAgent( service, "baba@ganosh", "tania", 1 );
