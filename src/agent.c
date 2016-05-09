@@ -385,13 +385,30 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 	return ConvertServiceResult( deleteResult );
 }
 
+static AgentResult findMatch( ApartmentService service, int rooms, int area,
+							int price, Agent agent, AgentDetails* details  ){
+	ApartmentServiceResult result;
+	Apartment apartment;
+
+	result = serviceSearch( service, area, rooms, price, &apartment );
+	if( result == APARTMENT_SERVICE_SUCCESS ){
+		*details = agentDetailsCreate( agent->email, agent->companyName,
+				RANK_EMPTY );
+		if(*details == NULL )
+			return AGENT_OUT_OF_MEMORY;
+		return AGENT_SUCCESS;
+	}
+
+	return AGENT_APARTMENT_NOT_EXISTS;
+}
+
 /**
 * agentFindMatch: finds a matching apartment in each of the agent's services
 *
 * @param agent   	the requested agent
-* @param min_rooms  the minimum amounts of rooms in the requested apartment
-* @param min_area   the minimum area in the requested apartment
-* @param max_price  the maximum price of the apartment
+* @param rooms  the minimum amounts of rooms in the requested apartment
+* @param area   the minimum area in the requested apartment
+* @param price  the maximum price of the apartment
 * @param details out parameter AgentDetails instance with the details of the
 * 				 agent - if the requested apartment was found in at least one
 * 				 of the apartment services that the
@@ -404,39 +421,25 @@ AgentResult agentRemoveApartmentFromService( Agent agent, int apartmentId,
 *	AGENT_OUT_OF_MEMORY                 if any of the allocations failed
 *	AGENT_SUCCESS                       a match is found
 */
-AgentResult agentFindMatch(Agent agent, int min_rooms, int min_area,
-									int max_price, AgentDetails* details) {
-	if( agent == NULL )
-		return AGENT_INVALID_PARAMETERS;
-	char* name = mapGetFirst( agent->apartmentServices );
-	ApartmentService current = NULL;
-	if	(name != NULL)
-		current = mapGet( agent->apartmentServices, name );
-	if( current == NULL)
-		return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
-	Apartment apartment;
-	while(current) {
-		ApartmentServiceResult result =
-			serviceSearch( current, min_area, min_rooms, max_price, &apartment);
-		if( result == APARTMENT_SERVICE_OUT_OF_MEM )
-			return AGENT_OUT_OF_MEMORY;
-		if( result == APARTMENT_SERVICE_EMPTY ||
-			result == APARTMENT_SERVICE_NO_FIT )
-			return AGENT_APARTMENT_NOT_EXISTS;
-		if( result == APARTMENT_SERVICE_SUCCESS ){
-			*details = agentDetailsCreate( agent->email, agent->companyName,
-					RANK_EMPTY);
-			if(*details == NULL)
-				return AGENT_OUT_OF_MEMORY;
-			return AGENT_SUCCESS;
-		}
-		current = NULL;
-		name = mapGetNext( agent->apartmentServices );
-		if( name != NULL)
-			current = mapGet( agent->apartmentServices, name );
-	}
+AgentResult agentFindMatch(Agent agent, int rooms, int area,
+							int price, AgentDetails* details) {
+	if( agent == NULL || details == NULL ) return AGENT_INVALID_PARAMETERS;
 
-	return AGENT_APARTMENT_NOT_EXISTS;
+	AgentResult result;
+	char* name = mapGetFirst( agent->apartmentServices );
+	if ( name == NULL ) return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+	ApartmentService curr_service = mapGet( agent->apartmentServices, name );
+	if( curr_service == NULL ) return AGENT_APARTMENT_SERVICE_NOT_EXISTS;
+
+	while( curr_service != NULL ){
+
+		result = findMatch( curr_service, rooms, area, price, agent, details );
+
+		name = mapGetNext( agent->apartmentServices );
+		 curr_service = ( name != NULL ) ?
+				 mapGet( agent->apartmentServices, name ) : NULL;
+	}
+	return result;
 }
 
 /**
