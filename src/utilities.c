@@ -4,8 +4,7 @@
 #include <stdbool.h>
 #include "utilities.h"
 
-#define END_OF_LINE '\n'
-#define END_OF_STRING '\0'
+
 
 static int getDigitsCount(int number);
 //static char* getSubString(char* str, int start_index, int end_index);
@@ -155,24 +154,16 @@ void matrixDestroy(char** matrix, int size) {
 /*
 int main()
 {
-    char months[] = "JAN,FEB,MAR,APR,MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC";
-    char** tokens;
-
-    printf("months=[%s]\n\n", months);
-
-    tokens = str_split(months, ',');
-
-    if (tokens)
+    int string_index = 0, number = 0;
+    int leangth = strlen(string);
+    if (string[0] == '-')  string_index++;
+    for(int i = leangth - 1; i >= 0; i--)
     {
-        int i;
-        for (i = 0; *(tokens + i); i++)
-        {
-            printf("month=[%s]\n", *(tokens + i));
-            free(*(tokens + i));
-        }
-        printf("\n");
-        free(tokens);
+    	number *= 10;
+        if(string[i] >= '0' && string[i] <= '9')
+        	string += (string[i] - (int)'0');
+        string_index++;
     }
-
-    return 0;
-}*/
+    if (string[0] == '-') return -1 * number;
+    return number;
+}

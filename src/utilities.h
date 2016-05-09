@@ -49,15 +49,7 @@ char* IntToString(int number);
  */
 int countChar(char* string, char value);
 
-/*
-* str_split: splits the string to array of strings separating by the separator
-*
-* @param string the string to split
-* @param separator the character to used to separate
-*
-* @return
-*  NULL if ; else returns the count
- */
-char** str_split(char* string_to_split, const char separator);
+
+int stringToInt(const char* string);
 
 #endif /* SRC_UTILITIES_H_ */

@@ -320,4 +320,47 @@ MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
 	char* client_email, char* agent_email, char* service_name,
 	int id);
 
+
+/*
+ * CheckOffer: help function that checks if an offer can be purchased by a
+ * client.
+*
+* @param service service to remove from.
+* @param client client email.
+* @param agent agent email.
+* @param service_name agent apartment service name.
+* @param id apartment id.
+* @param price offer price.
+*
+* @return
+*
+* 	MTM_SERVICE_INVALID_PARAMETERS if service or are email_adress NULL,
+* 		or if email_adress is illegal.
+*
+* 	MTM_SERVICE_EMAIL_DOES_NOT_EXIST if service does not contain a client with
+* 		the given email address.
+*
+* 	MTM_SERVICE_EMAIL_WRONG_ACCOUNT_TYPE the given email is registered as an
+* 		agent and not a client.
+*
+* 	MTM_SERVICE_APARTMENT_SERVICE_DOES_NOT_EXIST the apartment service does
+* 		not exist.
+*
+* 	MTM_SERVICE_APARTMENT_DOES_NOT_EXIST the apartment does not exist
+*
+*	MTM_SERVICE_ALREADY_REQUESTED if an offer was already suggested
+*
+*	MTM_SERVICE_PURCHASE_WRONG_PROPERTIES offer details are wrong
+*
+*	MTM_SERVICE_REQUEST_ILLOGICAL_PRICE offer is not good for client
+*
+* 	MTM_SERVICE_OUT_OF_MEMORY in case of memory allocation problem.
+*
+*	MTM_SERVICE_SUCCESS offer can be made
+*
+*/
+MTMServiceResult mtmServiceMakeClientOffer(MTMService service,
+		char* client_email, char* agent_email, char* service_name, int id,
+		int price);
+
 #endif /* SRC_MTMSERVICE_H_ */
