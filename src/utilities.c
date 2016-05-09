@@ -8,7 +8,7 @@
 #define END_OF_STRING '\0'
 
 static int getDigitsCount(int number);
-static char* getSubString(char* str, int start_index, int end_index);
+//static char* getSubString(char* str, int start_index, int end_index);
 
 /*
  * duplicateString: Allocates and duplicates a new copy given string
@@ -108,7 +108,7 @@ int countChar(char* string, char value) {
 
 
 char** commandSplit(char* string_to_split, int *size, const char separator) {
-    char** result = NULL;
+   /* char** result = NULL;
     size = countChar(string_to_split, separator) + 2;
     int start_index = 0, last_index = 0, current_index = 0, item_index = 0;
     result = malloc(sizeof(char*) * size);
@@ -130,12 +130,12 @@ char** commandSplit(char* string_to_split, int *size, const char separator) {
     if (start_index < last_index) {
 		result[item_index] = getSubString(string_to_split, start_index,
 				last_index);
-	}
+	}*/
 
-    return result;
+    return NULL;
 }
 
-static char* getSubString(char* str, int start_index, int end_index) {
+/*static char* getSubString(char* str, int start_index, int end_index) {
 	char* new_string = malloc(sizeof(char) * ((end_index - start_index) + 2));
 	if (new_string == NULL) return NULL;
 	for (int i = 0; i < (end_index - start_index + 1); i++) {
@@ -143,7 +143,7 @@ static char* getSubString(char* str, int start_index, int end_index) {
 	}
 	new_string[end_index - start_index + 1] = END_OF_LINE;
 	return new_string;
-}
+}*/
 
 void matrixDestroy(char** matrix, int size) {
 	for (int i = 0; i < size; i++) {
