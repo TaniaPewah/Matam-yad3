@@ -4,8 +4,10 @@
 #include <stdbool.h>
 #include "utilities.h"
 
+#define END_OF_LINE '\0'
+
 static int getDigitsCount(int number);
-char** str_split(char* string_to_split, const char separator);
+static char* getSubString(char* str, int start_index, int end_index);
 
 /*
  * duplicateString: Allocates and duplicates a new copy given string
@@ -100,54 +102,38 @@ int countChar(char* string, char value) {
 	return count;
 }
 
-char** str_split(char* string_to_split, const char separator){
-    char** result    = 0;
-    size_t count     = 0;
-    char* tmp        = string_to_split;
-    char* last_separator = 0;
-    char delim[2];
-    delim[0] = separator;
-    delim[1] = 0;
-
-    /* Count how many elements will be extracted. */
-    while (*tmp) {
-        if (separator == *tmp){
-            count++;
-            last_separator = tmp;
-        }
-        tmp++;
-    }
-
-    /* Add space for trailing token. */
-    count += last_separator < (string_to_split + strlen(string_to_split) - 1);
-
-    /* Add space for terminating null string so caller
-       knows where the list of returned strings ends. */
-    count++;
+char** commandSplit(char* string_to_split, const char separator) {
+    char** result = NULL;
+    int count = countChar(string_to_split, separator) + 1;
+    int start_index = 0, last_index = 0, current_index = 0, item_index = 0;
     result = malloc(sizeof(char*) * count);
-
-    if (result){
-        size_t idx  = 0;
-        char* token = strtok(string_to_split, delim);
-
-        while (token){
-            if(!(idx < count)){
-            	free(result);
-            	return NULL;
-            }
-
-            *(result + idx++) = duplicateString(token);
-            token = strtok(0, delim);
-        }
-        if(!(idx == count - 1)){
-        	free(result);
-        	return NULL;
-        }
-        *(result + idx) = 0;
+    if (result == NULL) return NULL;
+    for (int i = 0; i < count; i++) result[i] = NULL;
+    while (string_to_split[current_index] != END_OF_LINE) {
+    	if (string_to_split[current_index] != separator) {
+    		last_index++;
+    	} else {
+    		if (start_index < last_index) {
+				result[item_index] = getSubString(string_to_split, start_index,
+						last_index);
+			}
+    		start_index = current_index + 1;
+    		last_index = current_index + 1;
+    	}
+    	current_index++;
     }
+    if (start_index < last_index) {
+		result[item_index] = getSubString(string_to_split, start_index,
+				last_index);
+	}
 
     return result;
 }
+
+static char* getSubString(char* str, int start_index, int end_index) {
+	return NULL;
+}
+
 /*
 int main()
 {

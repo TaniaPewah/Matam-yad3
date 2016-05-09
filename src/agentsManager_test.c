@@ -25,7 +25,7 @@ static bool testAgentsManagerCreate();
 static bool testAgentsManagerAddApartmentToService();
 static bool testAgentsManagerRemoveApartmentFromService();
 static bool testAgentManagerFindMatch();
-static bool testAgentManagerGetSignificantAgents();
+//static bool testAgentManagerGetSignificantAgents();
 static bool testAgentsManagerGetApartmentDetails();
 
 int RunAgentManagerTest() {
@@ -37,7 +37,7 @@ int RunAgentManagerTest() {
 	RUN_TEST(testAgentsManagerAddApartmentToService);
 	RUN_TEST(testAgentsManagerRemoveApartmentFromService);
 	RUN_TEST(testAgentManagerFindMatch);
-	RUN_TEST(testAgentManagerGetSignificantAgents);
+	//RUN_TEST(testAgentManagerGetSignificantAgents);
 	RUN_TEST(testAgentsManagerGetApartmentDetails);
 	return 0;
 }
@@ -248,7 +248,7 @@ static bool testAgentManagerFindMatch(){
 	return true;
 }
 
-static bool testAgentManagerGetSignificantAgents() {
+/*static bool testAgentManagerGetSignificantAgents() {
 	Email email = NULL;
 	emailCreate("baba@ganosh", &email);
 	AgentsManager manager = agentsManagerCreate();
@@ -280,7 +280,7 @@ static bool testAgentManagerGetSignificantAgents() {
 	emailDestroy(email);
 	emailDestroy(mail);
 	return true;
-}
+}*/
 
 static bool testAgentsManagerGetApartmentDetails(){
 	Email email = NULL;
