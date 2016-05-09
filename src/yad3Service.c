@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include "mtmService.h"
+#include "yad3Service.h"
 #include "email.h"
 #include "utilities.h"
 #include "clientsManager.h"
@@ -12,39 +12,39 @@
 #define WALL_CHAR 'w'
 #define EMPTY_CHAR 'e'
 
-struct mtmService_t {
+struct yad3Service_t {
 	ClientsManager clients;
 	AgentsManager agents;
 	OffersManager offers;
 };
 
-static MTMServiceResult RemoveApartmentFromAgent(MTMService service, Email mail,
+static Yad3ServiceResult RemoveApartmentFromAgent(Yad3Service service, Email mail,
 	char* service_name, int id);
-static MTMServiceResult CreateEmailAndSearchForClient(MTMService service,
+static Yad3ServiceResult CreateEmailAndSearchForClient(Yad3Service service,
 	char* email_adress, Email *out_email);
-static MTMServiceResult CreateEmailAndSearchForAgent(MTMService service,
+static Yad3ServiceResult CreateEmailAndSearchForAgent(Yad3Service service,
 	char* email_adress, Email *out_email);
-static MTMServiceResult CreateEmailAndSearch(MTMService service,
+static Yad3ServiceResult CreateEmailAndSearch(Yad3Service service,
 	char* email_adress, Email *out_email, bool search_for_client);
-static MTMServiceResult convertClientManagerResult(ClientsManagerResult value);
-static MTMServiceResult convertAgentManagerResult(AgentsManagerResult value);
-static MTMServiceResult convertEmailResult(EmailResult value);
-static MTMServiceResult convertOffersManagerResult(OfferManagerResult value);
-static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
+static Yad3ServiceResult convertClientManagerResult(ClientsManagerResult value);
+static Yad3ServiceResult convertAgentManagerResult(AgentsManagerResult value);
+static Yad3ServiceResult convertEmailResult(EmailResult value);
+static Yad3ServiceResult convertOffersManagerResult(OfferManagerResult value);
+static Yad3ServiceResult CheckClientPurchaseApartment(Yad3Service service,
 	Email client, Email agent, char* service_name, int id);
-static MTMServiceResult CommitClientPurchaseApartment(MTMService service,
+static Yad3ServiceResult CommitClientPurchaseApartment(Yad3Service service,
 	Email client, Email agent, char* service_name, int id, int finalPrice);
-static MTMServiceResult CheckOffer(MTMService service, Email client,
+static Yad3ServiceResult CheckOffer(Yad3Service service, Email client,
 	Email agent, char* service_name, int id, int price);
 
 /**
-* Allocates a new MTMService.
+* Allocates a new Yad3Service.
 *
 * @return
 * 	NULL - if allocations failed.
 * 	A new service in case of success.
 */
-MTMService mtmServiceCreate() {
+Yad3Service yad3ServiceCreate() {
 	ClientsManager client_manager = clientsManagerCreate();
 	if (client_manager == NULL) return NULL;
 	AgentsManager agent_manager = agentsManagerCreate();
@@ -58,7 +58,7 @@ MTMService mtmServiceCreate() {
 		agentsManagerDestroy(agent_manager);
 		return NULL;
 	}
-	MTMService service = malloc(sizeof(*service));
+	Yad3Service service = malloc(sizeof(*service));
 	if (service == NULL) {
 			clientsManagerDestroy(client_manager);
 			agentsManagerDestroy(agent_manager);
@@ -72,13 +72,13 @@ MTMService mtmServiceCreate() {
 }
 
 /**
-* mtmServiceDestroy: Deallocates an existing service.
+* yad3ServiceDestroy: Deallocates an existing service.
 * Clears the elements by using the stored free function.
 *
 * @param service Target service to be deallocated.
 * If service is NULL nothing will be done
 */
-void mtmServiceDestroy(MTMService service) {
+void yad3ServiceDestroy(Yad3Service service) {
 	if (service != NULL) {
 		clientsManagerDestroy(service->clients);
 		agentsManagerDestroy(service->agents);
@@ -89,7 +89,7 @@ void mtmServiceDestroy(MTMService service) {
 
 /*
  *
- * mtmServiceAddAgent: Adds new agent with the given parameters.
+ * yad3ServiceAddAgent: Adds new agent with the given parameters.
 *
 * @param service service to add to.
 * @param email_adress client email address.
@@ -110,7 +110,7 @@ void mtmServiceDestroy(MTMService service) {
 * 	MTM_SERVICE_SUCCESS a new client agent successfully
 *
 */
-MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
+Yad3ServiceResult yad3ServiceAddAgent(Yad3Service service, char* email_adress,
 		char* company_name, int tax_percentage) {
 	if ((service == NULL) || (email_adress == NULL) || (company_name == NULL)
 		|| (tax_percentage < 1) || (tax_percentage > 100))
@@ -130,7 +130,7 @@ MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
 }
 
 /*
- * mtmServiceRemoveAgent: removes agent from service.
+ * yad3ServiceRemoveAgent: removes agent from service.
 *
 * @param service service to remove from.
 * @param email_adress agent email address.
@@ -151,11 +151,11 @@ MTMServiceResult mtmServiceAddAgent(MTMService service, char* email_adress,
 * 	MTM_SERVICE_SUCCESS the agent removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress){
+Yad3ServiceResult yad3ServiceRemoveAgent(Yad3Service service, char* email_adress){
 	if ((service == NULL) || (email_adress == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	MTMServiceResult result = CreateEmailAndSearchForAgent(service,
+	Yad3ServiceResult result = CreateEmailAndSearchForAgent(service,
 			email_adress, &mail);
 	if (result != MTM_SERVICE_SUCCESS)	return result;
 	AgentsManagerResult agents_result =
@@ -171,7 +171,7 @@ MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress){
 }
 
 /*
- * mtmServiceAddServiceToAgent: adds a new apartment service to an agent
+ * yad3ServiceAddServiceToAgent: adds a new apartment service to an agent
  * from service.
 *
 * @param service service of the agents.
@@ -198,12 +198,12 @@ MTMServiceResult mtmServiceRemoveAgent(MTMService service, char* email_adress){
 * 	MTM_SERVICE_SUCCESS the agent removed successfully
 *
 */
-MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
+Yad3ServiceResult yad3ServiceAddServiceToAgent(Yad3Service service,
 		char* email_adress, char* service_name, int max_apartments) {
 	if ((service == NULL) || (email_adress == NULL)|| (service_name == NULL) ||
 			(max_apartments <= 0)) return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	MTMServiceResult result = CreateEmailAndSearchForAgent(service,
+	Yad3ServiceResult result = CreateEmailAndSearchForAgent(service,
 		email_adress, &mail);
 	if (result != MTM_SERVICE_SUCCESS) return result;
 	AgentsManagerResult agents_result = agentsManagerAddApartmentService
@@ -213,7 +213,7 @@ MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
 }
 
 /*
- * mtmServiceRemoveClient: removes client from service.
+ * yad3ServiceRemoveClient: removes client from service.
 *
 * @param service service to remove from.
 * @param email_adress client email address.
@@ -234,12 +234,12 @@ MTMServiceResult mtmServiceAddServiceToAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
+Yad3ServiceResult yad3ServiceRemoveServiceFromAgent(Yad3Service service,
 		char* email_adress, char* service_name) {
 	if ((service == NULL) || (email_adress == NULL) || (service_name == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	MTMServiceResult result = CreateEmailAndSearchForAgent(service,
+	Yad3ServiceResult result = CreateEmailAndSearchForAgent(service,
 		email_adress, &mail);
 	if (result != MTM_SERVICE_SUCCESS) return result;
 	AgentsManagerResult agent_result = agentsManagerRemoveApartmentService
@@ -255,7 +255,7 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 }
 
 /*
- * mtmServiceAddApartmentToAgent: adds a new apartment to an agent's apartment
+ * yad3ServiceAddApartmentToAgent: adds a new apartment to an agent's apartment
  * service.
 *
 * @param service service of the agents.
@@ -292,7 +292,7 @@ MTMServiceResult mtmServiceRemoveServiceFromAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS the agent removed successfully
 *
 */
-MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
+Yad3ServiceResult yad3ServiceAddApartmentToAgent(Yad3Service service,
 		char* email_adress, char* service_name, int id, int price,
 		int width, int height, char* matrix) {
 	if ((service == NULL) || (email_adress == NULL)|| (service_name == NULL) ||
@@ -319,7 +319,7 @@ MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
 }
 
 /*
- * mtmServiceRemoveApartmentFromAgent: removes an apartment from service.
+ * yad3ServiceRemoveApartmentFromAgent: removes an apartment from service.
 *
 * @param service service to remove from.
 * @param email_adress agent email address.
@@ -348,15 +348,15 @@ MTMServiceResult mtmServiceAddApartmentToAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveApartmentFromAgent(MTMService service,
+Yad3ServiceResult yad3ServiceRemoveApartmentFromAgent(Yad3Service service,
 	char* email_adress, char* service_name, int id) {
 	if ((service == NULL) || (email_adress == NULL) || (service_name == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	MTMServiceResult search_result = CreateEmailAndSearchForAgent(service,
+	Yad3ServiceResult search_result = CreateEmailAndSearchForAgent(service,
 		email_adress, &mail);
 	if (search_result != MTM_SERVICE_SUCCESS) return search_result;
-	MTMServiceResult result = RemoveApartmentFromAgent(service,
+	Yad3ServiceResult result = RemoveApartmentFromAgent(service,
 		mail, service_name, id);
 	emailDestroy(mail);
 	return result;
@@ -384,7 +384,7 @@ MTMServiceResult mtmServiceRemoveApartmentFromAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-static MTMServiceResult RemoveApartmentFromAgent(MTMService service,
+static Yad3ServiceResult RemoveApartmentFromAgent(Yad3Service service,
 		Email mail, char* service_name, int id) {
 	AgentsManagerResult agent_result = agentsManagerRemoveApartmentFromService
 		(service->agents, mail, service_name, id);
@@ -397,7 +397,7 @@ static MTMServiceResult RemoveApartmentFromAgent(MTMService service,
 }
 
 /*
- * mtmServiceAddClient: Adds new client with the given parameters.
+ * yad3ServiceAddClient: Adds new client with the given parameters.
 *
 * @param service service to add to.
 * @param email_adress client email address.
@@ -419,7 +419,7 @@ static MTMServiceResult RemoveApartmentFromAgent(MTMService service,
 * 	MTM_SERVICE_SUCCESS a new client added successfully
 *
 */
-MTMServiceResult mtmServiceAddClient(MTMService service, char* email_adress,
+Yad3ServiceResult yad3ServiceAddClient(Yad3Service service, char* email_adress,
 		int min_area, int min_rooms, int max_price) {
 	if ((service == NULL) || (email_adress == NULL) || (min_area <= 0)
 		|| (min_rooms <= 0) || (max_price <= 0))
@@ -439,7 +439,7 @@ MTMServiceResult mtmServiceAddClient(MTMService service, char* email_adress,
 }
 
 /*
- * mtmServiceRemoveClient: removes client from service.
+ * yad3ServiceRemoveClient: removes client from service.
 *
 * @param service service to remove from.
 * @param email_adress client email address.
@@ -460,12 +460,12 @@ MTMServiceResult mtmServiceAddClient(MTMService service, char* email_adress,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceRemoveClient(MTMService service,
+Yad3ServiceResult yad3ServiceRemoveClient(Yad3Service service,
 		char* email_adress) {
 	if ((service == NULL) || (email_adress == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email mail = NULL;
-	MTMServiceResult result = CreateEmailAndSearchForClient(service,
+	Yad3ServiceResult result = CreateEmailAndSearchForClient(service,
 		email_adress, &mail);
 	if (result != MTM_SERVICE_SUCCESS) return result;
 	ClientsManagerResult client_result =
@@ -518,19 +518,19 @@ MTMServiceResult mtmServiceRemoveClient(MTMService service,
 *	MTM_SERVICE_SUCCESS offer can be made
 *
 */
-MTMServiceResult mtmServiceMakeClientOffer(MTMService service,
+Yad3ServiceResult yad3ServiceMakeClientOffer(Yad3Service service,
 		char* client_email, char* agent_email, char* service_name, int id,
 		int price) {
 	if ((service == NULL) || (client_email == NULL) || (agent_email == NULL)
 			|| (id < 0) || (price <=0)) return MTM_SERVICE_INVALID_PARAMETERS;
 	Email client = NULL, agent = NULL;
-	MTMServiceResult client_result = CreateEmailAndSearchForClient(service,
+	Yad3ServiceResult client_result = CreateEmailAndSearchForClient(service,
 		client_email, &client);
 	if (client_result != MTM_SERVICE_SUCCESS) return client_result;
-	MTMServiceResult agent_result = CreateEmailAndSearchForAgent(service,
+	Yad3ServiceResult agent_result = CreateEmailAndSearchForAgent(service,
 		client_email, &agent);
 	if (agent_result != MTM_SERVICE_SUCCESS) return agent_result;
-	MTMServiceResult offer_check_result =
+	Yad3ServiceResult offer_check_result =
 			CheckOffer(service, client, agent, service_name, id, price);
 	if(offer_check_result != MTM_SERVICE_SUCCESS) {
 		emailDestroy(client);
@@ -543,6 +543,12 @@ MTMServiceResult mtmServiceMakeClientOffer(MTMService service,
 	emailDestroy(agent);
 	return convertOffersManagerResult(add_result);
 }
+
+
+
+
+
+
 
 /*
  * CheckOffer: help function that checks if an offer can be purchased by a
@@ -568,7 +574,7 @@ MTMServiceResult mtmServiceMakeClientOffer(MTMService service,
 *	MTM_SERVICE_SUCCESS offer can be made
 *
 */
-static MTMServiceResult CheckOffer(MTMService service, Email client,
+static Yad3ServiceResult CheckOffer(Yad3Service service, Email client,
 	Email agent, char* service_name, int id, int price) {
 	if (OfferManagerOfferExist(service->offers, client, agent,
 			service_name, id)) return MTM_SERVICE_ALREADY_REQUESTED;
@@ -594,7 +600,7 @@ static MTMServiceResult CheckOffer(MTMService service, Email client,
 }
 
 /*
- * mtmServiceClientPurchaseApartment: preforms an apartment prochase proccess
+ * yad3ServiceClientPurchaseApartment: preforms an apartment prochase proccess
  * 	by a client.
 *
 * @param service service to remove from.
@@ -626,14 +632,14 @@ static MTMServiceResult CheckOffer(MTMService service, Email client,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
+Yad3ServiceResult yad3ServiceClientPurchaseApartment(Yad3Service service,
 	char* client_email, char* agent_email, char* service_name,
 	int id) {
 	if ((service == NULL) || (client_email == NULL) || (id < 0) ||
 		(agent_email == NULL) || (service_name == NULL))
 		return MTM_SERVICE_INVALID_PARAMETERS;
 	Email client = NULL, agent = NULL;
-	MTMServiceResult search_result = CreateEmailAndSearchForClient(service,
+	Yad3ServiceResult search_result = CreateEmailAndSearchForClient(service,
 			client_email, &client);
 	if (search_result != MTM_SERVICE_SUCCESS) return search_result;
 	search_result = CreateEmailAndSearchForAgent(service, agent_email,
@@ -642,7 +648,7 @@ MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
 		emailDestroy(client);
 		return search_result;
 	}
-	MTMServiceResult final = CheckClientPurchaseApartment
+	Yad3ServiceResult final = CheckClientPurchaseApartment
 			(service, client, agent, service_name, id);
 	emailDestroy(client);
 	emailDestroy(agent);
@@ -674,7 +680,7 @@ MTMServiceResult mtmServiceClientPurchaseApartment(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
+static Yad3ServiceResult CheckClientPurchaseApartment(Yad3Service service,
 	Email client, Email agent, char* service_name, int id) {
 	int apartment_area, apartment_rooms, apartment_price, apartment_commition;
 		AgentsManagerResult aprtment_result = agentsManagerGetApartmentDetails(
@@ -715,7 +721,7 @@ static MTMServiceResult CheckClientPurchaseApartment(MTMService service,
 * 	MTM_SERVICE_SUCCESS the client removed successfully
 *
 */
-static MTMServiceResult CommitClientPurchaseApartment(MTMService service,
+static Yad3ServiceResult CommitClientPurchaseApartment(Yad3Service service,
 	Email client, Email agent, char* service_name, int id, int finalPrice) {
 	ClientsManagerResult result = clientsManagerExecutePurchase
 			(service->clients, client, finalPrice);
@@ -732,9 +738,9 @@ static MTMServiceResult CommitClientPurchaseApartment(MTMService service,
 * @param email_adress string representing the email.
 * @param out_email Created email pointer to save to.
 *
-* @return the matching MTMServiceResult
+* @return the matching Yad3ServiceResult
 */
-static MTMServiceResult CreateEmailAndSearchForClient(MTMService service,
+static Yad3ServiceResult CreateEmailAndSearchForClient(Yad3Service service,
 		char* email_adress, Email *out_email) {
 	return (CreateEmailAndSearch(service, email_adress, out_email, true));
 }
@@ -747,9 +753,9 @@ static MTMServiceResult CreateEmailAndSearchForClient(MTMService service,
 * @param email_adress string representing the email.
 * @param out_email Created email pointer to save to.
 *
-* @return the matching MTMServiceResult
+* @return the matching Yad3ServiceResult
 */
-static MTMServiceResult CreateEmailAndSearchForAgent(MTMService service,
+static Yad3ServiceResult CreateEmailAndSearchForAgent(Yad3Service service,
 		char* email_adress, Email *out_email) {
 	return (CreateEmailAndSearch(service, email_adress, out_email, false));
 }
@@ -762,9 +768,9 @@ static MTMServiceResult CreateEmailAndSearchForAgent(MTMService service,
 * @param email_adress string representing the email.
 * @param out_email Created email pointer to save to.
 *
-* @return the matching MTMServiceResult
+* @return the matching Yad3ServiceResult
 */
-static MTMServiceResult CreateEmailAndSearch(MTMService service,
+static Yad3ServiceResult CreateEmailAndSearch(Yad3Service service,
 		char* email_adress, Email *out_email, bool search_for_client) {
 	Email mail = NULL;
 	EmailResult result = emailCreate(email_adress, &mail);
@@ -785,14 +791,14 @@ static MTMServiceResult CreateEmailAndSearch(MTMService service,
 
 /**
 * convertClientManagerResult: Converts a ClientsManagerResult to
-* MTMServiceResult.
+* Yad3ServiceResult.
 *
 * @param value the ClientsManagerResult.
 *
-* @return the matching MTMServiceResult
+* @return the matching Yad3ServiceResult
 */
-static MTMServiceResult convertClientManagerResult(ClientsManagerResult value){
-	MTMServiceResult result;
+static Yad3ServiceResult convertClientManagerResult(ClientsManagerResult value){
+	Yad3ServiceResult result;
 	switch (value){
 	case CLIENT_MANAGER_OUT_OF_MEMORY: {
 			result = MTM_SERVICE_OUT_OF_MEMORY;
@@ -822,14 +828,14 @@ static MTMServiceResult convertClientManagerResult(ClientsManagerResult value){
 
 /**
 * convertAgentManagerResult: Converts a AgentsManagerResult to
-* MTMServiceResult.
+* Yad3ServiceResult.
 *
 * @param value the AgentsManagerResult.
 *
-* @return the matching MTMServiceResult
+* @return the matching Yad3ServiceResult
 */
-static MTMServiceResult convertAgentManagerResult(AgentsManagerResult value) {
-	MTMServiceResult result;
+static Yad3ServiceResult convertAgentManagerResult(AgentsManagerResult value) {
+	Yad3ServiceResult result;
 		switch (value){
 			case AGENT_MANAGER_OUT_OF_MEMORY: {
 				result = MTM_SERVICE_OUT_OF_MEMORY;
@@ -874,14 +880,14 @@ static MTMServiceResult convertAgentManagerResult(AgentsManagerResult value) {
 
 /**
 * convertEmailResult: Converts an EmailResult to
-* MTMServiceResult.
+* Yad3ServiceResult.
 *
 * @param value the EmailResult.
 *
-* @return the matching MTMServiceResult
+* @return the matching Yad3ServiceResult
 */
-static MTMServiceResult convertEmailResult(EmailResult value) {
-	MTMServiceResult result;
+static Yad3ServiceResult convertEmailResult(EmailResult value) {
+	Yad3ServiceResult result;
 	switch (value){
 	case EMAIL_OUT_OF_MEMORY: {
 			result = MTM_SERVICE_OUT_OF_MEMORY;
@@ -903,14 +909,14 @@ static MTMServiceResult convertEmailResult(EmailResult value) {
 
 /**
 * convertEmailResult: Converts an OfferManagerResult to
-* MTMServiceResult.
+* Yad3ServiceResult.
 *
 * @param value the OfferManagerResult.
 *
-* @return the matching MTMServiceResult
+* @return the matching Yad3ServiceResult
 */
-static MTMServiceResult convertOffersManagerResult(OfferManagerResult value) {
-	MTMServiceResult result;
+static Yad3ServiceResult convertOffersManagerResult(OfferManagerResult value) {
+	Yad3ServiceResult result;
 	switch (value){
 	case OFFERS_MANAGER_OUT_OF_MEMORY: {
 			result = MTM_SERVICE_OUT_OF_MEMORY;
