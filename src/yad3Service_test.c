@@ -20,7 +20,6 @@ static bool testYad3ServiceRemoveApartmentFromAgent();
 static bool testYad3ServiceAddClient();
 static bool testYad3ServiceRemoveClient();
 static bool testYad3ServiceClientPurchaseApartment();
-static bool testYad3ServiceMakeOffer();
 
 int RunYad3ServiceTest() {
 
@@ -34,7 +33,6 @@ int RunYad3ServiceTest() {
 	RUN_TEST(testYad3ServiceAddClient);
 	RUN_TEST(testYad3ServiceRemoveClient);
 	RUN_TEST(testYad3ServiceClientPurchaseApartment);
-	RUN_TEST(testYad3ServiceMakeOffer);
 	return 0;
 }
 
@@ -350,8 +348,4 @@ static bool testYad3ServiceClientPurchaseApartment() {
 			"ba@ganosh","baba@ganosh","serveMe", 3) == YAD3_SERVICE_SUCCESS);
 	yad3ServiceDestroy(service);
 	return true;
-}
-
-static bool testYad3ServiceMakeOffer() {
-
 }

@@ -77,6 +77,8 @@ static bool splitString(char* string, int *size, char*** out_matrix);
 //static char** splitString(char* string, int *size);
 static char* getSubString(char* str, int start_index, int end_index);
 static void matrixDestroy(char** matrix, int size);
+static bool addToArray(char*** result, int *logical_size, int *actual_size,
+				char* string, int start_index, int index);
 
 /**
 * Allocates Yad3Program.
@@ -713,7 +715,7 @@ static bool splitString(char* string, int *size, char*** result_ptr) {
 /*
  * Adds a copy of the given string to the array
  */
-bool addToArray(char*** result, int *logical_size, int *actual_size,
+static bool addToArray(char*** result, int *logical_size, int *actual_size,
 				char* string, int start_index, int index) {
 	if (*logical_size == *actual_size) {
 		*actual_size += 4;
